@@ -60,20 +60,20 @@ For Cursor, Windsurf, Cline, Roo Code, Claude Desktop, and other clients, see [`
 Instead of exposing 100+ operations as individual MCP tools (a large manifest the model pays for every turn), the server exposes **3 meta-tools**. The full operation set lives in a generated registry the model searches on demand.
 
 ```
-┌───────────────────────────────────────────────────────────┐
-│  Generated layer  (from specs, committed, never hand-edited) │
-│    registry.generated.json                                  │
-│      every operation: { id, service, method, path,          │
-│                         summary, tags, inputSchema }         │
+┌───────────────────────────────────────────────────────────────┐
+│  Generated layer  (from specs, committed, never hand-edited)  │
+│    registry.generated.json                                    │
+│      every operation: { id, service, method, path,            │
+│                         summary, tags, inputSchema, … }       │
 └───────────────────────────────────────────────────────────────┘
                           ▲ consumed by
-┌───────────────────────────────────────────────────────────┐
-│  Meta layer  (hand-written TypeScript)                      │
-│    • 3 meta-tools: list_servers, search_tools, execute      │
-│    • BM25 search engine                                     │
-│    • JMESPath field projection + response byte cap          │
-│    • inbound auth + downstream token pass-through           │
-│    • env resolver (base URLs, transport, limits)            │
+┌───────────────────────────────────────────────────────────────┐
+│  Meta layer  (hand-written TypeScript)                        │
+│    • 3 meta-tools: list_servers, search_tools, execute        │
+│    • BM25 search engine                                       │
+│    • JMESPath field projection + response byte cap            │
+│    • inbound auth + downstream token pass-through             │
+│    • env resolver (base URLs, transport, limits)              │
 └───────────────────────────────────────────────────────────────┘
 ```
 
@@ -114,7 +114,7 @@ execute({ id: "policy.get_api_v1_policy_groups", args: { page: 1, page_size: 10 
 | Use case | local, any MCP client | deployed runtime / remote clients |
 | Default | yes (`TRANSPORT=stdio`) | opt-in (`TRANSPORT=http`) |
 | Lifecycle | one server for the process lifetime | fresh server + transport per request (stateless) |
-| Token source | env var (`GREENNODE_MCP_TOKEN`, or `TOKEN_ENV`) | `Authorization: Bearer` header, per request |
+| Token source | env var named by `TOKEN_ENV` (default `GREENNODE_MCP_TOKEN`) | `Authorization: Bearer` header, per request |
 | Endpoint | stdin/stdout (JSON-RPC) | `POST /mcp` |
 | Health | — | `GET /healthz`, `GET /health` |
 
