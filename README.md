@@ -149,6 +149,21 @@ curl -X POST http://localhost:8080/mcp \
   -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"curl","version":"0"}}}'
 ```
 
+## Configuration
+
+All config is via environment variables, read once at startup by `loadEnvConfig` (`src/config/env.ts`).
+
+| Var | Default | Notes |
+|---|---|---|
+| `TRANSPORT` | `stdio` | `stdio` or `http`. Any other value throws at boot — the process exits non-zero, nothing listens. |
+| `GREENNODE_MCP_TOKEN` | — | Upstream bearer token, **stdio only**. Forwarded to all six services on `execute`. |
+| `TOKEN_ENV` | `GREENNODE_MCP_TOKEN` | Name of the env var that holds the token, **stdio only**. Set this to read the token from a differently-named var. |
+| `PORT` | `8080` | HTTP transport listen port. |
+| `MAX_RESPONSE_BYTES` | `25000` | Hard cap on `execute` responses; over-cap responses are truncated with a notice. |
+| `SEARCH_LIMIT_DEFAULT` | `5` | Default `limit` for `search_tools` when the caller omits it. |
+
+> In **streamable HTTP** mode the token is not read from env at all — clients supply it per request via `Authorization: Bearer`. `GREENNODE_MCP_TOKEN` / `TOKEN_ENV` apply only to stdio.
+
 ## License
 
 See [`LICENSE`](LICENSE).
