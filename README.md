@@ -164,6 +164,38 @@ All config is via environment variables, read once at startup by `loadEnvConfig`
 
 > In **streamable HTTP** mode the token is not read from env at all — clients supply it per request via `Authorization: Bearer`. `GREENNODE_MCP_TOKEN` / `TOKEN_ENV` apply only to stdio.
 
+## Development & operations
+
+**Scripts** (`package.json`):
+
+| Script | What it does |
+|---|---|
+| `npm start` | Run the server (`tsx src/index.ts`) |
+| `npm run dev` | Run with reload (`tsx watch src/index.ts`) |
+| `npm run build` | Typecheck only (`tsc --noEmit`). There is no compiled `dist/` — the runnable form is `tsx`. |
+| `npm test` / `npm run test:watch` | Vitest |
+| `npm run fetch-specs` | Refresh `specs/` from the AgentBase spec endpoints |
+| `npm run generate-registry` | Rebuild `registry.generated.json` from `specs/` |
+
+**Regenerate the registry** when the upstream specs change:
+
+```bash
+npm run fetch-specs && npm run generate-registry
+```
+
+Then commit both `specs/` and `registry.generated.json`. Both are generated — never hand-edit them.
+
+**Docker:**
+
+```bash
+docker build -t greennode-agentbase-mcp .
+docker run -e TRANSPORT=http -p 8080:8080 greennode-agentbase-mcp
+```
+
+The bearer token is supplied per request via the `Authorization` header (same as HTTP mode) — not via env.
+
+> ⚠️ **`TRANSPORT` defaults to `stdio`.** A deployed HTTP runtime — and the shipped `Dockerfile` (which sets `PORT` but **not** `TRANSPORT`) — **must set `TRANSPORT=http`** explicitly. Without it the process starts in stdio mode and listens on no port. The `docker run` command above passes `-e TRANSPORT=http`; for a production image, bake `ENV TRANSPORT=http` into the Dockerfile.
+
 ## License
 
 See [`LICENSE`](LICENSE).
