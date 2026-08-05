@@ -1,0 +1,6680 @@
+{
+  "operations": [
+    {
+      "id": "policy.get_api_v1_policies_condition_operators",
+      "service": "policy",
+      "operationId": "get_api_v1_policies_condition_operators",
+      "method": "GET",
+      "path": "/api/v1/policies/condition-operators",
+      "summary": "List supported condition operators",
+      "tags": [
+        "policy"
+      ],
+      "parameters": [
+        {
+          "name": "Accept-Language",
+          "location": "header",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "Accept-Language": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "policy.get_api_v1_policy_groups",
+      "service": "policy",
+      "operationId": "get_api_v1_policy_groups",
+      "method": "GET",
+      "path": "/api/v1/policy-groups",
+      "summary": "List policy groups",
+      "tags": [
+        "policy-groups"
+      ],
+      "parameters": [
+        {
+          "name": "page",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "default": 1
+          }
+        },
+        {
+          "name": "page_size",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "default": 10
+          }
+        },
+        {
+          "name": "name",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "default": 1
+          },
+          "page_size": {
+            "type": "integer",
+            "default": 10
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "policy.post_api_v1_policy_groups",
+      "service": "policy",
+      "operationId": "post_api_v1_policy_groups",
+      "method": "POST",
+      "path": "/api/v1/policy-groups",
+      "summary": "Create a policy group",
+      "tags": [
+        "policy-groups"
+      ],
+      "parameters": [],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "description": "Request body for creating a policy group",
+            "type": "object",
+            "required": [
+              "name"
+            ],
+            "properties": {
+              "description": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "policy.get_api_v1_policy_groups__group_id_",
+      "service": "policy",
+      "operationId": "get_api_v1_policy_groups__group_id_",
+      "method": "GET",
+      "path": "/api/v1/policy-groups/{group_id}",
+      "summary": "Get a policy group",
+      "tags": [
+        "policy-groups"
+      ],
+      "parameters": [
+        {
+          "name": "group_id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "group_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "group_id"
+        ]
+      }
+    },
+    {
+      "id": "policy.put_api_v1_policy_groups__group_id_",
+      "service": "policy",
+      "operationId": "put_api_v1_policy_groups__group_id_",
+      "method": "PUT",
+      "path": "/api/v1/policy-groups/{group_id}",
+      "summary": "Update a policy group",
+      "tags": [
+        "policy-groups"
+      ],
+      "parameters": [
+        {
+          "name": "group_id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "group_id": {
+            "type": "string"
+          },
+          "body": {
+            "description": "Request body for updating a policy group",
+            "type": "object",
+            "properties": {
+              "description": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "group_id",
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "policy.delete_api_v1_policy_groups__group_id_",
+      "service": "policy",
+      "operationId": "delete_api_v1_policy_groups__group_id_",
+      "method": "DELETE",
+      "path": "/api/v1/policy-groups/{group_id}",
+      "summary": "Delete a policy group",
+      "tags": [
+        "policy-groups"
+      ],
+      "parameters": [
+        {
+          "name": "group_id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "group_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "group_id"
+        ]
+      }
+    },
+    {
+      "id": "policy.get_api_v1_policy_groups__group_id__policies",
+      "service": "policy",
+      "operationId": "get_api_v1_policy_groups__group_id__policies",
+      "method": "GET",
+      "path": "/api/v1/policy-groups/{group_id}/policies",
+      "summary": "List policies",
+      "tags": [
+        "policies"
+      ],
+      "parameters": [
+        {
+          "name": "group_id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "page",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "default": 1
+          }
+        },
+        {
+          "name": "page_size",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "default": 10
+          }
+        },
+        {
+          "name": "name",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "group_id": {
+            "type": "string"
+          },
+          "page": {
+            "type": "integer",
+            "default": 1
+          },
+          "page_size": {
+            "type": "integer",
+            "default": 10
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "group_id"
+        ]
+      }
+    },
+    {
+      "id": "policy.post_api_v1_policy_groups__group_id__policies",
+      "service": "policy",
+      "operationId": "post_api_v1_policy_groups__group_id__policies",
+      "method": "POST",
+      "path": "/api/v1/policy-groups/{group_id}/policies",
+      "summary": "Create a policy",
+      "tags": [
+        "policies"
+      ],
+      "parameters": [
+        {
+          "name": "group_id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "group_id": {
+            "type": "string"
+          },
+          "body": {
+            "description": "Request body for creating a policy",
+            "type": "object",
+            "required": [
+              "name",
+              "statement"
+            ],
+            "properties": {
+              "active": {
+                "type": "boolean"
+              },
+              "description": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "statement": {
+                "type": "object",
+                "properties": {
+                  "actions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "condition": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "object",
+                      "additionalProperties": {}
+                    }
+                  },
+                  "effect": {
+                    "type": "string"
+                  },
+                  "principal": {
+                    "type": "string"
+                  },
+                  "resources": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "group_id",
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "policy.get_api_v1_policy_groups__group_id__policies__policy_id_",
+      "service": "policy",
+      "operationId": "get_api_v1_policy_groups__group_id__policies__policy_id_",
+      "method": "GET",
+      "path": "/api/v1/policy-groups/{group_id}/policies/{policy_id}",
+      "summary": "Get a policy",
+      "tags": [
+        "policies"
+      ],
+      "parameters": [
+        {
+          "name": "group_id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "policy_id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "group_id": {
+            "type": "string"
+          },
+          "policy_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "group_id",
+          "policy_id"
+        ]
+      }
+    },
+    {
+      "id": "policy.put_api_v1_policy_groups__group_id__policies__policy_id_",
+      "service": "policy",
+      "operationId": "put_api_v1_policy_groups__group_id__policies__policy_id_",
+      "method": "PUT",
+      "path": "/api/v1/policy-groups/{group_id}/policies/{policy_id}",
+      "summary": "Update a policy",
+      "tags": [
+        "policies"
+      ],
+      "parameters": [
+        {
+          "name": "group_id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "policy_id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "group_id": {
+            "type": "string"
+          },
+          "policy_id": {
+            "type": "string"
+          },
+          "body": {
+            "description": "Request body for updating a policy",
+            "type": "object",
+            "properties": {
+              "active": {
+                "type": "boolean"
+              },
+              "description": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "statement": {
+                "type": "object",
+                "properties": {
+                  "actions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "condition": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "object",
+                      "additionalProperties": {}
+                    }
+                  },
+                  "effect": {
+                    "type": "string"
+                  },
+                  "principal": {
+                    "type": "string"
+                  },
+                  "resources": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "group_id",
+          "policy_id",
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "policy.delete_api_v1_policy_groups__group_id__policies__policy_id_",
+      "service": "policy",
+      "operationId": "delete_api_v1_policy_groups__group_id__policies__policy_id_",
+      "method": "DELETE",
+      "path": "/api/v1/policy-groups/{group_id}/policies/{policy_id}",
+      "summary": "Delete a policy",
+      "tags": [
+        "policies"
+      ],
+      "parameters": [
+        {
+          "name": "group_id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "policy_id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "group_id": {
+            "type": "string"
+          },
+          "policy_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "group_id",
+          "policy_id"
+        ]
+      }
+    },
+    {
+      "id": "policy.post_internal_api_v1_gateways__gatewayName__targets__targetName__decisions",
+      "service": "policy",
+      "operationId": "post_internal_api_v1_gateways__gatewayName__targets__targetName__decisions",
+      "method": "POST",
+      "path": "/internal/api/v1/gateways/{gatewayName}/targets/{targetName}/decisions",
+      "summary": "Decide on an authorization request",
+      "tags": [
+        "internal"
+      ],
+      "parameters": [
+        {
+          "name": "gatewayName",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "targetName",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "gatewayName": {
+            "type": "string"
+          },
+          "targetName": {
+            "type": "string"
+          },
+          "body": {
+            "description": "Authorization decision request",
+            "type": "object",
+            "required": [
+              "action",
+              "policyGroupId",
+              "user"
+            ],
+            "properties": {
+              "action": {
+                "type": "object",
+                "required": [
+                  "jsonrpc",
+                  "method"
+                ],
+                "properties": {
+                  "id": {},
+                  "jsonrpc": {
+                    "type": "string"
+                  },
+                  "method": {
+                    "type": "string"
+                  },
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "arguments": {
+                        "type": "object",
+                        "additionalProperties": {}
+                      },
+                      "name": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              },
+              "context": {
+                "type": "object",
+                "additionalProperties": {}
+              },
+              "policyGroupId": {
+                "type": "string"
+              },
+              "principal": {
+                "type": "object",
+                "additionalProperties": {}
+              },
+              "user": {
+                "description": "End user being evaluated",
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "description": "\"iam\" | \"jwt\"",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "gatewayName",
+          "targetName",
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "cr.post_admin_api_users__userId__registry_credentials_system_rotate",
+      "service": "cr",
+      "operationId": "post_admin_api_users__userId__registry_credentials_system_rotate",
+      "method": "POST",
+      "path": "/admin/api/users/{userId}/registry-credentials/system/rotate",
+      "summary": "Rotate system registry credential secret",
+      "tags": [
+        "Registry Credential (Admin)"
+      ],
+      "parameters": [
+        {
+          "name": "userId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "userId"
+        ]
+      }
+    },
+    {
+      "id": "cr.post_admin_api_users__userId__registry_credentials_system_rotate_cleanup",
+      "service": "cr",
+      "operationId": "post_admin_api_users__userId__registry_credentials_system_rotate_cleanup",
+      "method": "POST",
+      "path": "/admin/api/users/{userId}/registry-credentials/system/rotate/cleanup",
+      "summary": "Cleanup system registry credential rotation",
+      "tags": [
+        "Registry Credential (Admin)"
+      ],
+      "parameters": [
+        {
+          "name": "userId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "userId"
+        ]
+      }
+    },
+    {
+      "id": "cr.delete_admin_api_users__userId__repository_images",
+      "service": "cr",
+      "operationId": "delete_admin_api_users__userId__repository_images",
+      "method": "DELETE",
+      "path": "/admin/api/users/{userId}/repository/images",
+      "summary": "Delete all images in a user's repository",
+      "tags": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "userId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "userId"
+        ]
+      }
+    },
+    {
+      "id": "cr.put_admin_api_users__userId__repository_quota",
+      "service": "cr",
+      "operationId": "put_admin_api_users__userId__repository_quota",
+      "method": "PUT",
+      "path": "/admin/api/users/{userId}/repository/quota",
+      "summary": "Update repository quota for a user",
+      "tags": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "userId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer"
+          },
+          "body": {
+            "type": "object",
+            "required": [
+              "size"
+            ],
+            "properties": {
+              "size": {
+                "type": "integer",
+                "example": 10
+              }
+            }
+          }
+        },
+        "required": [
+          "userId",
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "cr.delete_admin_api_users__userId__resources",
+      "service": "cr",
+      "operationId": "delete_admin_api_users__userId__resources",
+      "method": "DELETE",
+      "path": "/admin/api/users/{userId}/resources",
+      "summary": "Deprovision all resources for a user",
+      "tags": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "userId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "userId"
+        ]
+      }
+    },
+    {
+      "id": "cr.get_api_v1_registry_credential",
+      "service": "cr",
+      "operationId": "get_api_v1_registry_credential",
+      "method": "GET",
+      "path": "/api/v1/registry-credential",
+      "summary": "Get registry credentials",
+      "tags": [
+        "Registry Credential"
+      ],
+      "parameters": [],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "id": "cr.patch_api_v1_registry_credential_secret",
+      "service": "cr",
+      "operationId": "patch_api_v1_registry_credential_secret",
+      "method": "PATCH",
+      "path": "/api/v1/registry-credential/secret",
+      "summary": "Reset registry credential secret",
+      "tags": [
+        "Registry Credential"
+      ],
+      "parameters": [],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "id": "cr.get_api_v1_repository",
+      "service": "cr",
+      "operationId": "get_api_v1_repository",
+      "method": "GET",
+      "path": "/api/v1/repository",
+      "summary": "Get repository info",
+      "tags": [
+        "Repository"
+      ],
+      "parameters": [],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "id": "cr.get_api_v1_repository_artifacts",
+      "service": "cr",
+      "operationId": "get_api_v1_repository_artifacts",
+      "method": "GET",
+      "path": "/api/v1/repository/artifacts",
+      "summary": "List artifacts",
+      "tags": [
+        "Artifact"
+      ],
+      "parameters": [
+        {
+          "name": "imageName",
+          "location": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "digest",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "page",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "default": 1
+          }
+        },
+        {
+          "name": "size",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "default": 10
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "imageName": {
+            "type": "string"
+          },
+          "digest": {
+            "type": "string"
+          },
+          "page": {
+            "type": "integer",
+            "default": 1
+          },
+          "size": {
+            "type": "integer",
+            "default": 10
+          }
+        },
+        "required": [
+          "imageName"
+        ]
+      }
+    },
+    {
+      "id": "cr.delete_api_v1_repository_artifacts",
+      "service": "cr",
+      "operationId": "delete_api_v1_repository_artifacts",
+      "method": "DELETE",
+      "path": "/api/v1/repository/artifacts",
+      "summary": "Delete an artifact",
+      "tags": [
+        "Artifact"
+      ],
+      "parameters": [
+        {
+          "name": "imageName",
+          "location": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "digest",
+          "location": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "imageName": {
+            "type": "string"
+          },
+          "digest": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "imageName",
+          "digest"
+        ]
+      }
+    },
+    {
+      "id": "cr.get_api_v1_repository_images",
+      "service": "cr",
+      "operationId": "get_api_v1_repository_images",
+      "method": "GET",
+      "path": "/api/v1/repository/images",
+      "summary": "List images",
+      "tags": [
+        "Image"
+      ],
+      "parameters": [
+        {
+          "name": "imageName",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "page",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "default": 1
+          }
+        },
+        {
+          "name": "size",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "default": 10
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "imageName": {
+            "type": "string"
+          },
+          "page": {
+            "type": "integer",
+            "default": 1
+          },
+          "size": {
+            "type": "integer",
+            "default": 10
+          }
+        }
+      }
+    },
+    {
+      "id": "cr.delete_api_v1_repository_images",
+      "service": "cr",
+      "operationId": "delete_api_v1_repository_images",
+      "method": "DELETE",
+      "path": "/api/v1/repository/images",
+      "summary": "Delete an image",
+      "tags": [
+        "Image"
+      ],
+      "parameters": [
+        {
+          "name": "imageName",
+          "location": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "imageName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "imageName"
+        ]
+      }
+    },
+    {
+      "id": "cr.get_internal_api_v1_registry_credentials_system",
+      "service": "cr",
+      "operationId": "get_internal_api_v1_registry_credentials_system",
+      "method": "GET",
+      "path": "/internal/api/v1/registry-credentials/system",
+      "summary": "Get system registry credentials",
+      "tags": [
+        "Registry Credential (Internal)"
+      ],
+      "parameters": [],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "id": "gateway.get_api_v1_flavors",
+      "service": "gateway",
+      "operationId": "get_api_v1_flavors",
+      "method": "GET",
+      "path": "/api/v1/flavors",
+      "summary": "List flavors",
+      "tags": [
+        "flavors"
+      ],
+      "parameters": [
+        {
+          "name": "resourceType",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "networkMode",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "zoneId",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "resourceType": {
+            "type": "string"
+          },
+          "networkMode": {
+            "type": "string"
+          },
+          "zoneId": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "gateway.get_api_v1_gateways",
+      "service": "gateway",
+      "operationId": "get_api_v1_gateways",
+      "method": "GET",
+      "path": "/api/v1/gateways",
+      "summary": "List caller's gateways",
+      "tags": [
+        "gateways"
+      ],
+      "parameters": [
+        {
+          "name": "state",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "WAITING_CREATING",
+              "CREATING",
+              "ACTIVE",
+              "WAITING_UPDATING",
+              "UPDATING",
+              "WAITING_DELETING",
+              "DELETING",
+              "DELETED",
+              "WAITING_ERROR_DELETING",
+              "ERROR_DELETING",
+              "WAITING_CREATE_ERROR_CLEANING",
+              "CREATE_ERROR_CLEANING",
+              "CREATE_ERROR",
+              "UPDATE_ERROR",
+              "ERROR"
+            ]
+          }
+        },
+        {
+          "name": "policyGroupId",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "page",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer"
+          }
+        },
+        {
+          "name": "pageSize",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "WAITING_CREATING",
+              "CREATING",
+              "ACTIVE",
+              "WAITING_UPDATING",
+              "UPDATING",
+              "WAITING_DELETING",
+              "DELETING",
+              "DELETED",
+              "WAITING_ERROR_DELETING",
+              "ERROR_DELETING",
+              "WAITING_CREATE_ERROR_CLEANING",
+              "CREATE_ERROR_CLEANING",
+              "CREATE_ERROR",
+              "UPDATE_ERROR",
+              "ERROR"
+            ]
+          },
+          "policyGroupId": {
+            "type": "string"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "pageSize": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    {
+      "id": "gateway.post_api_v1_gateways",
+      "service": "gateway",
+      "operationId": "post_api_v1_gateways",
+      "method": "POST",
+      "path": "/api/v1/gateways",
+      "summary": "Create a gateway",
+      "tags": [
+        "gateways"
+      ],
+      "parameters": [],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "object",
+            "required": [
+              "flavorId",
+              "inboundAuth",
+              "name",
+              "networkMode",
+              "replicas"
+            ],
+            "properties": {
+              "allowedCidrs": {
+                "description": "AllowedCIDRs is the inbound client-IP allowlist (IPv4 CIDRs). Pointer so\nthe service can tell \"omitted\" (nil -> allow-all default) from an\nexplicit empty array (block all). Each entry must be a valid IPv4 CIDR;\nthe list is capped at 50. `dive` validates each element of the slice\n(the *[]string + dive form is also used for AllowedCIDRs in UpdateGatewaySpecRequest).",
+                "type": "array",
+                "maxItems": 50,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "description": {
+                "type": "string",
+                "maxLength": 500
+              },
+              "displayName": {
+                "type": "string",
+                "maxLength": 100
+              },
+              "flavorId": {
+                "type": "string",
+                "maxLength": 50,
+                "minLength": 1
+              },
+              "hostAliases": {
+                "description": "HostAliases is the user-supplied /etc/hosts override list applied to the\ngateway pods. Omitted = empty array (no overrides). Each ip must be IPv4\nand each hostname a valid RFC-1123 name; capped at 50 entries / 10\nhostnames each. ip and hostname uniqueness are enforced in the service.",
+                "type": "array",
+                "maxItems": 50,
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "hostnames",
+                    "ip"
+                  ],
+                  "properties": {
+                    "hostnames": {
+                      "type": "array",
+                      "maxItems": 10,
+                      "minItems": 1,
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "ip": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "inboundAuth": {
+                "type": "object",
+                "required": [
+                  "mode"
+                ],
+                "properties": {
+                  "clientRedirectUris": {
+                    "description": "ClientRedirectURIs is the MCP-client leg redirect_uri allowlist, enforced\nat DCR /register and /authorize. Non-loopback entries must be http(s)\nURLs; loopback (127.0.0.1/::1/localhost) is auto-allowed at request time\nregardless of this list. Whole-object replace on create/PATCH.",
+                    "type": "array",
+                    "maxItems": 32,
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "jwt": {
+                    "description": "JWT is required when mode=JWT (enforced by required_if) and may be\nomitted when mode is NONE or IAM. A stale block sent with another\nmode is dropped silently — callers toggling modes do not need to\nclean up their payload.",
+                    "allOf": [
+                      {
+                        "type": "object",
+                        "required": [
+                          "source"
+                        ],
+                        "properties": {
+                          "allowedAudiences": {
+                            "type": "array",
+                            "maxItems": 32,
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "allowedClients": {
+                            "type": "array",
+                            "maxItems": 32,
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "allowedScopes": {
+                            "type": "array",
+                            "maxItems": 32,
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "customClaims": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "key": {
+                                  "type": "string"
+                                },
+                                "operator": {
+                                  "type": "string"
+                                },
+                                "values": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "discoveryUrl": {
+                            "type": "string"
+                          },
+                          "idpApp": {
+                            "description": "IdpApp carries the OAuth client at the upstream IdP. ClientSecret is\nwrite-only: it is encrypted server-side and never returned over the wire.\nOmit IdpApp to leave any stored IdpApp untouched (preserve-if-absent is\nenforced by mergeOrchestratorFields, not here).",
+                            "allOf": [
+                              {
+                                "type": "object",
+                                "required": [
+                                  "clientId"
+                                ],
+                                "properties": {
+                                  "clientId": {
+                                    "type": "string",
+                                    "maxLength": 256,
+                                    "minLength": 1
+                                  },
+                                  "clientSecret": {
+                                    "type": "string",
+                                    "maxLength": 4096,
+                                    "minLength": 1,
+                                    "x-nullable": "true"
+                                  },
+                                  "scopes": {
+                                    "type": "array",
+                                    "maxItems": 32,
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "jwks": {
+                            "type": "object"
+                          },
+                          "principalClaim": {
+                            "type": "string"
+                          },
+                          "source": {
+                            "type": "string",
+                            "enum": [
+                              "DISCOVERY",
+                              "JWKS"
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "mode": {
+                    "description": "swaggertype:\"string\" suppresses swag's $ref to domain.InboundAuthMode so\nthe inline enum from `oneof` is the only enum on the property — without\nit Swagger UI shows the values twice (once from the $ref, once inline).",
+                    "type": "string",
+                    "enum": [
+                      "NONE",
+                      "IAM",
+                      "JWT"
+                    ]
+                  }
+                }
+              },
+              "name": {
+                "type": "string",
+                "maxLength": 40,
+                "minLength": 3
+              },
+              "networkMode": {
+                "type": "string",
+                "enum": [
+                  "PUBLIC",
+                  "PRIVATE"
+                ]
+              },
+              "policyGroupId": {
+                "type": "string",
+                "maxLength": 50,
+                "minLength": 1
+              },
+              "privateNetwork": {
+                "description": "PrivateNetwork is required when networkMode=PRIVATE and must be omitted\n(or null) when networkMode=PUBLIC. Enforced by required_if /\nexcluded_unless binding tags.",
+                "allOf": [
+                  {
+                    "type": "object",
+                    "required": [
+                      "subnetId",
+                      "vpcId"
+                    ],
+                    "properties": {
+                      "publicEndpointEnabled": {
+                        "description": "PublicEndpointEnabled opts a PRIVATE gateway into an internet-reachable\nendpoint. Meaningless for PUBLIC (which rejects the whole privateNetwork\nblock), so it is structurally PRIVATE-only.",
+                        "type": "boolean"
+                      },
+                      "routes": {
+                        "description": "Routes is an optional list of IPv4 CIDRs (e.g. \"172.16.0.0/12\") that the\nkube-worker will program as node routes inside the PRIVATE gateway's pod\nnetwork. Each entry must be a valid IPv4 CIDR (IPv6 is rejected at the\nbinding layer). The hard cap of 50 entries is enforced here; semantic\nchecks (overlap, vs admin/user VPC CIDR) run in the service / saga layer.",
+                        "type": "array",
+                        "maxItems": 50,
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "subnetId": {
+                        "description": "SubnetID is a subnet within the referenced VPC.",
+                        "type": "string",
+                        "maxLength": 50,
+                        "minLength": 1
+                      },
+                      "vpcId": {
+                        "description": "VPCID is a VServer VPC identifier owned by the caller.",
+                        "type": "string",
+                        "maxLength": 50,
+                        "minLength": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "replicas": {
+                "type": "integer",
+                "maximum": 10,
+                "minimum": 1
+              },
+              "targets": {
+                "description": "Targets count cap is enforced in the service layer against the\noperator-configurable gateway.maxTargets — DTO stays shape-level only\nper the type doc above. `dive` still validates each element.",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "endpoint",
+                    "name",
+                    "outboundAuth",
+                    "type"
+                  ],
+                  "properties": {
+                    "endpoint": {
+                      "description": "Endpoint must be an absolute http:// or https:// URL (hostname or\nIP:port host both accepted). The scheme is mandatory — a bare\nhost[:port] is rejected so callers state the protocol explicitly.\nURL shape and length cap are enforced by domain.Target.Validate()\nin the service layer.",
+                      "type": "string",
+                      "maxLength": 1000
+                    },
+                    "name": {
+                      "type": "string",
+                      "maxLength": 50,
+                      "minLength": 3
+                    },
+                    "outboundAuth": {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "properties": {
+                        "customParameters": {
+                          "description": "CustomParameters is forwarded verbatim to the identity service when\nresolving an OAUTH + 3LO secret. Keys/values are opaque to the gateway —\nthe upstream provider decides what they mean. Ignored for any other\n(Type, Flow) combination and stripped by Normalize.",
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          }
+                        },
+                        "flow": {
+                          "type": "string",
+                          "enum": [
+                            "2LO",
+                            "3LO"
+                          ]
+                        },
+                        "headerName": {
+                          "type": "string"
+                        },
+                        "headerValuePrefix": {
+                          "type": "string"
+                        },
+                        "providerName": {
+                          "type": "string"
+                        },
+                        "returnUrl": {
+                          "type": "string"
+                        },
+                        "scopes": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "NONE",
+                            "APIKEY",
+                            "OAUTH"
+                          ]
+                        }
+                      }
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "MCP"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "gateway.get_api_v1_gateways__name_",
+      "service": "gateway",
+      "operationId": "get_api_v1_gateways__name_",
+      "method": "GET",
+      "path": "/api/v1/gateways/{name}",
+      "summary": "Get a gateway by name",
+      "tags": [
+        "gateways"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    {
+      "id": "gateway.delete_api_v1_gateways__name_",
+      "service": "gateway",
+      "operationId": "delete_api_v1_gateways__name_",
+      "method": "DELETE",
+      "path": "/api/v1/gateways/{name}",
+      "summary": "Delete a gateway",
+      "tags": [
+        "gateways"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    {
+      "id": "gateway.patch_api_v1_gateways__name_",
+      "service": "gateway",
+      "operationId": "patch_api_v1_gateways__name_",
+      "method": "PATCH",
+      "path": "/api/v1/gateways/{name}",
+      "summary": "Update a gateway's user-mutable spec",
+      "tags": [
+        "gateways"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "If-Match",
+          "location": "header",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "If-Match": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "allowedCidrs": {
+                "description": "AllowedCIDRs uses JSON Merge Patch semantics: absent (nil) = no-op,\na present array replaces the stored allowlist. An explicit empty array\nmeans block all client IPs. Each entry must be a valid IPv4 CIDR (max 50).",
+                "type": "array",
+                "maxItems": 50,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "description": {
+                "type": "string",
+                "x-nullable": "true"
+              },
+              "displayName": {
+                "description": "DisplayName and Description: nil (absent / null) preserves the stored\nvalue; a non-nil pointer replaces — pass \"\" to clear, any non-empty\nvalue to set. Format checks (length + charset) on non-empty values run\ninline in the handler. Swagger renders them as strings with x-nullable.",
+                "type": "string",
+                "x-nullable": "true"
+              },
+              "hostAliases": {
+                "description": "HostAliases uses whole-list replace semantics: absent (nil) = no-op, a\npresent array replaces the stored list (explicit [] = clear all\noverrides). Validation matches CreateGatewayRequest.",
+                "type": "array",
+                "maxItems": 50,
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "hostnames",
+                    "ip"
+                  ],
+                  "properties": {
+                    "hostnames": {
+                      "type": "array",
+                      "maxItems": 10,
+                      "minItems": 1,
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "ip": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "inboundAuth": {
+                "type": "object",
+                "required": [
+                  "mode"
+                ],
+                "properties": {
+                  "clientRedirectUris": {
+                    "description": "ClientRedirectURIs is the MCP-client leg redirect_uri allowlist, enforced\nat DCR /register and /authorize. Non-loopback entries must be http(s)\nURLs; loopback (127.0.0.1/::1/localhost) is auto-allowed at request time\nregardless of this list. Whole-object replace on create/PATCH.",
+                    "type": "array",
+                    "maxItems": 32,
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "jwt": {
+                    "description": "JWT is required when mode=JWT (enforced by required_if) and may be\nomitted when mode is NONE or IAM. A stale block sent with another\nmode is dropped silently — callers toggling modes do not need to\nclean up their payload.",
+                    "allOf": [
+                      {
+                        "type": "object",
+                        "required": [
+                          "source"
+                        ],
+                        "properties": {
+                          "allowedAudiences": {
+                            "type": "array",
+                            "maxItems": 32,
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "allowedClients": {
+                            "type": "array",
+                            "maxItems": 32,
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "allowedScopes": {
+                            "type": "array",
+                            "maxItems": 32,
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "customClaims": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "key": {
+                                  "type": "string"
+                                },
+                                "operator": {
+                                  "type": "string"
+                                },
+                                "values": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "discoveryUrl": {
+                            "type": "string"
+                          },
+                          "idpApp": {
+                            "description": "IdpApp carries the OAuth client at the upstream IdP. ClientSecret is\nwrite-only: it is encrypted server-side and never returned over the wire.\nOmit IdpApp to leave any stored IdpApp untouched (preserve-if-absent is\nenforced by mergeOrchestratorFields, not here).",
+                            "allOf": [
+                              {
+                                "type": "object",
+                                "required": [
+                                  "clientId"
+                                ],
+                                "properties": {
+                                  "clientId": {
+                                    "type": "string",
+                                    "maxLength": 256,
+                                    "minLength": 1
+                                  },
+                                  "clientSecret": {
+                                    "type": "string",
+                                    "maxLength": 4096,
+                                    "minLength": 1,
+                                    "x-nullable": "true"
+                                  },
+                                  "scopes": {
+                                    "type": "array",
+                                    "maxItems": 32,
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "jwks": {
+                            "type": "object"
+                          },
+                          "principalClaim": {
+                            "type": "string"
+                          },
+                          "source": {
+                            "type": "string",
+                            "enum": [
+                              "DISCOVERY",
+                              "JWKS"
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "mode": {
+                    "description": "swaggertype:\"string\" suppresses swag's $ref to domain.InboundAuthMode so\nthe inline enum from `oneof` is the only enum on the property — without\nit Swagger UI shows the values twice (once from the $ref, once inline).",
+                    "type": "string",
+                    "enum": [
+                      "NONE",
+                      "IAM",
+                      "JWT"
+                    ]
+                  }
+                }
+              },
+              "policyGroupId": {
+                "description": "PolicyGroupID uses JSON Merge Patch semantics: absent = no-op,\nJSON null = clear, non-empty string = set. The binding tag is bypassed\nbecause Nullable[string] is not a string; format (refid + length)\nand the rejection of empty strings are enforced in the handler before\nthe service is called. Swagger renders it as a string for the\nhappy-path documentation.",
+                "type": "string",
+                "x-nullable": "true"
+              },
+              "privateNetwork": {
+                "description": "PrivateNetwork is the PRIVATE-only mutable block (block-replace; both\nsub-fields required when present). Omit to leave routes + toggle alone.",
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "publicEndpointEnabled": {
+                        "type": "boolean"
+                      },
+                      "routes": {
+                        "type": "array",
+                        "maxItems": 50,
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                ]
+              },
+              "targets": {
+                "description": "Targets count cap is enforced in the service layer against the\noperator-configurable gateway.maxTargets (see CreateGatewayRequest).",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "endpoint",
+                    "name",
+                    "outboundAuth",
+                    "type"
+                  ],
+                  "properties": {
+                    "endpoint": {
+                      "description": "Endpoint must be an absolute http:// or https:// URL (hostname or\nIP:port host both accepted). The scheme is mandatory — a bare\nhost[:port] is rejected so callers state the protocol explicitly.\nURL shape and length cap are enforced by domain.Target.Validate()\nin the service layer.",
+                      "type": "string",
+                      "maxLength": 1000
+                    },
+                    "name": {
+                      "type": "string",
+                      "maxLength": 50,
+                      "minLength": 3
+                    },
+                    "outboundAuth": {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "properties": {
+                        "customParameters": {
+                          "description": "CustomParameters is forwarded verbatim to the identity service when\nresolving an OAUTH + 3LO secret. Keys/values are opaque to the gateway —\nthe upstream provider decides what they mean. Ignored for any other\n(Type, Flow) combination and stripped by Normalize.",
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          }
+                        },
+                        "flow": {
+                          "type": "string",
+                          "enum": [
+                            "2LO",
+                            "3LO"
+                          ]
+                        },
+                        "headerName": {
+                          "type": "string"
+                        },
+                        "headerValuePrefix": {
+                          "type": "string"
+                        },
+                        "providerName": {
+                          "type": "string"
+                        },
+                        "returnUrl": {
+                          "type": "string"
+                        },
+                        "scopes": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "NONE",
+                            "APIKEY",
+                            "OAUTH"
+                          ]
+                        }
+                      }
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "MCP"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "name",
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "gateway.get_api_v1_gateways__name__access_logs",
+      "service": "gateway",
+      "operationId": "get_api_v1_gateways__name__access_logs",
+      "method": "GET",
+      "path": "/api/v1/gateways/{name}/access-logs",
+      "summary": "List access logs for a gateway",
+      "tags": [
+        "access-logs"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "from",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "to",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "mcpMethod",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "toolName",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "targetName",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "httpStatus",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "clientIp",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "page",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer"
+          }
+        },
+        {
+          "name": "pageSize",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "mcpMethod": {
+            "type": "string"
+          },
+          "toolName": {
+            "type": "string"
+          },
+          "targetName": {
+            "type": "string"
+          },
+          "httpStatus": {
+            "type": "string"
+          },
+          "clientIp": {
+            "type": "string"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "pageSize": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    {
+      "id": "gateway.get_api_v1_gateways__name__access_logs_stats",
+      "service": "gateway",
+      "operationId": "get_api_v1_gateways__name__access_logs_stats",
+      "method": "GET",
+      "path": "/api/v1/gateways/{name}/access-logs/stats",
+      "summary": "Access-log statistics for a gateway",
+      "tags": [
+        "access-logs"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "from",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "to",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "mcpMethod",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "toolName",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "targetName",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "httpStatus",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "clientIp",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "interval",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "topN",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "mcpMethod": {
+            "type": "string"
+          },
+          "toolName": {
+            "type": "string"
+          },
+          "targetName": {
+            "type": "string"
+          },
+          "httpStatus": {
+            "type": "string"
+          },
+          "clientIp": {
+            "type": "string"
+          },
+          "interval": {
+            "type": "string"
+          },
+          "topN": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    {
+      "id": "gateway.put_api_v1_gateways__name__inbound_auth_jwt_idp_app",
+      "service": "gateway",
+      "operationId": "put_api_v1_gateways__name__inbound_auth_jwt_idp_app",
+      "method": "PUT",
+      "path": "/api/v1/gateways/{name}/inbound-auth/jwt/idp-app",
+      "summary": "Set the idpApp block on a JWT-mode gateway (PUT)",
+      "tags": [
+        "gateways"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "required": [
+              "clientId"
+            ],
+            "properties": {
+              "clientId": {
+                "type": "string",
+                "maxLength": 256,
+                "minLength": 1
+              },
+              "clientSecret": {
+                "type": "string",
+                "maxLength": 4096,
+                "minLength": 1,
+                "x-nullable": "true"
+              },
+              "scopes": {
+                "type": "array",
+                "maxItems": 32,
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "name",
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "gateway.delete_api_v1_gateways__name__inbound_auth_jwt_idp_app",
+      "service": "gateway",
+      "operationId": "delete_api_v1_gateways__name__inbound_auth_jwt_idp_app",
+      "method": "DELETE",
+      "path": "/api/v1/gateways/{name}/inbound-auth/jwt/idp-app",
+      "summary": "Clear the idpApp block on a JWT-mode gateway",
+      "tags": [
+        "gateways"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    {
+      "id": "gateway.get_api_v1_gateways__name__private_network_routes",
+      "service": "gateway",
+      "operationId": "get_api_v1_gateways__name__private_network_routes",
+      "method": "GET",
+      "path": "/api/v1/gateways/{name}/private-network/routes",
+      "summary": "Read the gateway's private-network routes",
+      "tags": [
+        "gateways"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    {
+      "id": "gateway.put_api_v1_gateways__name__private_network_routes",
+      "service": "gateway",
+      "operationId": "put_api_v1_gateways__name__private_network_routes",
+      "method": "PUT",
+      "path": "/api/v1/gateways/{name}/private-network/routes",
+      "summary": "Replace the gateway's private-network routes",
+      "tags": [
+        "gateways"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "If-Match",
+          "location": "header",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "If-Match": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "required": [
+              "routes"
+            ],
+            "properties": {
+              "routes": {
+                "type": "array",
+                "maxItems": 50,
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "name",
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "gateway.post_api_v1_gateways__name__service_account_repair",
+      "service": "gateway",
+      "operationId": "post_api_v1_gateways__name__service_account_repair",
+      "method": "POST",
+      "path": "/api/v1/gateways/{name}/service-account/repair",
+      "summary": "Repair the gateway's IAM service-account credentials",
+      "tags": [
+        "gateways"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    {
+      "id": "identity.getByName",
+      "service": "identity",
+      "operationId": "getByName",
+      "method": "GET",
+      "path": "/api/v1/outbound-auth/oauth2-providers/{name}",
+      "summary": "getByName",
+      "tags": [
+        "OAuth2 Provider"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    {
+      "id": "identity.update",
+      "service": "identity",
+      "operationId": "update",
+      "method": "PUT",
+      "path": "/api/v1/outbound-auth/oauth2-providers/{name}",
+      "summary": "update",
+      "tags": [
+        "OAuth2 Provider"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "clientId": {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              "clientSecret": {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              "authorizationUrl": {
+                "type": "string",
+                "maxLength": 1000,
+                "minLength": 0
+              },
+              "tokenUrl": {
+                "type": "string",
+                "maxLength": 1000,
+                "minLength": 0
+              }
+            },
+            "required": [
+              "authorizationUrl",
+              "clientId",
+              "clientSecret",
+              "tokenUrl"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "identity.delete",
+      "service": "identity",
+      "operationId": "delete",
+      "method": "DELETE",
+      "path": "/api/v1/outbound-auth/oauth2-providers/{name}",
+      "summary": "delete",
+      "tags": [
+        "OAuth2 Provider"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    {
+      "id": "identity.getByName_1",
+      "service": "identity",
+      "operationId": "getByName_1",
+      "method": "GET",
+      "path": "/api/v1/outbound-auth/api-key-providers/{name}",
+      "summary": "getByName_1",
+      "tags": [
+        "API Key Provider"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    {
+      "id": "identity.update_1",
+      "service": "identity",
+      "operationId": "update_1",
+      "method": "PUT",
+      "path": "/api/v1/outbound-auth/api-key-providers/{name}",
+      "summary": "update_1",
+      "tags": [
+        "API Key Provider"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "apikey": {
+                "type": "string",
+                "maxLength": 1000,
+                "minLength": 1
+              }
+            },
+            "required": [
+              "apikey"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "identity.delete_1",
+      "service": "identity",
+      "operationId": "delete_1",
+      "method": "DELETE",
+      "path": "/api/v1/outbound-auth/api-key-providers/{name}",
+      "summary": "delete_1",
+      "tags": [
+        "API Key Provider"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    {
+      "id": "identity.getAgentIdentity",
+      "service": "identity",
+      "operationId": "getAgentIdentity",
+      "method": "GET",
+      "path": "/api/v1/agent-identities/{name}",
+      "summary": "Get agent identity",
+      "tags": [
+        "Agent Identity"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    {
+      "id": "identity.updateAgentIdentity",
+      "service": "identity",
+      "operationId": "updateAgentIdentity",
+      "method": "PUT",
+      "path": "/api/v1/agent-identities/{name}",
+      "summary": "Update agent identity",
+      "tags": [
+        "Agent Identity"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "description": {
+                "type": "string",
+                "maxLength": 500,
+                "minLength": 0
+              },
+              "allowedReturnUrls": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 1000,
+                  "minLength": 0
+                },
+                "maxItems": 100,
+                "minItems": 0
+              }
+            }
+          }
+        },
+        "required": [
+          "name",
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "identity.deleteAgentIdentity",
+      "service": "identity",
+      "operationId": "deleteAgentIdentity",
+      "method": "DELETE",
+      "path": "/api/v1/agent-identities/{name}",
+      "summary": "Delete agent identity",
+      "tags": [
+        "Agent Identity"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    {
+      "id": "identity.list",
+      "service": "identity",
+      "operationId": "list",
+      "method": "GET",
+      "path": "/api/v1/outbound-auth/oauth2-providers",
+      "summary": "list",
+      "tags": [
+        "OAuth2 Provider"
+      ],
+      "parameters": [
+        {
+          "name": "page",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "default": 0
+          }
+        },
+        {
+          "name": "size",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "default": 20
+          }
+        },
+        {
+          "name": "sortBy",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "default": "createdAt"
+          }
+        },
+        {
+          "name": "sortDirection",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "default": "desc"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "default": 0
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32",
+            "default": 20
+          },
+          "sortBy": {
+            "type": "string",
+            "default": "createdAt"
+          },
+          "sortDirection": {
+            "type": "string",
+            "default": "desc"
+          }
+        }
+      }
+    },
+    {
+      "id": "identity.create",
+      "service": "identity",
+      "operationId": "create",
+      "method": "POST",
+      "path": "/api/v1/outbound-auth/oauth2-providers",
+      "summary": "create",
+      "tags": [
+        "OAuth2 Provider"
+      ],
+      "parameters": [],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "maxLength": 50,
+                "minLength": 3,
+                "pattern": "^[a-zA-Z0-9_-]+$"
+              },
+              "clientId": {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              "clientSecret": {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              "authorizationUrl": {
+                "type": "string",
+                "maxLength": 1000,
+                "minLength": 0
+              },
+              "tokenUrl": {
+                "type": "string",
+                "maxLength": 1000,
+                "minLength": 0
+              }
+            },
+            "required": [
+              "authorizationUrl",
+              "clientId",
+              "clientSecret",
+              "name",
+              "tokenUrl"
+            ]
+          }
+        },
+        "required": [
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "identity.getM2mToken",
+      "service": "identity",
+      "operationId": "getM2mToken",
+      "method": "POST",
+      "path": "/api/v1/outbound-auth/oauth2-providers/{providerName}/agent-identities/{agentIdentityName}/tokens/m2m",
+      "summary": "getM2mToken",
+      "tags": [
+        "OAuth2 Provider"
+      ],
+      "parameters": [
+        {
+          "name": "providerName",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "agentIdentityName",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "providerName": {
+            "type": "string"
+          },
+          "agentIdentityName": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "scopes": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 1000,
+                  "minLength": 1
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              }
+            },
+            "required": [
+              "scopes"
+            ]
+          }
+        },
+        "required": [
+          "providerName",
+          "agentIdentityName",
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "identity.get3loToken",
+      "service": "identity",
+      "operationId": "get3loToken",
+      "method": "POST",
+      "path": "/api/v1/outbound-auth/oauth2-providers/{providerName}/agent-identities/{agentIdentityName}/tokens/3lo",
+      "summary": "get3loToken",
+      "tags": [
+        "OAuth2 Provider"
+      ],
+      "parameters": [
+        {
+          "name": "providerName",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "agentIdentityName",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "providerName": {
+            "type": "string"
+          },
+          "agentIdentityName": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "agentUserId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "scopes": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 1000,
+                  "minLength": 1
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              },
+              "returnUrl": {
+                "type": "string",
+                "maxLength": 1000,
+                "minLength": 0
+              },
+              "sessionId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "customParameters": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "customState": {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              "forceAuthentication": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "agentUserId",
+              "returnUrl",
+              "scopes"
+            ]
+          }
+        },
+        "required": [
+          "providerName",
+          "agentIdentityName",
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "identity.list_1",
+      "service": "identity",
+      "operationId": "list_1",
+      "method": "GET",
+      "path": "/api/v1/outbound-auth/delegated-api-key-providers",
+      "summary": "list_1",
+      "tags": [
+        "Delegated API Key Provider"
+      ],
+      "parameters": [
+        {
+          "name": "page",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "default": 0
+          }
+        },
+        {
+          "name": "size",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "default": 20
+          }
+        },
+        {
+          "name": "sortBy",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "default": "createdAt"
+          }
+        },
+        {
+          "name": "sortDirection",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "default": "desc"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "default": 0
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32",
+            "default": 20
+          },
+          "sortBy": {
+            "type": "string",
+            "default": "createdAt"
+          },
+          "sortDirection": {
+            "type": "string",
+            "default": "desc"
+          }
+        }
+      }
+    },
+    {
+      "id": "identity.create_1",
+      "service": "identity",
+      "operationId": "create_1",
+      "method": "POST",
+      "path": "/api/v1/outbound-auth/delegated-api-key-providers",
+      "summary": "create_1",
+      "tags": [
+        "Delegated API Key Provider"
+      ],
+      "parameters": [],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "maxLength": 50,
+                "minLength": 3,
+                "pattern": "^[a-zA-Z0-9_-]+$"
+              }
+            },
+            "required": [
+              "name"
+            ]
+          }
+        },
+        "required": [
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "identity.getDelegatedApiKey",
+      "service": "identity",
+      "operationId": "getDelegatedApiKey",
+      "method": "POST",
+      "path": "/api/v1/outbound-auth/delegated-api-key-providers/{providerName}/agent-identities/{agentIdentityName}/api-key",
+      "summary": "getDelegatedApiKey",
+      "tags": [
+        "Delegated API Key Provider"
+      ],
+      "parameters": [
+        {
+          "name": "providerName",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "agentIdentityName",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "providerName": {
+            "type": "string"
+          },
+          "agentIdentityName": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "agentUserId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "returnUrl": {
+                "type": "string",
+                "maxLength": 1000,
+                "minLength": 0
+              },
+              "customState": {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              "sessionId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "forceDelegation": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "agentUserId",
+              "returnUrl"
+            ]
+          }
+        },
+        "required": [
+          "providerName",
+          "agentIdentityName",
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "identity.list_2",
+      "service": "identity",
+      "operationId": "list_2",
+      "method": "GET",
+      "path": "/api/v1/outbound-auth/api-key-providers",
+      "summary": "list_2",
+      "tags": [
+        "API Key Provider"
+      ],
+      "parameters": [
+        {
+          "name": "page",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "default": 0
+          }
+        },
+        {
+          "name": "size",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "default": 20
+          }
+        },
+        {
+          "name": "sortBy",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "default": "createdAt"
+          }
+        },
+        {
+          "name": "sortDirection",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "default": "desc"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "default": 0
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32",
+            "default": 20
+          },
+          "sortBy": {
+            "type": "string",
+            "default": "createdAt"
+          },
+          "sortDirection": {
+            "type": "string",
+            "default": "desc"
+          }
+        }
+      }
+    },
+    {
+      "id": "identity.create_2",
+      "service": "identity",
+      "operationId": "create_2",
+      "method": "POST",
+      "path": "/api/v1/outbound-auth/api-key-providers",
+      "summary": "create_2",
+      "tags": [
+        "API Key Provider"
+      ],
+      "parameters": [],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "maxLength": 50,
+                "minLength": 3,
+                "pattern": "^[a-zA-Z0-9_-]+$"
+              },
+              "apikey": {
+                "type": "string",
+                "maxLength": 1000,
+                "minLength": 1
+              }
+            },
+            "required": [
+              "apikey",
+              "name"
+            ]
+          }
+        },
+        "required": [
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "identity.listAgentIdentities",
+      "service": "identity",
+      "operationId": "listAgentIdentities",
+      "method": "GET",
+      "path": "/api/v1/agent-identities",
+      "summary": "List agent identities",
+      "tags": [
+        "Agent Identity"
+      ],
+      "parameters": [
+        {
+          "name": "page",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "default": 0
+          }
+        },
+        {
+          "name": "size",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "default": 20
+          }
+        },
+        {
+          "name": "sortBy",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "default": "createdAt"
+          }
+        },
+        {
+          "name": "sortDirection",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "default": "desc"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "default": 0
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32",
+            "default": 20
+          },
+          "sortBy": {
+            "type": "string",
+            "default": "createdAt"
+          },
+          "sortDirection": {
+            "type": "string",
+            "default": "desc"
+          }
+        }
+      }
+    },
+    {
+      "id": "identity.createAgentIdentity",
+      "service": "identity",
+      "operationId": "createAgentIdentity",
+      "method": "POST",
+      "path": "/api/v1/agent-identities",
+      "summary": "Create agent identity",
+      "tags": [
+        "Agent Identity"
+      ],
+      "parameters": [],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "maxLength": 50,
+                "minLength": 3,
+                "pattern": "^[a-zA-Z0-9_-]+$"
+              },
+              "description": {
+                "type": "string",
+                "maxLength": 500,
+                "minLength": 0
+              },
+              "allowedReturnUrls": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 1000,
+                  "minLength": 0
+                },
+                "maxItems": 100,
+                "minItems": 0
+              }
+            },
+            "required": [
+              "name"
+            ]
+          }
+        },
+        "required": [
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "identity.authorizeApiKey",
+      "service": "identity",
+      "operationId": "authorizeApiKey",
+      "method": "POST",
+      "path": "/api-key/delegate/{providerId}",
+      "summary": "authorizeApiKey",
+      "tags": [
+        "Delegated API Key Provider"
+      ],
+      "parameters": [
+        {
+          "name": "providerId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "state",
+          "location": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "providerId": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "apikey": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "apikey"
+            ]
+          }
+        },
+        "required": [
+          "providerId",
+          "state",
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "identity.handleOauth2Callback",
+      "service": "identity",
+      "operationId": "handleOauth2Callback",
+      "method": "GET",
+      "path": "/oauth2/callback/{providerId}",
+      "summary": "handleOauth2Callback",
+      "tags": [
+        "OAuth2 Provider"
+      ],
+      "parameters": [
+        {
+          "name": "providerId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "code",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "state",
+          "location": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "error",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "error_description",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "providerId": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          },
+          "error_description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "providerId",
+          "state"
+        ]
+      }
+    },
+    {
+      "id": "identity.redirectToProviderAuthorize",
+      "service": "identity",
+      "operationId": "redirectToProviderAuthorize",
+      "method": "GET",
+      "path": "/oauth2/authorize",
+      "summary": "redirectToProviderAuthorize",
+      "tags": [
+        "OAuth2 Provider"
+      ],
+      "parameters": [
+        {
+          "name": "sessionId",
+          "location": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sessionId"
+        ]
+      }
+    },
+    {
+      "id": "identity.getByName_2",
+      "service": "identity",
+      "operationId": "getByName_2",
+      "method": "GET",
+      "path": "/api/v1/outbound-auth/delegated-api-key-providers/{name}",
+      "summary": "getByName_2",
+      "tags": [
+        "Delegated API Key Provider"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    {
+      "id": "identity.delete_2",
+      "service": "identity",
+      "operationId": "delete_2",
+      "method": "DELETE",
+      "path": "/api/v1/outbound-auth/delegated-api-key-providers/{name}",
+      "summary": "delete_2",
+      "tags": [
+        "Delegated API Key Provider"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    {
+      "id": "identity.getApikeyForAgentIdentity",
+      "service": "identity",
+      "operationId": "getApikeyForAgentIdentity",
+      "method": "GET",
+      "path": "/api/v1/outbound-auth/api-key-providers/{providerName}/agent-identities/{agentIdentityName}/api-key",
+      "summary": "getApikeyForAgentIdentity",
+      "tags": [
+        "API Key Provider"
+      ],
+      "parameters": [
+        {
+          "name": "providerName",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "agentIdentityName",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "providerName": {
+            "type": "string"
+          },
+          "agentIdentityName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "providerName",
+          "agentIdentityName"
+        ]
+      }
+    },
+    {
+      "id": "memory.list",
+      "service": "memory",
+      "operationId": "list",
+      "method": "GET",
+      "path": "/memories",
+      "summary": "List memories",
+      "tags": [
+        "Memories"
+      ],
+      "parameters": [
+        {
+          "name": "page",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "default": 1
+          }
+        },
+        {
+          "name": "size",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "default": 10
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "default": 1
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32",
+            "default": 10
+          }
+        }
+      }
+    },
+    {
+      "id": "memory.create",
+      "service": "memory",
+      "operationId": "create",
+      "method": "POST",
+      "path": "/memories",
+      "summary": "Create a memory",
+      "tags": [
+        "Memories"
+      ],
+      "parameters": [],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "maxLength": 50,
+                "minLength": 0,
+                "pattern": "^[a-zA-Z0-9._-]*$"
+              },
+              "description": {
+                "type": "string"
+              },
+              "eventExpiryDuration": {
+                "type": "integer",
+                "format": "int32",
+                "maximum": 365,
+                "minimum": 1
+              },
+              "longTermMemoryStrategies": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "type": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "customFactExtractionPrompt": {
+                      "type": "string",
+                      "maxLength": 10000,
+                      "minLength": 0
+                    },
+                    "namespaceTemplate": {
+                      "type": "string",
+                      "maxLength": 50,
+                      "minLength": 0,
+                      "pattern": "^[a-zA-Z0-9{}/._-]*$"
+                    },
+                    "enableAutomaticMemoryRecordGeneration": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "namespaceTemplate",
+                    "type"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "description",
+              "longTermMemoryStrategies",
+              "name"
+            ]
+          }
+        },
+        "required": [
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "memory.searchMemoryRecords",
+      "service": "memory",
+      "operationId": "searchMemoryRecords",
+      "method": "POST",
+      "path": "/memories/{id}/memory-records:search",
+      "summary": "Search memory records",
+      "tags": [
+        "Memories"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "namespace",
+          "location": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "query": {
+                "type": "string",
+                "minLength": 1
+              },
+              "limit": {
+                "type": "integer",
+                "format": "int32",
+                "maximum": 200,
+                "minimum": 5
+              },
+              "scoreThreshold": {
+                "type": "number",
+                "format": "float",
+                "maximum": 1,
+                "minimum": 0
+              }
+            },
+            "required": [
+              "query"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "namespace",
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "memory.insertMemoryRecordsDirectly",
+      "service": "memory",
+      "operationId": "insertMemoryRecordsDirectly",
+      "method": "POST",
+      "path": "/memories/{id}/memory-records:insert-directly",
+      "summary": "Insert memory records directly",
+      "tags": [
+        "Memories"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "namespace",
+          "location": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "memoryRecords": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1
+              }
+            },
+            "required": [
+              "memoryRecords"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "namespace",
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "memory.generateMemoryRecordsFromSession",
+      "service": "memory",
+      "operationId": "generateMemoryRecordsFromSession",
+      "method": "POST",
+      "path": "/memories/{id}/memory-records:generate-from-session",
+      "summary": "Generate memory records from a session",
+      "tags": [
+        "Memories"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "actorId",
+          "location": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "sessionId",
+          "location": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "longTermMemoryStrategyId",
+          "location": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "actorId": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "longTermMemoryStrategyId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "actorId",
+          "sessionId",
+          "longTermMemoryStrategyId"
+        ]
+      }
+    },
+    {
+      "id": "memory.generateMemoryRecordsFromContent",
+      "service": "memory",
+      "operationId": "generateMemoryRecordsFromContent",
+      "method": "POST",
+      "path": "/memories/{id}/memory-records:generate-from-content",
+      "summary": "Generate memory records from content",
+      "tags": [
+        "Memories"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "longTermMemoryStrategyId",
+          "location": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "actorId",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "default": ""
+          }
+        },
+        {
+          "name": "sessionId",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "default": ""
+          }
+        }
+      ],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "longTermMemoryStrategyId": {
+            "type": "string"
+          },
+          "actorId": {
+            "type": "string",
+            "default": ""
+          },
+          "sessionId": {
+            "type": "string",
+            "default": ""
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "chatMessages": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "role": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "content": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "content",
+                    "role"
+                  ]
+                },
+                "minItems": 1
+              }
+            },
+            "required": [
+              "chatMessages"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "longTermMemoryStrategyId",
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "memory.listEvents",
+      "service": "memory",
+      "operationId": "listEvents",
+      "method": "GET",
+      "path": "/memories/{id}/actors/{actorId}/sessions/{sessionId}/events",
+      "summary": "List events",
+      "tags": [
+        "Memories"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "actorId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "sessionId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "fromTimestamp",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "default": ""
+          }
+        },
+        {
+          "name": "toTimestamp",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "default": ""
+          }
+        },
+        {
+          "name": "page",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "default": 1
+          }
+        },
+        {
+          "name": "size",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "default": 10
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "actorId": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "fromTimestamp": {
+            "type": "string",
+            "default": ""
+          },
+          "toTimestamp": {
+            "type": "string",
+            "default": ""
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "default": 1
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32",
+            "default": 10
+          }
+        },
+        "required": [
+          "id",
+          "actorId",
+          "sessionId"
+        ]
+      }
+    },
+    {
+      "id": "memory.createEvent",
+      "service": "memory",
+      "operationId": "createEvent",
+      "method": "POST",
+      "path": "/memories/{id}/actors/{actorId}/sessions/{sessionId}/events",
+      "summary": "Create an event",
+      "tags": [
+        "Memories"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "actorId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        {
+          "name": "sessionId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "actorId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "payload": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "role": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string",
+                    "maxLength": 100000,
+                    "minLength": 0
+                  },
+                  "binaryData": {
+                    "type": "string",
+                    "maxLength": 10485760,
+                    "minLength": 0
+                  }
+                },
+                "required": [
+                  "type"
+                ]
+              },
+              "eventTimestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "payload"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "actorId",
+          "sessionId",
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "memory.get",
+      "service": "memory",
+      "operationId": "get",
+      "method": "GET",
+      "path": "/memories/{id}",
+      "summary": "Get a memory",
+      "tags": [
+        "Memories"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": "memory.delete",
+      "service": "memory",
+      "operationId": "delete",
+      "method": "DELETE",
+      "path": "/memories/{id}",
+      "summary": "Delete a memory",
+      "tags": [
+        "Memories"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": "memory.listMemoryRecords",
+      "service": "memory",
+      "operationId": "listMemoryRecords",
+      "method": "GET",
+      "path": "/memories/{id}/memory-records",
+      "summary": "List memory records",
+      "tags": [
+        "Memories"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "namespace",
+          "location": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "limit",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "default": 100
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int32",
+            "default": 100
+          }
+        },
+        "required": [
+          "id",
+          "namespace"
+        ]
+      }
+    },
+    {
+      "id": "memory.listLongTermMemoryStrategies",
+      "service": "memory",
+      "operationId": "listLongTermMemoryStrategies",
+      "method": "GET",
+      "path": "/memories/{id}/long-term-memory-strategies",
+      "summary": "List long-term memory strategies",
+      "tags": [
+        "Memories"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": "memory.listActors",
+      "service": "memory",
+      "operationId": "listActors",
+      "method": "GET",
+      "path": "/memories/{id}/actors",
+      "summary": "List actors",
+      "tags": [
+        "Memories"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "page",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "default": 1
+          }
+        },
+        {
+          "name": "size",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "default": 10
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "default": 1
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32",
+            "default": 10
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": "memory.listSessions",
+      "service": "memory",
+      "operationId": "listSessions",
+      "method": "GET",
+      "path": "/memories/{id}/actors/{actorId}/sessions",
+      "summary": "List sessions",
+      "tags": [
+        "Memories"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "actorId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "page",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "default": 1
+          }
+        },
+        {
+          "name": "size",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "default": 10
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "actorId": {
+            "type": "string"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "default": 1
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32",
+            "default": 10
+          }
+        },
+        "required": [
+          "id",
+          "actorId"
+        ]
+      }
+    },
+    {
+      "id": "memory.deleteMemoryRecord",
+      "service": "memory",
+      "operationId": "deleteMemoryRecord",
+      "method": "DELETE",
+      "path": "/memories/{id}/memory-records/{memoryRecordId}",
+      "summary": "Delete a memory record",
+      "tags": [
+        "Memories"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "memoryRecordId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "memoryRecordId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "memoryRecordId"
+        ]
+      }
+    },
+    {
+      "id": "memory.deleteEvent",
+      "service": "memory",
+      "operationId": "deleteEvent",
+      "method": "DELETE",
+      "path": "/memories/{id}/actors/{actorId}/sessions/{sessionId}/events/{eventId}",
+      "summary": "Delete an event",
+      "tags": [
+        "Memories"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "actorId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "sessionId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "eventId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "actorId": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "actorId",
+          "sessionId",
+          "eventId"
+        ]
+      }
+    },
+    {
+      "id": "runtime.list",
+      "service": "runtime",
+      "operationId": "list",
+      "method": "GET",
+      "path": "/openclaws",
+      "summary": "List OpenClaw instances",
+      "tags": [
+        "OpenClaw"
+      ],
+      "parameters": [
+        {
+          "name": "page",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "default": 1
+          }
+        },
+        {
+          "name": "size",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "default": 10
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "default": 1
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32",
+            "default": 10
+          }
+        }
+      }
+    },
+    {
+      "id": "runtime.create",
+      "service": "runtime",
+      "operationId": "create",
+      "method": "POST",
+      "path": "/openclaws",
+      "summary": "Create an OpenClaw instance",
+      "tags": [
+        "OpenClaw"
+      ],
+      "parameters": [],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "maxLength": 50,
+                "minLength": 0,
+                "pattern": "^[a-z0-9-]*$"
+              },
+              "versionId": {
+                "type": "string"
+              },
+              "greenNodeModelProvider": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean"
+                  },
+                  "apiKeyName": {
+                    "type": "string"
+                  }
+                }
+              },
+              "environmentVariables": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "channels": {
+                "type": "object",
+                "properties": {
+                  "telegram": {
+                    "type": "object",
+                    "properties": {
+                      "botToken": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "dmPolicy": {
+                        "type": "string"
+                      },
+                      "dmAllowedUserIds": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "botToken"
+                    ]
+                  },
+                  "zalo": {
+                    "type": "object",
+                    "properties": {
+                      "botToken": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "dmPolicy": {
+                        "type": "string"
+                      },
+                      "dmAllowedUserIds": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "botToken"
+                    ]
+                  }
+                }
+              },
+              "flavorId": {
+                "type": "string"
+              },
+              "poc": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "required": [
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "runtime.stop",
+      "service": "runtime",
+      "operationId": "stop",
+      "method": "POST",
+      "path": "/openclaws/{id}/stop",
+      "summary": "Stop an OpenClaw instance",
+      "tags": [
+        "OpenClaw"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": "runtime.start",
+      "service": "runtime",
+      "operationId": "start",
+      "method": "POST",
+      "path": "/openclaws/{id}/start",
+      "summary": "Start an OpenClaw instance",
+      "tags": [
+        "OpenClaw"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": "runtime.list_1",
+      "service": "runtime",
+      "operationId": "list_1",
+      "method": "GET",
+      "path": "/agent-runtimes",
+      "summary": "List runtimes",
+      "tags": [
+        "Agent Runtimes"
+      ],
+      "parameters": [
+        {
+          "name": "page",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "default": 1
+          }
+        },
+        {
+          "name": "size",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "default": 10
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "default": 1
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32",
+            "default": 10
+          }
+        }
+      }
+    },
+    {
+      "id": "runtime.create_1",
+      "service": "runtime",
+      "operationId": "create_1",
+      "method": "POST",
+      "path": "/agent-runtimes",
+      "summary": "Create a runtime",
+      "tags": [
+        "Agent Runtimes"
+      ],
+      "parameters": [],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "object",
+            "properties": {
+              "description": {
+                "type": "string"
+              },
+              "imageUrl": {
+                "type": "string",
+                "minLength": 1
+              },
+              "imageAuth": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean"
+                  },
+                  "useAgentBaseRegistryCredentials": {
+                    "type": "boolean"
+                  },
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              },
+              "command": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "args": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "environmentVariables": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "networkConfig": {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string"
+                  },
+                  "vpcId": {
+                    "type": "string"
+                  },
+                  "subnetId": {
+                    "type": "string"
+                  },
+                  "routeCidrs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "mode"
+                ]
+              },
+              "flavorId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "autoscaling": {
+                "type": "object",
+                "properties": {
+                  "maxReplicas": {
+                    "type": "integer",
+                    "format": "int32",
+                    "maximum": 10,
+                    "minimum": 1
+                  },
+                  "cpuUtilization": {
+                    "type": "integer",
+                    "format": "int32",
+                    "maximum": 90,
+                    "minimum": 10
+                  },
+                  "memoryUtilization": {
+                    "type": "integer",
+                    "format": "int32",
+                    "maximum": 90,
+                    "minimum": 10
+                  }
+                }
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "poc": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "args",
+              "autoscaling",
+              "command",
+              "description",
+              "environmentVariables",
+              "flavorId",
+              "imageAuth",
+              "imageUrl",
+              "name"
+            ]
+          }
+        },
+        "required": [
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "runtime.getLogs",
+      "service": "runtime",
+      "operationId": "getLogs",
+      "method": "POST",
+      "path": "/agent-runtimes/{id}/logs",
+      "summary": "Search runtime logs",
+      "tags": [
+        "Agent Runtimes"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "from": {
+                "type": "integer",
+                "format": "int32",
+                "maximum": 5000
+              },
+              "limit": {
+                "type": "integer",
+                "format": "int32",
+                "maximum": 500
+              },
+              "fromTimestamp": {
+                "type": "string"
+              },
+              "toTimestamp": {
+                "type": "string"
+              },
+              "query": {
+                "type": "string"
+              },
+              "order": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "id",
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "runtime.listEndpoints",
+      "service": "runtime",
+      "operationId": "listEndpoints",
+      "method": "GET",
+      "path": "/agent-runtimes/{id}/endpoints",
+      "summary": "List endpoints",
+      "tags": [
+        "Agent Runtimes"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "page",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "default": 1
+          }
+        },
+        {
+          "name": "size",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "default": 10
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "default": 1
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32",
+            "default": 10
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": "runtime.createEndpoint",
+      "service": "runtime",
+      "operationId": "createEndpoint",
+      "method": "POST",
+      "path": "/agent-runtimes/{id}/endpoints",
+      "summary": "Create an endpoint",
+      "tags": [
+        "Agent Runtimes"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "version": {
+                "type": "integer",
+                "format": "int32",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "name"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "runtime.stopEndpoint",
+      "service": "runtime",
+      "operationId": "stopEndpoint",
+      "method": "POST",
+      "path": "/agent-runtimes/{id}/endpoints/{endpointId}/stop",
+      "summary": "Stop an endpoint",
+      "tags": [
+        "Agent Runtimes"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "endpointId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "endpointId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "endpointId"
+        ]
+      }
+    },
+    {
+      "id": "runtime.startEndpoint",
+      "service": "runtime",
+      "operationId": "startEndpoint",
+      "method": "POST",
+      "path": "/agent-runtimes/{id}/endpoints/{endpointId}/start",
+      "summary": "Start an endpoint",
+      "tags": [
+        "Agent Runtimes"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "endpointId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "endpointId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "endpointId"
+        ]
+      }
+    },
+    {
+      "id": "runtime.getEndpointLogs",
+      "service": "runtime",
+      "operationId": "getEndpointLogs",
+      "method": "POST",
+      "path": "/agent-runtimes/{id}/endpoints/{endpointId}/logs",
+      "summary": "Search endpoint logs",
+      "tags": [
+        "Agent Runtimes"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "endpointId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "endpointId": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "from": {
+                "type": "integer",
+                "format": "int32",
+                "maximum": 5000
+              },
+              "limit": {
+                "type": "integer",
+                "format": "int32",
+                "maximum": 500
+              },
+              "fromTimestamp": {
+                "type": "string"
+              },
+              "toTimestamp": {
+                "type": "string"
+              },
+              "query": {
+                "type": "string"
+              },
+              "order": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "id",
+          "endpointId",
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "runtime.updateVersion",
+      "service": "runtime",
+      "operationId": "updateVersion",
+      "method": "PATCH",
+      "path": "/openclaws/{id}/version",
+      "summary": "Change the OpenClaw version",
+      "tags": [
+        "OpenClaw"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "versionId",
+          "location": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "versionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "versionId"
+        ]
+      }
+    },
+    {
+      "id": "runtime.get",
+      "service": "runtime",
+      "operationId": "get",
+      "method": "GET",
+      "path": "/agent-runtimes/{id}",
+      "summary": "Get a runtime",
+      "tags": [
+        "Agent Runtimes"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": "runtime.delete",
+      "service": "runtime",
+      "operationId": "delete",
+      "method": "DELETE",
+      "path": "/agent-runtimes/{id}",
+      "summary": "Delete a runtime",
+      "tags": [
+        "Agent Runtimes"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": "runtime.update",
+      "service": "runtime",
+      "operationId": "update",
+      "method": "PATCH",
+      "path": "/agent-runtimes/{id}",
+      "summary": "Update a runtime",
+      "tags": [
+        "Agent Runtimes"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "description": {
+                "type": "string"
+              },
+              "imageUrl": {
+                "type": "string",
+                "minLength": 1
+              },
+              "imageAuth": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean"
+                  },
+                  "useAgentBaseRegistryCredentials": {
+                    "type": "boolean"
+                  },
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              },
+              "command": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "args": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "environmentVariables": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "networkConfig": {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string"
+                  },
+                  "vpcId": {
+                    "type": "string"
+                  },
+                  "subnetId": {
+                    "type": "string"
+                  },
+                  "routeCidrs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "mode"
+                ]
+              },
+              "flavorId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "autoscaling": {
+                "type": "object",
+                "properties": {
+                  "maxReplicas": {
+                    "type": "integer",
+                    "format": "int32",
+                    "maximum": 10,
+                    "minimum": 1
+                  },
+                  "cpuUtilization": {
+                    "type": "integer",
+                    "format": "int32",
+                    "maximum": 90,
+                    "minimum": 10
+                  },
+                  "memoryUtilization": {
+                    "type": "integer",
+                    "format": "int32",
+                    "maximum": 90,
+                    "minimum": 10
+                  }
+                }
+              },
+              "poc": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "args",
+              "autoscaling",
+              "command",
+              "description",
+              "environmentVariables",
+              "flavorId",
+              "imageAuth",
+              "imageUrl"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "runtime.resetServiceAccount",
+      "service": "runtime",
+      "operationId": "resetServiceAccount",
+      "method": "PATCH",
+      "path": "/agent-runtimes/{id}/reset-service-account",
+      "summary": "Reset the runtime Service Account",
+      "tags": [
+        "Agent Runtimes"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": "runtime.deleteEndpoint",
+      "service": "runtime",
+      "operationId": "deleteEndpoint",
+      "method": "DELETE",
+      "path": "/agent-runtimes/{id}/endpoints/{endpointId}",
+      "summary": "Delete an endpoint",
+      "tags": [
+        "Agent Runtimes"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "endpointId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "endpointId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "endpointId"
+        ]
+      }
+    },
+    {
+      "id": "runtime.updateEndpoint",
+      "service": "runtime",
+      "operationId": "updateEndpoint",
+      "method": "PATCH",
+      "path": "/agent-runtimes/{id}/endpoints/{endpointId}",
+      "summary": "Change an endpoint's version",
+      "tags": [
+        "Agent Runtimes"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "endpointId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "version",
+          "location": "query",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "endpointId": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "required": [
+          "id",
+          "endpointId",
+          "version"
+        ]
+      }
+    },
+    {
+      "id": "runtime.get_1",
+      "service": "runtime",
+      "operationId": "get_1",
+      "method": "GET",
+      "path": "/openclaws/{id}",
+      "summary": "Get an OpenClaw instance",
+      "tags": [
+        "OpenClaw"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": "runtime.delete_1",
+      "service": "runtime",
+      "operationId": "delete_1",
+      "method": "DELETE",
+      "path": "/openclaws/{id}",
+      "summary": "Delete an OpenClaw instance",
+      "tags": [
+        "OpenClaw"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": "runtime.list_2",
+      "service": "runtime",
+      "operationId": "list_2",
+      "method": "GET",
+      "path": "/openclaw-versions",
+      "summary": "List OpenClaw versions",
+      "tags": [
+        "OpenClaw Versions"
+      ],
+      "parameters": [],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "id": "runtime.listAll",
+      "service": "runtime",
+      "operationId": "listAll",
+      "method": "GET",
+      "path": "/flavors",
+      "summary": "List flavors",
+      "tags": [
+        "Flavors"
+      ],
+      "parameters": [
+        {
+          "name": "resourceType",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "default": ""
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "resourceType": {
+            "type": "string",
+            "default": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "runtime.searchTagValues",
+      "service": "runtime",
+      "operationId": "searchTagValues",
+      "method": "GET",
+      "path": "/agent-runtimes:trace-search-tag-values",
+      "summary": "List trace tag values",
+      "tags": [
+        "Runtime Traces"
+      ],
+      "parameters": [
+        {
+          "name": "tagKey",
+          "location": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "allParams",
+          "location": "query",
+          "required": true,
+          "schema": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "properties": {
+              "all": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "writeOnly": true
+              },
+              "empty": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "tagKey": {
+            "type": "string"
+          },
+          "allParams": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "properties": {
+              "all": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "writeOnly": true
+              },
+              "empty": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "required": [
+          "tagKey",
+          "allParams"
+        ]
+      }
+    },
+    {
+      "id": "runtime.searchTraces",
+      "service": "runtime",
+      "operationId": "searchTraces",
+      "method": "GET",
+      "path": "/agent-runtimes:search-traces",
+      "summary": "Search traces",
+      "tags": [
+        "Runtime Traces"
+      ],
+      "parameters": [
+        {
+          "name": "allParams",
+          "location": "query",
+          "required": true,
+          "schema": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "properties": {
+              "all": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "writeOnly": true
+              },
+              "empty": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "allParams": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "properties": {
+              "all": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "writeOnly": true
+              },
+              "empty": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "required": [
+          "allParams"
+        ]
+      }
+    },
+    {
+      "id": "runtime.getTrace",
+      "service": "runtime",
+      "operationId": "getTrace",
+      "method": "GET",
+      "path": "/agent-runtimes:get-trace",
+      "summary": "Get a trace by id",
+      "tags": [
+        "Runtime Traces"
+      ],
+      "parameters": [
+        {
+          "name": "traceId",
+          "location": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "allParams",
+          "location": "query",
+          "required": true,
+          "schema": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "properties": {
+              "all": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "writeOnly": true
+              },
+              "empty": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "traceId": {
+            "type": "string"
+          },
+          "allParams": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "properties": {
+              "all": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "writeOnly": true
+              },
+              "empty": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "required": [
+          "traceId",
+          "allParams"
+        ]
+      }
+    },
+    {
+      "id": "runtime.listVersions",
+      "service": "runtime",
+      "operationId": "listVersions",
+      "method": "GET",
+      "path": "/agent-runtimes/{id}/versions",
+      "summary": "List runtime versions",
+      "tags": [
+        "Agent Runtimes"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "page",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "default": 1
+          }
+        },
+        {
+          "name": "size",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "default": 10
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "default": 1
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32",
+            "default": 10
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": "runtime.getEndpointMetrics",
+      "service": "runtime",
+      "operationId": "getEndpointMetrics",
+      "method": "GET",
+      "path": "/agent-runtimes/{id}/endpoints/{endpointId}/metrics",
+      "summary": "Get endpoint metrics",
+      "tags": [
+        "Agent Runtimes"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "endpointId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "fromTimestamp",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "default": ""
+          }
+        },
+        {
+          "name": "toTimestamp",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "default": ""
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "endpointId": {
+            "type": "string"
+          },
+          "fromTimestamp": {
+            "type": "string",
+            "default": ""
+          },
+          "toTimestamp": {
+            "type": "string",
+            "default": ""
+          }
+        },
+        "required": [
+          "id",
+          "endpointId"
+        ]
+      }
+    },
+    {
+      "id": "runtime.getEndpointEvents",
+      "service": "runtime",
+      "operationId": "getEndpointEvents",
+      "method": "GET",
+      "path": "/agent-runtimes/{id}/endpoints/{endpointId}/events",
+      "summary": "Get endpoint events",
+      "tags": [
+        "Agent Runtimes"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "endpointId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "endpointId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "endpointId"
+        ]
+      }
+    }
+  ]
+}

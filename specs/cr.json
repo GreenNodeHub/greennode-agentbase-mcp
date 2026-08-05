@@ -1,0 +1,908 @@
+{
+  "schemes": [],
+  "swagger": "2.0",
+  "info": {
+    "description": "API for managing container images and artifacts",
+    "title": "Agent Core Container Registry API",
+    "contact": {},
+    "version": "1.0"
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "paths": {
+    "/admin/api/users/{userId}/registry-credentials/system/rotate": {
+      "post": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Registry Credential (Admin)"
+        ],
+        "summary": "Rotate system registry credential secret",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "User ID",
+            "name": "userId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/service.RegistryCredentialInfo"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      }
+    },
+    "/admin/api/users/{userId}/registry-credentials/system/rotate/cleanup": {
+      "post": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Registry Credential (Admin)"
+        ],
+        "summary": "Cleanup system registry credential rotation",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "User ID",
+            "name": "userId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "username": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      }
+    },
+    "/admin/api/users/{userId}/repository/images": {
+      "delete": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Delete all images in a user's repository",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "User ID",
+            "name": "userId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/model.AdminCleanResult"
+            }
+          },
+          "207": {
+            "description": "Multi-Status",
+            "schema": {
+              "$ref": "#/definitions/model.AdminCleanResult"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      }
+    },
+    "/admin/api/users/{userId}/repository/quota": {
+      "put": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Update repository quota for a user",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "User ID",
+            "name": "userId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Quota size in GB",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/handler.UpdateQuotaRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      }
+    },
+    "/admin/api/users/{userId}/resources": {
+      "delete": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Deprovision all resources for a user",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "User ID",
+            "name": "userId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/model.AdminCleanResult"
+            }
+          },
+          "207": {
+            "description": "Multi-Status",
+            "schema": {
+              "$ref": "#/definitions/model.AdminCleanResult"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/registry-credential": {
+      "get": {
+        "security": [
+          {
+            "IAMAccessToken": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Registry Credential"
+        ],
+        "summary": "Get registry credentials",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/service.RegistryCredentialInfo"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/registry-credential/secret": {
+      "patch": {
+        "security": [
+          {
+            "IAMAccessToken": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Registry Credential"
+        ],
+        "summary": "Reset registry credential secret",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/service.RegistryCredentialInfo"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/repository": {
+      "get": {
+        "security": [
+          {
+            "IAMAccessToken": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Repository"
+        ],
+        "summary": "Get repository info",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/model.RepositoryResponse"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/repository/artifacts": {
+      "get": {
+        "security": [
+          {
+            "IAMAccessToken": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Artifact"
+        ],
+        "summary": "List artifacts",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Image name",
+            "name": "imageName",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Filter by artifact digest",
+            "name": "digest",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "Page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 10,
+            "description": "Page size",
+            "name": "size",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/model.ArtifactPage"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "IAMAccessToken": []
+          }
+        ],
+        "tags": [
+          "Artifact"
+        ],
+        "summary": "Delete an artifact",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Image name",
+            "name": "imageName",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Artifact digest",
+            "name": "digest",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/repository/images": {
+      "get": {
+        "security": [
+          {
+            "IAMAccessToken": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Image"
+        ],
+        "summary": "List images",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Filter by image name",
+            "name": "imageName",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "Page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 10,
+            "description": "Page size",
+            "name": "size",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/model.ImagePage"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "IAMAccessToken": []
+          }
+        ],
+        "tags": [
+          "Image"
+        ],
+        "summary": "Delete an image",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Image name",
+            "name": "imageName",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      }
+    },
+    "/internal/api/v1/registry-credentials/system": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Registry Credential (Internal)"
+        ],
+        "summary": "Get system registry credentials",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/service.RegistryCredentialInfo"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "handler.ErrorBody": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "$ref": "#/definitions/handler.ErrorDetail"
+        }
+      }
+    },
+    "handler.ErrorDetail": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        }
+      }
+    },
+    "handler.UpdateQuotaRequest": {
+      "type": "object",
+      "required": [
+        "size"
+      ],
+      "properties": {
+        "size": {
+          "type": "integer",
+          "example": 10
+        }
+      }
+    },
+    "model.AdminCleanResult": {
+      "type": "object",
+      "properties": {
+        "cacheInvalidated": {
+          "type": "boolean"
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "imagesDeleted": {
+          "type": "integer"
+        },
+        "repositoryDeleted": {
+          "type": "boolean"
+        },
+        "robotAccountsDeleted": {
+          "type": "integer"
+        },
+        "userId": {
+          "type": "integer"
+        }
+      }
+    },
+    "model.ArtifactPage": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/model.ArtifactResponse"
+          }
+        },
+        "page": {
+          "type": "integer"
+        },
+        "pageSize": {
+          "type": "integer"
+        },
+        "totalItem": {
+          "type": "integer"
+        },
+        "totalPage": {
+          "type": "integer"
+        }
+      }
+    },
+    "model.ArtifactResponse": {
+      "type": "object",
+      "properties": {
+        "digest": {
+          "type": "string"
+        },
+        "pullTime": {
+          "type": "string"
+        },
+        "pushTime": {
+          "type": "string"
+        },
+        "size": {
+          "type": "integer"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/model.TagResponse"
+          }
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "model.ImagePage": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/model.ImageResponse"
+          }
+        },
+        "page": {
+          "type": "integer"
+        },
+        "pageSize": {
+          "type": "integer"
+        },
+        "totalItem": {
+          "type": "integer"
+        },
+        "totalPage": {
+          "type": "integer"
+        }
+      }
+    },
+    "model.ImageResponse": {
+      "type": "object",
+      "properties": {
+        "artifactCount": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "pullCount": {
+          "type": "integer"
+        },
+        "updateTime": {
+          "type": "string"
+        }
+      }
+    },
+    "model.RepositoryResponse": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string"
+        },
+        "imageCount": {
+          "type": "integer",
+          "example": 5
+        },
+        "name": {
+          "type": "string",
+          "example": "my-repo"
+        },
+        "quotaLimit": {
+          "type": "integer",
+          "example": 21474836480
+        },
+        "quotaUsed": {
+          "type": "integer",
+          "example": 311926433
+        },
+        "registryUrl": {
+          "type": "string",
+          "example": "vcr.vngcloud.vn"
+        }
+      }
+    },
+    "model.TagResponse": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "pullTime": {
+          "type": "string"
+        },
+        "pushTime": {
+          "type": "string"
+        }
+      }
+    },
+    "service.RegistryCredentialInfo": {
+      "type": "object",
+      "properties": {
+        "secret": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "IAMAccessToken": {
+      "description": "IAM access token. Enter \"Bearer {token}\"",
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    }
+  }
+}

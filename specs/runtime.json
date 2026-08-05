@@ -1,0 +1,1895 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "AgentBase Runtime API",
+    "description": "Managed compute service for running containerized AI agents. It handles deploying, scaling, and routing requests to your agent containers, so you can focus on building the agent logic itself.\n\n## Authentication\nEvery request must carry a VNG Cloud IAM OAuth2 access token in the `Authorization` header as `Bearer <access_token>`. Use the **Authorize** button above to set it for \"Try it out\" calls. The gateway validates the token and enforces fine-grained IAM permissions on the **Agent Runtime** resource.\n\n## Core concepts\n- **Runtime**: a logical AI-agent application you own. Creating one provisions a container registry repository and an IAM Service Account for the agent.\n- **Version**: an immutable snapshot of a runtime's configuration (image, env vars, startup command, flavor, autoscaling). Numbered from 1; updating a runtime always creates a new version.\n- **Endpoint**: a live deployment of a specific version that actually serves traffic and exposes a public URL. The auto-created `DEFAULT` endpoint always tracks the latest version.\n- **Flavor**: a named compute size (CPU/RAM/GPU) an endpoint runs on.\n\nSee the full User Guide for end-to-end examples.",
+    "contact": {
+      "name": "GreenNode AI Platform",
+      "url": "https://aiplatform.console.greennode.ai/agent-runtime"
+    },
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": "https://agentbase.api.vngcloud.vn/runtime"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Agent Runtimes",
+      "description": "Manage AI-agent runtimes, their immutable versions, and the endpoints that deploy those versions to serve traffic."
+    },
+    {
+      "name": "Flavors",
+      "description": "Catalog of available compute sizes (CPU/RAM/GPU) that a runtime endpoint can be deployed on."
+    },
+    {
+      "name": "Runtime Traces",
+      "description": "Query distributed traces emitted by agent runtimes (backed by Tempo). Query parameters are forwarded to the tracing backend, so its query syntax applies."
+    },
+    {
+      "name": "OpenClaw Versions",
+      "description": "The catalog of published OpenClaw versions that instances can be pinned to."
+    },
+    {
+      "name": "OpenClaw",
+      "description": "Manage OpenClaw agent instances: create, run, and pin them to a published OpenClaw version."
+    }
+  ],
+  "paths": {
+    "/openclaws": {
+      "get": {
+        "tags": [
+          "OpenClaw"
+        ],
+        "summary": "List OpenClaw instances",
+        "description": "Returns a paginated list of the OpenClaw instances owned by the caller. `page` is 1-based.",
+        "operationId": "list",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponseOpenClawDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "OpenClaw"
+        ],
+        "summary": "Create an OpenClaw instance",
+        "description": "Creates a new OpenClaw instance for the caller and starts provisioning it.",
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpenClawCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenClawDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/openclaws/{id}/stop": {
+      "post": {
+        "tags": [
+          "OpenClaw"
+        ],
+        "summary": "Stop an OpenClaw instance",
+        "description": "Scales the instance down so it stops running and billing, keeping its configuration.",
+        "operationId": "stop",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/openclaws/{id}/start": {
+      "post": {
+        "tags": [
+          "OpenClaw"
+        ],
+        "summary": "Start an OpenClaw instance",
+        "description": "Scales a previously stopped instance back up so it resumes running.",
+        "operationId": "start",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/agent-runtimes": {
+      "get": {
+        "tags": [
+          "Agent Runtimes"
+        ],
+        "summary": "List runtimes",
+        "description": "Returns a paginated list of the runtimes owned by the caller. `page` is 1-based.",
+        "operationId": "list_1",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponseAgentRuntimeDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Agent Runtimes"
+        ],
+        "summary": "Create a runtime",
+        "description": "Creates a new agent runtime. This provisions a container registry repository and an IAM Service Account for the agent, records version 1, and auto-creates a DEFAULT endpoint running that version.",
+        "operationId": "create_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentRuntimeCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentRuntimeDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent-runtimes/{id}/logs": {
+      "post": {
+        "tags": [
+          "Agent Runtimes"
+        ],
+        "summary": "Search runtime logs",
+        "description": "Full-text log search across all endpoints of the runtime, over the given time range.",
+        "operationId": "getLogs",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogSearchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/LogSearchResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent-runtimes/{id}/endpoints": {
+      "get": {
+        "tags": [
+          "Agent Runtimes"
+        ],
+        "summary": "List endpoints",
+        "description": "Returns the paginated list of endpoints for a runtime, including the DEFAULT endpoint.",
+        "operationId": "listEndpoints",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponseAgentRuntimeEndpointDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Agent Runtimes"
+        ],
+        "summary": "Create an endpoint",
+        "description": "Deploys a specific version of the runtime as a new live endpoint with its own public URL. Useful for canary or A/B deployments alongside the DEFAULT endpoint.",
+        "operationId": "createEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentRuntimeEndpointCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentRuntimeEndpointDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent-runtimes/{id}/endpoints/{endpointId}/stop": {
+      "post": {
+        "tags": [
+          "Agent Runtimes"
+        ],
+        "summary": "Stop an endpoint",
+        "description": "Scales the endpoint down to zero replicas so it stops serving traffic and billing. The endpoint configuration is retained and can be started again later.",
+        "operationId": "stopEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endpointId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/agent-runtimes/{id}/endpoints/{endpointId}/start": {
+      "post": {
+        "tags": [
+          "Agent Runtimes"
+        ],
+        "summary": "Start an endpoint",
+        "description": "Scales a previously stopped endpoint back up so it resumes serving traffic.",
+        "operationId": "startEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endpointId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/agent-runtimes/{id}/endpoints/{endpointId}/logs": {
+      "post": {
+        "tags": [
+          "Agent Runtimes"
+        ],
+        "summary": "Search endpoint logs",
+        "description": "Full-text log search scoped to a single endpoint, over the given time range.",
+        "operationId": "getEndpointLogs",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endpointId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogSearchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/LogSearchResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/openclaws/{id}/version": {
+      "patch": {
+        "tags": [
+          "OpenClaw"
+        ],
+        "summary": "Change the OpenClaw version",
+        "description": "Pins the instance to a different published OpenClaw version (the `versionId` query parameter) and rolls it out.",
+        "operationId": "updateVersion",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "versionId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/agent-runtimes/{id}": {
+      "get": {
+        "tags": [
+          "Agent Runtimes"
+        ],
+        "summary": "Get a runtime",
+        "description": "Returns a single runtime by its id.",
+        "operationId": "get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentRuntimeDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Agent Runtimes"
+        ],
+        "summary": "Delete a runtime",
+        "description": "Deletes a runtime along with all of its versions and endpoints. This is irreversible.",
+        "operationId": "delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Agent Runtimes"
+        ],
+        "summary": "Update a runtime",
+        "description": "Updates the runtime configuration. Every update creates a new immutable version and advances the DEFAULT endpoint to it automatically; other endpoints keep their pinned version.",
+        "operationId": "update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentRuntimeCreateUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentRuntimeDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent-runtimes/{id}/reset-service-account": {
+      "patch": {
+        "tags": [
+          "Agent Runtimes"
+        ],
+        "summary": "Reset the runtime Service Account",
+        "description": "Rotates the IAM Service Account credentials injected into the runtime's containers. Existing endpoints pick up the new credentials on their next reconcile.",
+        "operationId": "resetServiceAccount",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/agent-runtimes/{id}/endpoints/{endpointId}": {
+      "delete": {
+        "tags": [
+          "Agent Runtimes"
+        ],
+        "summary": "Delete an endpoint",
+        "description": "Tears down a specific endpoint of the runtime and releases its compute and public URL.",
+        "operationId": "deleteEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endpointId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentRuntimeEndpointDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Agent Runtimes"
+        ],
+        "summary": "Change an endpoint's version",
+        "description": "Re-points an endpoint to a different runtime version (the `version` query parameter), rolling it out to that snapshot.",
+        "operationId": "updateEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endpointId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentRuntimeEndpointDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/openclaws/{id}": {
+      "get": {
+        "tags": [
+          "OpenClaw"
+        ],
+        "summary": "Get an OpenClaw instance",
+        "description": "Returns a single OpenClaw instance by its id.",
+        "operationId": "get_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenClawDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "OpenClaw"
+        ],
+        "summary": "Delete an OpenClaw instance",
+        "description": "Deletes an OpenClaw instance and releases its resources. This is irreversible.",
+        "operationId": "delete_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/openclaw-versions": {
+      "get": {
+        "tags": [
+          "OpenClaw Versions"
+        ],
+        "summary": "List OpenClaw versions",
+        "description": "Returns all published OpenClaw versions available to pin instances to.",
+        "operationId": "list_2",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OpenClawVersionDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/flavors": {
+      "get": {
+        "tags": [
+          "Flavors"
+        ],
+        "summary": "List flavors",
+        "description": "Returns all available compute flavors. Optionally filter by `resourceType` to get only the flavors valid for a given kind of resource.",
+        "operationId": "listAll",
+        "parameters": [
+          {
+            "name": "resourceType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FlavorEntity"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent-runtimes:trace-search-tag-values": {
+      "get": {
+        "tags": [
+          "Runtime Traces"
+        ],
+        "summary": "List trace tag values",
+        "description": "Returns the known values for a given trace tag (`tagKey`), useful for building filters.",
+        "operationId": "searchTagValues",
+        "parameters": [
+          {
+            "name": "tagKey",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "allParams",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/MultiValueMapStringString"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent-runtimes:search-traces": {
+      "get": {
+        "tags": [
+          "Runtime Traces"
+        ],
+        "summary": "Search traces",
+        "description": "Searches for traces matching the forwarded query parameters. Returns the raw tracing backend response as JSON.",
+        "operationId": "searchTraces",
+        "parameters": [
+          {
+            "name": "allParams",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/MultiValueMapStringString"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent-runtimes:get-trace": {
+      "get": {
+        "tags": [
+          "Runtime Traces"
+        ],
+        "summary": "Get a trace by id",
+        "description": "Returns the full trace identified by `traceId` as raw JSON from the tracing backend.",
+        "operationId": "getTrace",
+        "parameters": [
+          {
+            "name": "traceId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "allParams",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/MultiValueMapStringString"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent-runtimes/{id}/versions": {
+      "get": {
+        "tags": [
+          "Agent Runtimes"
+        ],
+        "summary": "List runtime versions",
+        "description": "Returns the paginated, sequentially-numbered version history of a runtime.",
+        "operationId": "listVersions",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponseAgentRuntimeVersionDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent-runtimes/{id}/endpoints/{endpointId}/metrics": {
+      "get": {
+        "tags": [
+          "Agent Runtimes"
+        ],
+        "summary": "Get endpoint metrics",
+        "description": "Returns resource-usage metrics (e.g. CPU, memory, network) for an endpoint over the given time range. Omit the timestamps to use the default range.",
+        "operationId": "getEndpointMetrics",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endpointId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fromTimestamp",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
+          },
+          {
+            "name": "toTimestamp",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentRuntimeEndpointMetrics"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent-runtimes/{id}/endpoints/{endpointId}/events": {
+      "get": {
+        "tags": [
+          "Agent Runtimes"
+        ],
+        "summary": "Get endpoint events",
+        "description": "Returns the recent Kubernetes events for an endpoint, useful for diagnosing why it is not becoming ready.",
+        "operationId": "getEndpointEvents",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endpointId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KubeEventDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "GreenNodeModelProvider": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "apiKeyName": {
+            "type": "string"
+          }
+        }
+      },
+      "OpenClawChannel": {
+        "type": "object",
+        "properties": {
+          "botToken": {
+            "type": "string",
+            "minLength": 1
+          },
+          "dmPolicy": {
+            "type": "string"
+          },
+          "dmAllowedUserIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "botToken"
+        ]
+      },
+      "OpenClawChannelList": {
+        "type": "object",
+        "properties": {
+          "telegram": {
+            "$ref": "#/components/schemas/OpenClawChannel"
+          },
+          "zalo": {
+            "$ref": "#/components/schemas/OpenClawChannel"
+          }
+        }
+      },
+      "OpenClawCreateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 0,
+            "pattern": "^[a-z0-9-]*$"
+          },
+          "versionId": {
+            "type": "string"
+          },
+          "greenNodeModelProvider": {
+            "$ref": "#/components/schemas/GreenNodeModelProvider"
+          },
+          "environmentVariables": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "channels": {
+            "$ref": "#/components/schemas/OpenClawChannelList"
+          },
+          "flavorId": {
+            "type": "string"
+          },
+          "poc": {
+            "type": "boolean"
+          }
+        }
+      },
+      "OpenClawDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "versionId": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "gatewayToken": {
+            "type": "string"
+          },
+          "greenNodeApiKeyName": {
+            "type": "string"
+          },
+          "flavorId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "poc": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AgentRuntimeAutoscaling": {
+        "type": "object",
+        "properties": {
+          "maxReplicas": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 10,
+            "minimum": 1
+          },
+          "cpuUtilization": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 90,
+            "minimum": 10
+          },
+          "memoryUtilization": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 90,
+            "minimum": 10
+          }
+        }
+      },
+      "AgentRuntimeCreateRequest": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string",
+            "minLength": 1
+          },
+          "imageAuth": {
+            "$ref": "#/components/schemas/AgentRuntimeImageAuth"
+          },
+          "command": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "args": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "environmentVariables": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "networkConfig": {
+            "$ref": "#/components/schemas/AgentRuntimeNetworkConfig"
+          },
+          "flavorId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "autoscaling": {
+            "$ref": "#/components/schemas/AgentRuntimeAutoscaling"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "poc": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "args",
+          "autoscaling",
+          "command",
+          "description",
+          "environmentVariables",
+          "flavorId",
+          "imageAuth",
+          "imageUrl",
+          "name"
+        ]
+      },
+      "AgentRuntimeImageAuth": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "useAgentBaseRegistryCredentials": {
+            "type": "boolean"
+          },
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "AgentRuntimeNetworkConfig": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string"
+          },
+          "vpcId": {
+            "type": "string"
+          },
+          "subnetId": {
+            "type": "string"
+          },
+          "routeCidrs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "mode"
+        ]
+      },
+      "AgentRuntimeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "statusReason": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "poc": {
+            "type": "boolean"
+          }
+        }
+      },
+      "LogSearchRequest": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 5000
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 500
+          },
+          "fromTimestamp": {
+            "type": "string"
+          },
+          "toTimestamp": {
+            "type": "string"
+          },
+          "query": {
+            "type": "string"
+          },
+          "order": {
+            "type": "string"
+          }
+        }
+      },
+      "LogRecord": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          }
+        }
+      },
+      "LogSearchResult": {
+        "type": "object",
+        "properties": {
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "logs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LogRecord"
+            }
+          }
+        }
+      },
+      "AgentRuntimeEndpointCreateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "AgentRuntimeEndpointDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "agentRuntimeId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "currentReplicaCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "url": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AgentRuntimeCreateUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string",
+            "minLength": 1
+          },
+          "imageAuth": {
+            "$ref": "#/components/schemas/AgentRuntimeImageAuth"
+          },
+          "command": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "args": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "environmentVariables": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "networkConfig": {
+            "$ref": "#/components/schemas/AgentRuntimeNetworkConfig"
+          },
+          "flavorId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "autoscaling": {
+            "$ref": "#/components/schemas/AgentRuntimeAutoscaling"
+          },
+          "poc": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "args",
+          "autoscaling",
+          "command",
+          "description",
+          "environmentVariables",
+          "flavorId",
+          "imageAuth",
+          "imageUrl"
+        ]
+      },
+      "ListResponseOpenClawDto": {
+        "type": "object",
+        "properties": {
+          "listData": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OpenClawDto"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPage": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItem": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "OpenClawVersionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "defaultVersion": {
+            "type": "boolean"
+          }
+        }
+      },
+      "FlavorEntity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "cpu": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ram": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "supportedResourceTypes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "deleted": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ListResponseAgentRuntimeDto": {
+        "type": "object",
+        "properties": {
+          "listData": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AgentRuntimeDto"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPage": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItem": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "MultiValueMapStringString": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "properties": {
+          "all": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "writeOnly": true
+          },
+          "empty": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AgentRuntimeAutoscalingEntity": {
+        "type": "object",
+        "properties": {
+          "minReplicas": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maxReplicas": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cpuUtilization": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "memoryUtilization": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AgentRuntimeImageAuthDto": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "useAgentBaseRegistryCredentials": {
+            "type": "boolean"
+          },
+          "username": {
+            "type": "string"
+          }
+        }
+      },
+      "AgentRuntimeNetworkConfigEntity": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string"
+          },
+          "vpcId": {
+            "type": "string"
+          },
+          "subnetId": {
+            "type": "string"
+          },
+          "routeCidrs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "AgentRuntimeVersionDto": {
+        "type": "object",
+        "properties": {
+          "agentRuntimeId": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "description": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "imageAuth": {
+            "$ref": "#/components/schemas/AgentRuntimeImageAuthDto"
+          },
+          "command": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "args": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "environmentVariables": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "networkConfig": {
+            "$ref": "#/components/schemas/AgentRuntimeNetworkConfigEntity"
+          },
+          "flavorId": {
+            "type": "string"
+          },
+          "autoscaling": {
+            "$ref": "#/components/schemas/AgentRuntimeAutoscalingEntity"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ListResponseAgentRuntimeVersionDto": {
+        "type": "object",
+        "properties": {
+          "listData": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AgentRuntimeVersionDto"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPage": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItem": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ListResponseAgentRuntimeEndpointDto": {
+        "type": "object",
+        "properties": {
+          "listData": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AgentRuntimeEndpointDto"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPage": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItem": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AgentRuntimeEndpointMetrics": {
+        "type": "object",
+        "properties": {
+          "cpuCoresUsage": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MetricDataPointDouble"
+            }
+          },
+          "memoryBytesUsage": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MetricDataPointLong"
+            }
+          }
+        }
+      },
+      "MetricDataPointDouble": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "value": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "MetricDataPointLong": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "value": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "KubeEventDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "lastTimestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "description": "VNG Cloud IAM OAuth2 access token. Obtain a token by exchanging your Service Account clientId/clientSecret at the IAM token endpoint (grant_type=client_credentials), then send it as `Bearer <access_token>`.",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

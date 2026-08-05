@@ -1,0 +1,35 @@
+{
+  "name": "greennode-agentbase-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "fetch-specs": "tsx scripts/fetch-specs.ts",
+    "generate-registry": "tsx scripts/generate-registry.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "express": "^5.0.0",
+    "jmespath": "^0.16.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@apidevtools/swagger-parser": "^10.1.0",
+    "@types/express": "^5.0.0",
+    "@types/jmespath": "^0.15.2",
+    "@types/node": "^20.14.0",
+    "@types/supertest": "^6.0.2",
+    "@types/swagger2openapi": "^7.0.4",
+    "supertest": "^7.0.0",
+    "swagger2openapi": "^7.0.8",
+    "tsx": "^4.16.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.0.0"
+  }
+}

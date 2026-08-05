@@ -1,0 +1,1172 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "AgentBase Memory API",
+    "description": "Managed long-term memory service for AI agents. It captures the raw events of an agent's interactions and distills them into durable, semantically searchable memory records, so your agents can recall context across sessions without you running your own vector store or extraction pipeline.\n\n## Authentication\nEvery request must carry a VNG Cloud IAM OAuth2 access token in the `Authorization` header as `Bearer <access_token>`. Use the **Authorize** button above to set it for \"Try it out\" calls. The gateway validates the token and enforces fine-grained IAM permissions on the **Agent Memory** resource.\n\n## Core concepts\n- **Memory**: a top-level store you own. It holds the events and memory records for one agent application, and defines how long raw events are retained (`eventExpiryDuration`, in days) and which long-term memory strategies apply.\n- **Long-term memory strategy (LTMS)**: the recipe for turning raw interactions into long-term memory records. It sets the extraction `type`, an optional custom fact-extraction prompt, a `namespaceTemplate` that decides where records land, and whether records are generated automatically.\n- **Event**: an immutable raw interaction (a payload plus timestamp) appended under an actor and session. Events form the short-term, episodic history and expire after the memory's `eventExpiryDuration`.\n- **Actor / Session**: events are organized by **actor** (who the interaction is with, e.g. an end user) and **session** (a single conversation with that actor).\n- **Memory record**: a distilled long-term fact extracted from events or supplied content. Records live in a **namespace** and are retrievable by semantic search.\n- **Namespace**: a logical partition for memory records, resolved from a strategy's `namespaceTemplate` (which may contain placeholders such as `{actorId}`).\n\nRecords can be produced automatically as events accumulate, generated on demand from a session or from content you post, or inserted directly.",
+    "contact": {
+      "name": "GreenNode AI Platform",
+      "url": "https://aiplatform.console.greennode.ai/memory"
+    },
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": "https://agentbase.api.vngcloud.vn/memory"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Memories",
+      "description": "Manage memory stores and everything they contain: the raw events of an agent's interactions (organized by actor and session) and the distilled, semantically searchable long-term memory records generated from them."
+    }
+  ],
+  "paths": {
+    "/memories": {
+      "get": {
+        "tags": [
+          "Memories"
+        ],
+        "summary": "List memories",
+        "description": "Returns a paginated list of the memory stores owned by the caller. `page` is 1-based.",
+        "operationId": "list",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponseMemoryEntity"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Memories"
+        ],
+        "summary": "Create a memory",
+        "description": "Creates a new memory store for the caller, along with the long-term memory strategies supplied in the request. `eventExpiryDuration` (in days) sets how long raw events are retained.",
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemoryCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemoryEntity"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/memories/{id}/memory-records:search": {
+      "post": {
+        "tags": [
+          "Memories"
+        ],
+        "summary": "Search memory records",
+        "description": "Semantically searches the memory records in the given `namespace` for those most relevant to the query, returning up to `limit` results above the `scoreThreshold`.",
+        "operationId": "searchMemoryRecords",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "namespace",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemoryRecordSearchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MemoryRecord"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/memories/{id}/memory-records:insert-directly": {
+      "post": {
+        "tags": [
+          "Memories"
+        ],
+        "summary": "Insert memory records directly",
+        "description": "Writes the supplied memory records into the given `namespace` verbatim, bypassing the extraction pipeline. Use this to seed or import records you already have.",
+        "operationId": "insertMemoryRecordsDirectly",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "namespace",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemoryRecordInsertDirectlyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/memories/{id}/memory-records:generate-from-session": {
+      "post": {
+        "tags": [
+          "Memories"
+        ],
+        "summary": "Generate memory records from a session",
+        "description": "Runs the given long-term memory strategy over the stored events of an actor's session to extract and store memory records on demand.",
+        "operationId": "generateMemoryRecordsFromSession",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "actorId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessionId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "longTermMemoryStrategyId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/memories/{id}/memory-records:generate-from-content": {
+      "post": {
+        "tags": [
+          "Memories"
+        ],
+        "summary": "Generate memory records from content",
+        "description": "Runs the given long-term memory strategy over the chat messages in the request body to extract and store memory records, without persisting the messages as events. `actorId` and `sessionId` are optional and only used to resolve the target namespace.",
+        "operationId": "generateMemoryRecordsFromContent",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "longTermMemoryStrategyId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "actorId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
+          },
+          {
+            "name": "sessionId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemoryRecordGenerateFromContentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/memories/{id}/actors/{actorId}/sessions/{sessionId}/events": {
+      "get": {
+        "tags": [
+          "Memories"
+        ],
+        "summary": "List events",
+        "description": "Streams the events of an actor's session as JSON, most recent first, optionally bounded by the `fromTimestamp`/`toTimestamp` range. Page size is capped at 100.",
+        "operationId": "listEvents",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "actorId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fromTimestamp",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
+          },
+          {
+            "name": "toTimestamp",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Memories"
+        ],
+        "summary": "Create an event",
+        "description": "Appends a raw interaction event to the given actor's session. Events form the episodic history and are the source material for long-term memory record generation. If `eventTimestamp` is omitted, the server timestamps the event on receipt.",
+        "operationId": "createEvent",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "actorId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/memories/{id}": {
+      "get": {
+        "tags": [
+          "Memories"
+        ],
+        "summary": "Get a memory",
+        "description": "Returns a single memory store by its id.",
+        "operationId": "get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemoryEntity"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Memories"
+        ],
+        "summary": "Delete a memory",
+        "description": "Deletes a memory store together with all of its events and memory records. This is irreversible.",
+        "operationId": "delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/memories/{id}/memory-records": {
+      "get": {
+        "tags": [
+          "Memories"
+        ],
+        "summary": "List memory records",
+        "description": "Returns the long-term memory records stored under the given `namespace`, up to `limit`.",
+        "operationId": "listMemoryRecords",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "namespace",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MemoryRecord"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/memories/{id}/long-term-memory-strategies": {
+      "get": {
+        "tags": [
+          "Memories"
+        ],
+        "summary": "List long-term memory strategies",
+        "description": "Returns the long-term memory strategies configured on the memory, which govern how records are extracted and where they are stored.",
+        "operationId": "listLongTermMemoryStrategies",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LongTermMemoryStrategyEntity"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/memories/{id}/actors": {
+      "get": {
+        "tags": [
+          "Memories"
+        ],
+        "summary": "List actors",
+        "description": "Returns a paginated list of the actors that have events in this memory. `page` is 1-based.",
+        "operationId": "listActors",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponseActorDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/memories/{id}/actors/{actorId}/sessions": {
+      "get": {
+        "tags": [
+          "Memories"
+        ],
+        "summary": "List sessions",
+        "description": "Returns a paginated list of the sessions belonging to an actor in this memory. `page` is 1-based.",
+        "operationId": "listSessions",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "actorId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponseSessionDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/memories/{id}/memory-records/{memoryRecordId}": {
+      "delete": {
+        "tags": [
+          "Memories"
+        ],
+        "summary": "Delete a memory record",
+        "description": "Deletes a single long-term memory record by its id.",
+        "operationId": "deleteMemoryRecord",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "memoryRecordId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/memories/{id}/actors/{actorId}/sessions/{sessionId}/events/{eventId}": {
+      "delete": {
+        "tags": [
+          "Memories"
+        ],
+        "summary": "Delete an event",
+        "description": "Deletes a single event from an actor's session by its id.",
+        "operationId": "deleteEvent",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "actorId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "eventId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "LongTermMemoryStrategy": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "customFactExtractionPrompt": {
+            "type": "string",
+            "maxLength": 10000,
+            "minLength": 0
+          },
+          "namespaceTemplate": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 0,
+            "pattern": "^[a-zA-Z0-9{}/._-]*$"
+          },
+          "enableAutomaticMemoryRecordGeneration": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "namespaceTemplate",
+          "type"
+        ]
+      },
+      "MemoryCreateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 0,
+            "pattern": "^[a-zA-Z0-9._-]*$"
+          },
+          "description": {
+            "type": "string"
+          },
+          "eventExpiryDuration": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 365,
+            "minimum": 1
+          },
+          "longTermMemoryStrategies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LongTermMemoryStrategy"
+            }
+          }
+        },
+        "required": [
+          "description",
+          "longTermMemoryStrategies",
+          "name"
+        ]
+      },
+      "MemoryEntity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "eventExpiryDuration": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "portalUserId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "MemoryRecordSearchRequest": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 200,
+            "minimum": 5
+          },
+          "scoreThreshold": {
+            "type": "number",
+            "format": "float",
+            "maximum": 1,
+            "minimum": 0
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "MemoryRecord": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "memory": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number",
+            "format": "double"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "MemoryRecordInsertDirectlyRequest": {
+        "type": "object",
+        "properties": {
+          "memoryRecords": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "memoryRecords"
+        ]
+      },
+      "ChatMessage": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "minLength": 1
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "content",
+          "role"
+        ]
+      },
+      "MemoryRecordGenerateFromContentRequest": {
+        "type": "object",
+        "properties": {
+          "chatMessages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChatMessage"
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "chatMessages"
+        ]
+      },
+      "EventCreateRequest": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "$ref": "#/components/schemas/EventPayload"
+          },
+          "eventTimestamp": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "payload"
+        ]
+      },
+      "EventPayload": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "role": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 0
+          },
+          "binaryData": {
+            "type": "string",
+            "maxLength": 10485760,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "ListResponseMemoryEntity": {
+        "type": "object",
+        "properties": {
+          "listData": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MemoryEntity"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPage": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItem": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "LongTermMemoryStrategyEntity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "memoryId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "customFactExtractionPrompt": {
+            "type": "string"
+          },
+          "namespaceTemplate": {
+            "type": "string"
+          },
+          "enableAutomaticMemoryRecordGeneration": {
+            "type": "boolean"
+          },
+          "portalUserId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ActorDto": {
+        "type": "object",
+        "properties": {
+          "memoryId": {
+            "type": "string"
+          },
+          "actorId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "ListResponseActorDto": {
+        "type": "object",
+        "properties": {
+          "listData": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActorDto"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPage": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItem": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ListResponseSessionDto": {
+        "type": "object",
+        "properties": {
+          "listData": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SessionDto"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPage": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItem": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SessionDto": {
+        "type": "object",
+        "properties": {
+          "memoryId": {
+            "type": "string"
+          },
+          "actorId": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "description": "VNG Cloud IAM OAuth2 access token. Obtain a token by exchanging your Service Account clientId/clientSecret at the IAM token endpoint (grant_type=client_credentials), then send it as `Bearer <access_token>`.",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

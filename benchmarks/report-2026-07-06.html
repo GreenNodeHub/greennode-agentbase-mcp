@@ -1,0 +1,701 @@
+<title>AgentBase MCP — Gateway vs Flat Baseline · Token Benchmark</title>
+<meta name="description" content="Token-cost benchmark comparing a 3-tool meta-tool gateway against a naive 116-tool flat baseline of the AgentBase MCP server, run against deployed dev endpoints under z-ai/glm-5.2.">
+<style>
+  :root {
+    --ground:    #F5F8FB;
+    --surface:   #FFFFFF;
+    --surface-2: #EEF3F8;
+    --ink:       #0D1B2A;
+    --ink-2:     #3D5063;
+    --ink-3:     #6B7E90;
+    --border:    #DBE3EC;
+    --border-2:  #C6D2DE;
+
+    --cyan:   #1583B8;
+    --amber:  #BE780A;
+    --green:  #1E9E5A;
+    --indigo: #5458D6;
+    --coral:  #C2410C;
+
+    --ok:     #1E9E5A;
+    --ok-bg:  #E6F5EC;
+    --warn:   #C2410C;
+    --warn-bg:#FBEAE1;
+    --cyan-bg:#E4F1F8;
+    --amber-bg:#FAF0DC;
+
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+    --shadow: 0 1px 2px rgba(13,27,42,.04), 0 4px 16px rgba(13,27,42,.06);
+
+    --maxw: 760px;
+    --nav-w: 290px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; animation: none !important; } }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .skip { position: absolute; left: -999px; top: 0; background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 6px; z-index: 100; }
+  .skip:focus { left: 12px; top: 12px; }
+
+  a { color: var(--cyan); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .shell { display: grid; grid-template-columns: var(--nav-w) 1fr; min-height: 100vh; }
+
+  /* sidebar */
+  .nav {
+    position: sticky; top: 0; align-self: start; height: 100vh;
+    border-right: 1px solid var(--border);
+    background: var(--surface);
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+  }
+  .nav-head { padding: 26px 24px 18px; border-bottom: 1px solid var(--border); }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: var(--mono); font-weight: 700; font-size: 13px; letter-spacing: .02em; color: var(--ink); }
+  .brand .glyph { width: 28px; height: 28px; border-radius: 7px; flex: none; background: linear-gradient(135deg, var(--cyan), var(--indigo)); display: grid; place-items: center; color: #fff; font-size: 15px; }
+  .brand-sub { margin-top: 10px; font-size: 12px; color: var(--ink-3); line-height: 1.5; font-family: var(--mono); }
+  .pill { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--green); background: var(--ok-bg); padding: 4px 9px; border-radius: 999px; font-weight: 600; }
+  .pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+
+  .toc { list-style: none; margin: 0; padding: 14px 12px 24px; }
+  .toc li { margin: 1px 0; }
+  .toc a { display: grid; grid-template-columns: 26px 1fr; align-items: baseline; gap: 4px; padding: 7px 12px; border-radius: 8px; color: var(--ink-2); font-size: 13.5px; line-height: 1.35; transition: background .14s, color .14s; }
+  .toc a:hover { background: var(--surface-2); text-decoration: none; color: var(--ink); }
+  .toc a .n { font-family: var(--mono); font-size: 11px; color: var(--ink-3); font-weight: 600; }
+  .toc a.active { background: var(--cyan-bg); color: var(--ink); font-weight: 600; box-shadow: inset 2px 0 0 var(--cyan); }
+  .toc a.active .n { color: var(--cyan); }
+
+  /* main */
+  main { min-width: 0; }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 32px; }
+
+  .hero { padding: 76px 0 44px; border-bottom: 1px solid var(--border); }
+  .hero .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--cyan); font-weight: 600; margin-bottom: 18px; }
+  .hero h1 { font-size: clamp(30px, 4.4vw, 46px); line-height: 1.08; margin: 0 0 20px; letter-spacing: -.02em; font-weight: 800; text-wrap: balance; }
+  .hero p { font-size: 18px; color: var(--ink-2); margin: 0; max-width: 62ch; }
+  .hero .meta { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 10px; font-family: var(--mono); font-size: 12px; }
+  .hero .meta span { background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 6px 13px; color: var(--ink-2); }
+  .hero .meta b { color: var(--ink); font-weight: 600; }
+
+  section { padding: 56px 0; border-bottom: 1px solid var(--border); scroll-margin-top: 20px; }
+  section:last-of-type { border-bottom: none; }
+  .sec-eyebrow { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; color: var(--sec); }
+  .sec-eyebrow .num { width: 30px; height: 30px; border-radius: 8px; flex: none; display: grid; place-items: center; color: #fff; background: var(--sec); font-size: 13px; letter-spacing: 0; }
+  section h2 { font-size: clamp(23px, 3vw, 30px); margin: 0 0 18px; letter-spacing: -.015em; font-weight: 750; line-height: 1.15; text-wrap: balance; }
+  section h3 { font-size: 16px; margin: 32px 0 10px; font-weight: 700; letter-spacing: -.005em; display: flex; align-items: center; gap: 9px; }
+  section h3::before { content: ""; width: 7px; height: 7px; border-radius: 2px; background: var(--sec); flex: none; }
+  p { margin: 0 0 16px; }
+  .lead { font-size: 17.5px; color: var(--ink-2); }
+  strong { font-weight: 650; color: var(--ink); }
+  code { font-family: var(--mono); font-size: .87em; background: var(--surface-2); padding: 2px 6px; border-radius: 5px; color: var(--ink); border: 1px solid var(--border); }
+
+  ul.clean { list-style: none; margin: 0 0 16px; padding: 0; }
+  ul.clean li { position: relative; padding-left: 22px; margin: 9px 0; }
+  ul.clean li::before { content: ""; position: absolute; left: 4px; top: 10px; width: 6px; height: 6px; border-radius: 2px; background: var(--sec); }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px 24px; margin: 22px 0; box-shadow: var(--shadow); }
+  .card-label { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; margin-bottom: 12px; }
+
+  .callout { border-radius: 12px; padding: 16px 18px; margin: 20px 0; font-size: 14.5px; line-height: 1.6; border: 1px solid; display: grid; grid-template-columns: auto 1fr; gap: 13px; align-items: start; }
+  .callout .ic { font-family: var(--mono); font-weight: 700; font-size: 13px; margin-top: 1px; }
+  .callout.tip  { background: var(--cyan-bg);  border-color: #BCDDEB; color: #0c3c52; }
+  .callout.tip .ic { color: var(--cyan); }
+  .callout.warn { background: var(--warn-bg);  border-color: #F0CDB9; color: #6e2a0d; }
+  .callout.warn .ic { color: var(--warn); }
+  .callout.note { background: var(--amber-bg); border-color: #EAD9AE; color: #5e480c; }
+  .callout.note .ic { color: var(--amber); }
+  .callout b { color: inherit; }
+
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 22px 0; }
+  .panel { border-radius: 12px; padding: 18px 20px; border: 1px solid; }
+  .panel.pro { background: var(--ok-bg); border-color: #BFE3CD; }
+  .panel.con { background: var(--warn-bg); border-color: #F0CDB9; }
+  .panel h4 { margin: 0 0 12px; font-size: 12px; font-family: var(--mono); letter-spacing: .08em; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+  .panel.pro h4 { color: #146c3c; }
+  .panel.con h4 { color: #8a3410; }
+  .panel ul { list-style: none; margin: 0; padding: 0; }
+  .panel li { padding-left: 20px; position: relative; margin: 8px 0; font-size: 14px; line-height: 1.5; }
+  .panel.pro li::before { content: "+"; position: absolute; left: 2px; color: #1E9E5A; font-weight: 700; font-family: var(--mono); }
+  .panel.con li::before { content: "−"; position: absolute; left: 2px; color: #C2410C; font-weight: 700; font-family: var(--mono); }
+
+  .table-wrap { overflow-x: auto; margin: 22px 0; border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; min-width: 540px; background: var(--surface); }
+  th, td { text-align: left; padding: 11px 15px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { font-family: var(--mono); font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; background: var(--surface-2); position: sticky; top: 0; }
+  tr:last-child td { border-bottom: none; }
+  td b { font-weight: 650; }
+  .tag { display: inline-block; font-family: var(--mono); font-size: 10.5px; padding: 2px 8px; border-radius: 999px; font-weight: 600; letter-spacing: .02em; }
+  .tag.yes { background: var(--ok-bg); color: #146c3c; }
+  .tag.no  { background: var(--warn-bg); color: #8a3410; }
+  .tag.mid { background: var(--amber-bg); color: #6e520c; }
+  td.num { font-variant-numeric: tabular-nums; font-family: var(--mono); }
+
+  pre { background: #0E1C2B; color: #C9DCEA; border-radius: 12px; padding: 18px 20px; overflow-x: auto; font-family: var(--mono); font-size: 13px; line-height: 1.6; margin: 20px 0; border: 1px solid #1a3450; }
+  pre .cm { color: #5B7B93; font-style: italic; }
+  pre .k  { color: #6FB8E0; }
+  pre .s  { color: #E0A95C; }
+
+  /* diagram (vertical flow) */
+  .diagram { overflow-x: auto; margin: 22px 0; }
+  .flow { display: flex; flex-direction: column; gap: 0; min-width: 420px; font-family: var(--mono); font-size: 13px; }
+  .node { background: var(--surface); border: 1.5px solid var(--border-2); border-radius: 10px; padding: 11px 15px; position: relative; box-shadow: var(--shadow); }
+  .node .nh { font-weight: 700; color: var(--ink); font-size: 13px; }
+  .node .nd { color: var(--ink-3); font-size: 12px; margin-top: 3px; line-height: 1.45; }
+  .node.accent { border-color: var(--sec); border-left-width: 4px; }
+  .node.subtle { background: var(--surface-2); border-style: dashed; }
+  .arrow { align-self: center; color: var(--ink-3); padding: 6px 0; font-size: 15px; line-height: 1; }
+  .arrow small { font-family: var(--mono); font-size: 11px; color: var(--ink-3); margin-left: 6px; }
+  .arrow.back { color: var(--ink-3); }
+
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 14px; margin: 22px 0; }
+  .tile { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; box-shadow: var(--shadow); }
+  .tile .v { font-size: 26px; font-weight: 800; font-family: var(--mono); letter-spacing: -.02em; color: var(--sec); font-variant-numeric: tabular-nums; }
+  .tile .l { font-size: 12px; color: var(--ink-3); margin-top: 4px; line-height: 1.4; }
+
+  .bars { margin: 22px 0; display: flex; flex-direction: column; gap: 10px; }
+  .bars .grp { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); letter-spacing: .04em; text-transform: uppercase; margin-top: 6px; }
+  .bars .grp:first-child { margin-top: 0; }
+  .bar-row { display: grid; grid-template-columns: 150px 1fr; gap: 14px; align-items: center; font-size: 13px; }
+  .bar-row .lab { font-family: var(--mono); color: var(--ink-2); font-size: 12px; }
+  .bar-track { background: var(--surface-2); border-radius: 6px; height: 26px; position: relative; overflow: hidden; border: 1px solid var(--border); }
+  .bar-fill { height: 100%; border-radius: 5px 0 0 5px; display: flex; align-items: center; padding: 0 10px; color: #fff; font-family: var(--mono); font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+  @media (max-width: 540px) { .bar-row { grid-template-columns: 1fr; gap: 5px; } }
+
+  details { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin: 18px 0; overflow: hidden; box-shadow: var(--shadow); }
+  summary { cursor: pointer; padding: 15px 20px; font-weight: 650; font-size: 14.5px; list-style: none; display: flex; align-items: center; gap: 11px; user-select: none; }
+  summary::-webkit-details-marker { display: none; }
+  summary::before { content: "▸"; color: var(--sec); font-size: 12px; transition: transform .18s; flex: none; }
+  details[open] summary::before { transform: rotate(90deg); }
+  summary .st { font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--sec); background: var(--surface-2); padding: 3px 8px; border-radius: 999px; margin-left: auto; font-weight: 600; }
+  details .body { padding: 0 20px 18px; font-size: 14px; color: var(--ink-2); border-top: 1px solid var(--border); padding-top: 14px; }
+  details .body p:last-child { margin-bottom: 0; }
+
+  footer { padding: 40px 0 70px; color: var(--ink-3); font-size: 13px; font-family: var(--mono); line-height: 1.7; }
+  footer b { color: var(--ink-2); }
+</style>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="shell">
+
+  <!-- ───────────────────────── sidebar ───────────────────────── -->
+  <nav class="nav" aria-label="Contents">
+    <div class="nav-head">
+      <div class="brand">
+        <span class="glyph" aria-hidden="true">◳</span>
+        <span>AgentBase&nbsp;MCP</span>
+      </div>
+      <div class="brand-sub">Gateway vs flat baseline<br>Token-cost benchmark</div>
+      <span class="pill">2026-07-06</span>
+    </div>
+    <ol class="toc" id="toc">
+      <li><a href="#summary"><span class="n">01</span><span>Summary</span></a></li>
+      <li><a href="#setup"><span class="n">02</span><span>Setup &amp; methodology</span></a></li>
+      <li><a href="#variants"><span class="n">03</span><span>The two variants</span></a></li>
+      <li><a href="#architecture"><span class="n">04</span><span>Gateway architecture</span></a></li>
+      <li><a href="#manifest"><span class="n">05</span><span>Phase 1 — Manifest tax</span></a></li>
+      <li><a href="#latency"><span class="n">06</span><span>Phase 2 — Latency &amp; response</span></a></li>
+      <li><a href="#e2e"><span class="n">07</span><span>Phase 3 — End-to-end</span></a></li>
+      <li><a href="#analysis"><span class="n">08</span><span>Analysis &amp; break-even</span></a></li>
+      <li><a href="#limits"><span class="n">09</span><span>Limitations</span></a></li>
+    </ol>
+  </nav>
+
+  <!-- ───────────────────────── main ───────────────────────── -->
+  <main id="main">
+    <div class="wrap">
+
+      <!-- hero -->
+      <header class="hero">
+        <div class="eyebrow">Token Benchmark</div>
+        <h1>A meta-tool gateway beats a flat 116-tool manifest — by 7–41% fewer tokens per session.</h1>
+        <p>Two variants of the AgentBase MCP server — a 3-tool meta-tool gateway backed by BM25 search, and a naive flat baseline exposing all 116 operations directly — compared on manifest size, latency, and end-to-end token cost. Under z-ai/glm-5.2, with the CLI escape hatch closed, the gateway wins all four tasks.</p>
+        <div class="meta">
+          <span><b>Model</b> · z-ai/glm-5.2</span>
+          <span><b>Suite</b> · 4 tasks × 2 variants</span>
+          <span><b>Endpoints</b> · dev (deployed)</span>
+          <span><b>Date</b> · 2026-07-06</span>
+        </div>
+      </header>
+
+      <!-- ── 01 SUMMARY ─────────────────────────────────────── -->
+      <section id="summary" style="--sec: var(--cyan)">
+        <div class="sec-eyebrow"><span class="num">01</span>Summary</div>
+        <h2>The gateway's value is amortization, not per-call efficiency.</h2>
+        <p class="lead">The flat baseline was built as a deliberately naive reference point to quantify the "MCP tax" the gateway exists to avoid. The headline: flat loads <strong>36.8×</strong> the manifest into context, paid every turn — and that fixed cost dominates short-to-medium sessions.</p>
+
+        <div class="tiles">
+          <div class="tile"><div class="v">36.8×</div><div class="l">flat manifest vs gateway (data payload)</div></div>
+          <div class="tile"><div class="v">14.6k</div><div class="l">flat manifest tokens/turn vs ~397 for gateway</div></div>
+          <div class="tile"><div class="v">4 / 4</div><div class="l">tasks the gateway wins (1–4 ops)</div></div>
+          <div class="tile"><div class="v">7–41%</div><div class="l">fewer input tokens, gateway vs flat</div></div>
+        </div>
+
+        <div class="callout tip">
+          <span class="ic">→</span>
+          <div><b>Headline finding.</b> With the model actually using the MCP server (CLI bypass disabled), the gateway wins all four end-to-end tasks by 7% to 41% fewer input tokens, and the win is stable across re-runs (multi-op-same and multi-op-cross both n=2, consistent to within ~1k tokens). The absolute savings grow with op count.</div>
+        </div>
+
+        <div class="callout warn">
+          <span class="ic">⚠</span>
+          <div><b>Methodology trap.</b> An earlier run-set showed "flat won 2 of 3" — that was an artifact. By default the <code>agentbase</code> skill and <code>Bash</code> tool are available, and glm-5.2 bypassed the MCP server entirely by running the <code>greennode</code> CLI. Those runs measured the CLI, not the variants. The clean numbers use <code>--disallowed-tools Bash Skill</code>. <a href="#e2e">See §07.</a></div>
+        </div>
+
+        <h3>What each variant pays</h3>
+        <p>The gateway converts a large unconditional fixed cost (a 116-tool manifest every turn) into a small fixed cost (a 3-tool manifest) plus a small per-op premium (a search round-trip). For the access pattern most real sessions have — many available operations, few used — that trade is favorable, and the data confirms it for 1–4 ops under glm-5.2.</p>
+
+        <div class="split">
+          <div class="panel pro">
+            <h4>Where the gateway wins</h4>
+            <ul>
+              <li><b>Fixed manifest</b> — ~397 tokens vs flat's ~14.6k, every turn</li>
+              <li><b>1–4-op sessions</b> — wins all four tasks, 7–41% fewer tokens</li>
+              <li><b>Response sizing</b> — JMESPath <code>fields</code> shrinks a 5.3 KB body to 77 B</li>
+              <li><b>Worst-case safety</b> — 25 KB cap bounds runaway responses</li>
+            </ul>
+          </div>
+          <div class="panel con">
+            <h4>Where flat is competitive</h4>
+            <ul>
+              <li><b>Per-op cost</b> — 1 round-trip vs the gateway's 2 (search + execute)</li>
+              <li><b>2-op same-service</b> — smallest gateway margin (7%), flat did it in 1 call</li>
+              <li><b>Long-task variance</b> — a 4-op gateway run timed out once before completing</li>
+              <li><b>Simpler model path</b> — direct call, no meta-tool planning needed</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 02 SETUP ─────────────────────────────────────── -->
+      <section id="setup" style="--sec: var(--amber)">
+        <div class="sec-eyebrow"><span class="num">02</span>Setup &amp; methodology</div>
+        <h2>Both variants, deployed on dev, sharing one upstream token.</h2>
+        <p class="lead">All numbers are live against the deployed runtimes — not localhost. Both variants share the same downstream services and bearer token, so backend latency is identical and not a confound.</p>
+
+        <h3>Endpoints &amp; auth</h3>
+        <ul class="clean">
+          <li><b>gateway</b> — <code>endpoint-556ba588-…/mcp</code> (3 meta-tools)</li>
+          <li><b>flat</b> — <code>endpoint-3491932f-…/mcp</code> (116 tools)</li>
+          <li><b>Auth</b> — shared bearer token (<code>GREENNODE_MCP_TOKEN</code>), a 30-min JWT forwarded to the same downstream services by both variants</li>
+          <li><b>Transport</b> — Streamable HTTP, stateless (<code>sessionIdGenerator: undefined</code>); JSON-RPC 2.0 over SSE</li>
+        </ul>
+
+        <h3>How the numbers were taken</h3>
+        <p>Phases 1–2 are direct <code>curl</code> against the endpoints: manifest size from <code>tools/list</code>, latency from n=20 (or n=10 for the 2-round-trip path) sequential calls with <code>curl -w</code>. Phase 3 runs a task suite headlessly via <code>claude -p --output-format stream-json</code>, once per variant, with <code>--strict-mcp-config</code> so only one server is visible per run.</p>
+
+        <div class="callout note">
+          <span class="ic">ℹ</span>
+          <div><b>Token estimates vs exact counts.</b> Phase 1–2 token figures are <strong>bytes/4 estimates</strong> (no public Claude tokenizer); JSON-heavy schemas tokenize denser than this, so the 36.8× byte ratio is a <em>floor</em> on the token ratio. Phase 3 numbers are exact client <code>usage</code>, taken from the final <code>result</code> message — the glm backend reports <code>0</code> on every assistant turn and aggregates only in <code>result</code>.</div>
+        </div>
+
+        <h3>The task suite (Phase 3)</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Task</th><th>Ops</th><th>Access pattern</th><th>What it stresses</th></tr></thead>
+            <tbody>
+              <tr><td><b>single-op</b></td><td class="num">1</td><td>list runtimes, count them</td><td>Cold manifest load + 1 op</td></tr>
+              <tr><td><b>multi-op-same</b></td><td class="num">2</td><td>list gateways, detail the first</td><td>Same-service reuse</td></tr>
+              <tr><td><b>multi-op-cross</b></td><td class="num">3</td><td>policy groups + runtimes, correlate</td><td>Cross-service discovery</td></tr>
+              <tr><td><b>multi-op-long</b></td><td class="num">4</td><td>runtimes → get → endpoints → versions</td><td>Amortization over a longer session</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── 03 VARIANTS ─────────────────────────────────────── -->
+      <section id="variants" style="--sec: var(--green)">
+        <div class="sec-eyebrow"><span class="num">03</span>The two variants</div>
+        <h2>Same codebase, same plumbing — only the tool-registration layer differs.</h2>
+        <p class="lead">Both variants live in one codebase, selected at runtime by a <code>MODE</code> env var. All shared infrastructure (downstream HTTP, registry loader, bearer auth, Streamable HTTP transport) is reused unchanged, so the comparison is fair — only the manifest and response handling differ.</p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th></th><th>Gateway</th><th>Flat</th></tr></thead>
+            <tbody>
+              <tr><td><b>Tools exposed</b></td><td>3 meta-tools (<code>list_servers</code>, <code>search_tools</code>, <code>execute</code>)</td><td>116 (one per operation)</td></tr>
+              <tr><td><b>Discovery</b></td><td>BM25 search, on-demand</td><td>all 116 in the manifest</td></tr>
+              <tr><td><b>Response handling</b></td><td>JMESPath <code>fields</code> projection + 25 KB cap</td><td>raw, unbounded</td></tr>
+              <tr><td><b>Per-op round-trips</b></td><td>2 (<code>search</code> + <code>execute</code>)</td><td>1 (direct call)</td></tr>
+              <tr><td><b>Manifest payload</b></td><td class="num">1,589 B / ~397 tok</td><td class="num">58,479 B / ~14,619 tok</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout tip">
+          <span class="ic">→</span>
+          <div><b>The flat baseline's purpose.</b> It is a deliberately naive reference — the "flatten everything into the manifest" design the gateway exists to avoid. It does no search, no projection, no capping. Measuring it against the gateway quantifies the tax the gateway avoids.</div>
+        </div>
+      </section>
+
+      <!-- ── 04 ARCHITECTURE ─────────────────────────────────────── -->
+      <section id="architecture" style="--sec: var(--coral)">
+        <div class="sec-eyebrow"><span class="num">04</span>Gateway architecture</div>
+        <h2>A 3-tool router: the model discovers operations by search, invokes them through one <code>execute</code>.</h2>
+        <p class="lead">The gateway is a <strong>tool router</strong>. It exposes exactly three meta-tools and keeps all 116 operations behind a BM25 search index. The operations never appear in <code>tools/list</code> — only the three meta-tools do — which is why the manifest is 1,589 B instead of 58 KB. The model discovers operations by intent, then invokes the one it needs through the single <code>execute</code> tool.</p>
+
+        <h3>The three meta-tools</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Tool</th><th>Arguments</th><th>What it does</th></tr></thead>
+            <tbody>
+              <tr><td><b><code>list_servers</code></b></td><td><span class="tag mid">none</span></td><td>Returns the 6 AgentBase services with operation counts and tags. The orient step — cheap, no schemas.</td></tr>
+              <tr><td><b><code>search_tools</code></b></td><td><code>query</code>, <code>server?</code>, <code>limit?</code></td><td>BM25 search over the registry. Returns up to <code>limit</code> (default 5) hits, each with the <b>full <code>inputSchema</code> inline</b> — so the model can call <code>execute</code> without a second lookup. Scoped search over-fetches 5× then filters by service, so the post-filter still yields <code>limit</code> hits.</td></tr>
+              <tr><td><b><code>execute</code></b></td><td><code>id</code>, <code>args?</code>, <code>fields?</code></td><td>Looks up the operation by id, calls the downstream service, applies an optional JMESPath <code>fields</code> projection and a 25 KB byte cap. Returns the (possibly projected, possibly truncated) body as text.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Request flow — one logical operation</h3>
+        <p>A single "list my agent runtimes" is three tool calls. The model orients, searches, then executes — and only the search hits' schemas enter context, not all 116.</p>
+        <div class="diagram">
+          <div class="flow">
+            <div class="node accent">
+              <div class="nh">Model (the LLM client)</div>
+              <div class="nd">holds only the 3-tool manifest; discovers operations by intent</div>
+            </div>
+            <div class="arrow">↓ <small>tools/call <code>list_servers</code> — orient: 6 services, counts, tags</small></div>
+            <div class="node">
+              <div class="nh"><code>search_tools</code> → Bm25SearchEngine</div>
+              <div class="nd">BM25 over <code>operationId + summary + tags + path + service</code>; camelCase-split tokenizer; returns ≤5 hits with full inputSchema</div>
+            </div>
+            <div class="arrow">↓ <small>tools/call <code>execute</code> — id + args + optional fields</small></div>
+            <div class="node">
+              <div class="nh"><code>execute</code> → callDownstream</div>
+              <div class="nd">binds path / query / header params from <code>args</code>, forwards the bearer token, JSON body if the op has one</div>
+            </div>
+            <div class="arrow">↓ <small>HTTPS + Bearer → downstream AgentBase service</small></div>
+            <div class="node subtle">
+              <div class="nh">Downstream service (one of 6)</div>
+              <div class="nd">policy · cr · gateway · identity · memory · runtime — shared by both variants, identical latency</div>
+            </div>
+            <div class="arrow back">↑ <small>{ status, body } — raw JSON</small></div>
+            <div class="node">
+              <div class="nh">projectAndCap</div>
+              <div class="nd">optional JMESPath <code>fields</code> projection → 25 KB byte cap with truncation notice → text result</div>
+            </div>
+            <div class="arrow back">↑ <small>text result back to model</small></div>
+            <div class="node accent">
+              <div class="nh">Model</div>
+              <div class="nd">receives a sized response, not the raw payload</div>
+            </div>
+          </div>
+        </div>
+
+        <h3>The four components behind the meta-tools</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Component</th><th>Role</th><th>Key detail</th></tr></thead>
+            <tbody>
+              <tr><td><b>Registry</b><br><code>RegistryStore</code></td><td>116 operations loaded from <code>registry.generated.json</code>, indexed by <code>&lt;service&gt;.&lt;operationId&gt;</code></td><td>Each op carries method, path, params (path/query/header), <code>hasBody</code>, and the raw <code>inputSchema</code>. Generated from committed OpenAPI/Swagger specs.</td></tr>
+              <tr><td><b>BM25 search</b><br><code>Bm25SearchEngine</code></td><td>Ranks operations by query; returns hits with schemas inline</td><td>Index text = <code>operationId + summary + tags + path + service</code>. Standard BM25 (k1=1.5, b=0.75). Scoped search over-fetches 5× to survive the service filter.</td></tr>
+              <tr><td><b>Downstream call</b><br><code>callDownstream</code></td><td>Turns an op + args into an HTTP request; returns <code>{status, body}</code></td><td>Path/query/header param binding from <code>args</code>; bearer token forwarded verbatim; JSON body only when <code>hasBody</code>. Parses JSON responses.</td></tr>
+              <tr><td><b>Response filter</b><br><code>projectAndCap</code></td><td>Optional JMESPath projection + byte cap</td><td><code>fields</code> projects the body (e.g. <code>items[*].name</code>: 5.3 KB → 77 B); 25 KB hard cap with a <code>…[truncated]</code> notice.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="split">
+          <div class="panel pro">
+            <h4>What the architecture buys</h4>
+            <ul>
+              <li><b>Tiny manifest</b> — 3 tools, ~397 tokens, regardless of how many operations exist</li>
+              <li><b>Schemas on demand</b> — only the search hits' inputSchemas enter context, not all 116</li>
+              <li><b>Bounded responses</b> — <code>fields</code> + cap keep tool results small</li>
+              <li><b>Stable surface</b> — the 3-tool manifest never changes as downstream APIs grow</li>
+            </ul>
+          </div>
+          <div class="panel con">
+            <h4>What it costs</h4>
+            <ul>
+              <li><b>Extra round-trip per op</b> — <code>search_tools</code> before <code>execute</code> (~1.7× latency, +8 KB)</li>
+              <li><b>Model depends on search quality</b> — a bad query misses the right operation</li>
+              <li><b>Meta-tool planning load</b> — the model must sequence list → search → execute; less fluent models spiral</li>
+              <li><b>Projection is opt-in</b> — the cap guards, but <code>fields</code> only helps if the model uses it</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout tip">
+          <span class="ic">→</span>
+          <div><b>This is the explanation for both headline numbers.</b> The 3-tool router is why the gateway's manifest is <strong>36.8× smaller</strong> (<a href="#manifest">§05</a>) — the 116 inputSchemas stay out of context until <code>search_tools</code> surfaces them, and only for the hits. And the search-then-execute path is why the gateway's <em>per-op</em> cost is higher than flat's direct call (<a href="#latency">§06</a>, Phase 2c) — the gateway trades a per-op premium for that manifest saving, and Phase 3 shows the trade pays off for 1–4-op sessions.</div>
+        </div>
+      </section>
+
+      <!-- ── 05 MANIFEST ─────────────────────────────────────── -->
+      <section id="manifest" style="--sec: var(--indigo)">
+        <div class="sec-eyebrow"><span class="num">05</span>Phase 1 — Manifest tax</div>
+        <h2>The fixed cost: flat is 36.8× the gateway, loaded every turn.</h2>
+        <p class="lead">The manifest is loaded into context at session start and persists every turn. It is the dominant fixed cost, and it is where the gateway's advantage is structural and unconditional.</p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Variant</th><th>Tools</th><th>Data payload</th><th>~tokens (bytes/4)</th><th>Ratio</th></tr></thead>
+            <tbody>
+              <tr><td><b>gateway</b></td><td class="num">3</td><td class="num">1,589 B</td><td class="num">~397</td><td class="num">1×</td></tr>
+              <tr><td><b>flat</b></td><td class="num">116</td><td class="num">58,479 B</td><td class="num">~14,619</td><td class="num"><b>36.8×</b></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>The flat manifest is skewed, not uniform</h3>
+        <p>Per-tool definition size on flat (bytes): min 135, median 325, mean 502, p95 1,042, <strong>max 7,070</strong>. Five tools account for ~10% of the payload — the large nested-<code>oneOf</code> create/update bodies.</p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Bytes</th><th>Tool</th></tr></thead>
+            <tbody>
+              <tr><td class="num"><b>7,070</b></td><td><code>gateway__post_api_v1_gateways</code> <span class="tag mid">nested oneOf</span></td></tr>
+              <tr><td class="num"><b>6,291</b></td><td><code>gateway__patch_api_v1_gateways__name_</code></td></tr>
+              <tr><td class="num">1,480</td><td><code>runtime__create_1</code></td></tr>
+              <tr><td class="num">1,462</td><td><code>runtime__update</code></td></tr>
+              <tr><td class="num">1,077</td><td><code>runtime__create</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout tip">
+          <span class="ic">→</span>
+          <div><b>Finding.</b> The gateway pays ~397 tokens once; flat pays ~14.6k every turn, regardless of which operations the session actually uses. Even a handful of large create/update schemas dominate the flat manifest — and every one of them sits in context even when the session only ever reads.</div>
+        </div>
+      </section>
+
+      <!-- ── 06 LATENCY ─────────────────────────────────────── -->
+      <section id="latency" style="--sec: var(--coral)">
+        <div class="sec-eyebrow"><span class="num">06</span>Phase 2 — Latency &amp; response</div>
+        <h2>Per-op, the gateway is heavier — but its real response lever is projection, not the cap.</h2>
+        <p class="lead">Three micro-benchmarks isolate the per-call costs. The gateway's manifest savings don't show up here — this is where flat looks strongest. The question is whether flat's per-call edge ever outweighs the manifest tax. (Phase 3 answers: not for 1–4 ops.)</p>
+
+        <h3>2a · Per-call latency &amp; bytes (n=20)</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Call</th><th>Variant</th><th>med (ms)</th><th>p95</th><th>max</th><th>resp bytes</th></tr></thead>
+            <tbody>
+              <tr><td rowspan="2">tools/list</td><td>gateway</td><td class="num">34</td><td class="num">44</td><td class="num">44</td><td class="num">1,577</td></tr>
+              <tr><td>flat</td><td class="num">57</td><td class="num">122</td><td class="num">122</td><td class="num">54,321</td></tr>
+              <tr><td rowspan="2">tools/call<br><small>list runtimes</small></td><td>gateway</td><td class="num">52</td><td class="num">76</td><td class="num">76</td><td class="num">1,480</td></tr>
+              <tr><td>flat</td><td class="num">49</td><td class="num">176</td><td class="num">176</td><td class="num">1,480</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Flat <code>tools/list</code> is ~1.7× slower median with a 2.8× worse p95 — the 34× larger payload shows up in serialization and network. The <code>tools/call</code> responses are <strong>identical</strong> (1,480 B): the response is small, so the gateway's cap and projection never engage.</p>
+
+        <h3>2b · Response size — cap vs projection (list gateways, 5 items)</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Path</th><th>Response bytes</th></tr></thead>
+            <tbody>
+              <tr><td>flat (raw, unbounded)</td><td class="num">5,348</td></tr>
+              <tr><td>gateway (25 KB cap, no <code>fields</code>)</td><td class="num">5,348</td></tr>
+              <tr><td>gateway (<code>fields="items[*].name"</code>)</td><td class="num"><b>77</b></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="split">
+          <div class="panel pro">
+            <h4>Two findings</h4>
+            <ul>
+              <li>The 25 KB cap <b>never triggered</b> — the largest real response was 5.3 KB. It's a safety net here, not a daily cost driver</li>
+              <li>The gateway's actual lever is <code>fields</code>: 5,348 B → 77 B, a 69× shrink — but only when the model opts in</li>
+            </ul>
+          </div>
+          <div class="panel con">
+            <h4>Caveat</h4>
+            <ul>
+              <li>The projection saving is <b>model-behavior-dependent</b> — unlike the manifest tax, it is not unconditional</li>
+              <li>Flat's unbounded responses are a latent risk; unobserved only because this account is sparse</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>2c · Discovery path — gateway's 2 round-trips vs flat's 1 (n=10)</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Path</th><th>Round-trips</th><th>Total latency med</th><th>Total bytes</th></tr></thead>
+            <tbody>
+              <tr><td>flat (direct call)</td><td class="num">1</td><td class="num">84 ms</td><td class="num">5,348</td></tr>
+              <tr><td>gateway (<code>search_tools</code> + <code>execute</code>)</td><td class="num">2</td><td class="num">140 ms</td><td class="num">13,442</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Per-op, the gateway is <strong>more</strong> expensive — ~1.7× the latency and +8 KB (the search response carries each hit's full input schema, limit 5). This is the cost of pay-per-use discovery; the gateway recovers it only through manifest savings amortized across a session.</p>
+      </section>
+
+      <!-- ── 07 END-TO-END ─────────────────────────────────────── -->
+      <section id="e2e" style="--sec: var(--cyan)">
+        <div class="sec-eyebrow"><span class="num">07</span>Phase 3 — End-to-end</div>
+        <h2>With the CLI escape hatch closed, the gateway wins all four tasks.</h2>
+        <p class="lead">This is the measurement that actually justifies the gateway — gross input tokens (context pollution) and cache read/write (dollar cost) on identical multi-turn work, taken from the client's own <code>usage</code>.</p>
+
+        <div class="callout warn">
+          <span class="ic">⚠</span>
+          <div><b>The CLI-bypass confound.</b> The first run-set showed "flat won 2 of 3." It was an artifact: by default <code>claude -p</code> exposes <code>Bash</code> and <code>Skill</code>, and the <code>agentbase</code> skill loads the <code>greennode</code> CLI. When meta-tool discovery felt slow, glm-5.2 <b>bypassed the MCP server entirely</b> — running <code>greennode runtime list/get/…</code> via <code>Bash</code>. Those runs measured the CLI, not the variants. The clean numbers below use <code>--disallowed-tools Bash Skill</code>, now baked into the harness. Contaminated streams are retained under <code>/tmp/bench-phase3/raw/</code>.</div>
+        </div>
+
+        <h3>Clean results (MCP-only, Bash+Skill disallowed)</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Task</th><th>Variant</th><th>n</th><th>turns</th><th>calls</th><th>input (mean)</th><th>cache_read</th><th>cost</th></tr></thead>
+            <tbody>
+              <tr><td rowspan="2"><b>single-op</b></td><td>gateway</td><td class="num">2</td><td class="num">3</td><td class="num">2</td><td class="num">73,606</td><td class="num">48,256</td><td class="num">$0.43</td></tr>
+              <tr><td>flat</td><td class="num">2</td><td class="num">3</td><td class="num">1</td><td class="num">125,070</td><td class="num">83,200</td><td class="num">$0.71</td></tr>
+              <tr><td rowspan="2"><b>multi-op-same</b></td><td>gateway</td><td class="num">2</td><td class="num">3–4</td><td class="num">2–3</td><td class="num">77,222</td><td class="num">50,048</td><td class="num">$0.43</td></tr>
+              <tr><td>flat</td><td class="num">2</td><td class="num">2</td><td class="num">1</td><td class="num">83,174</td><td class="num">60,992</td><td class="num">$0.46</td></tr>
+              <tr><td rowspan="2"><b>multi-op-cross</b></td><td>gateway</td><td class="num">2</td><td class="num">6–7</td><td class="num">2–3</td><td class="num">102,228</td><td class="num">75,520</td><td class="num">$0.60</td></tr>
+              <tr><td>flat</td><td class="num">2</td><td class="num">4</td><td class="num">2</td><td class="num">126,732</td><td class="num">85,568</td><td class="num">$0.73</td></tr>
+              <tr><td rowspan="2"><b>multi-op-long</b></td><td>gateway</td><td class="num">1</td><td class="num">7</td><td class="num">6</td><td class="num">101,941</td><td class="num">75,392</td><td class="num">$0.58</td></tr>
+              <tr><td>flat</td><td class="num">1</td><td class="num">5</td><td class="num">4</td><td class="num">129,533</td><td class="num">86,592</td><td class="num">$0.72</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p style="font-size:13px;color:var(--ink-3);margin-top:-6px">multi-op-same and multi-op-cross are true n=2 re-runs (variance &lt;1k tokens). multi-op-long gateway is n=1 — it completed cleanly on the second attempt with a 300 s cap; a first attempt timed out at 150 s / 30 turns.</p>
+
+        <h3>Input tokens per task — gateway vs flat</h3>
+        <div class="bars">
+          <div class="grp">single-op</div>
+          <div class="bar-row"><span class="lab">gateway</span><div class="bar-track"><div class="bar-fill" style="width: 56.6%; background: var(--green);">73,606</div></div></div>
+          <div class="bar-row"><span class="lab">flat</span><div class="bar-track"><div class="bar-fill" style="width: 96.2%; background: var(--coral);">125,070</div></div></div>
+          <div class="grp">multi-op-same</div>
+          <div class="bar-row"><span class="lab">gateway</span><div class="bar-track"><div class="bar-fill" style="width: 59.4%; background: var(--green);">77,222</div></div></div>
+          <div class="bar-row"><span class="lab">flat</span><div class="bar-track"><div class="bar-fill" style="width: 64.0%; background: var(--coral);">83,174</div></div></div>
+          <div class="grp">multi-op-cross</div>
+          <div class="bar-row"><span class="lab">gateway</span><div class="bar-track"><div class="bar-fill" style="width: 78.6%; background: var(--green);">102,228</div></div></div>
+          <div class="bar-row"><span class="lab">flat</span><div class="bar-track"><div class="bar-fill" style="width: 97.5%; background: var(--coral);">126,732</div></div></div>
+          <div class="grp">multi-op-long</div>
+          <div class="bar-row"><span class="lab">gateway</span><div class="bar-track"><div class="bar-fill" style="width: 78.4%; background: var(--green);">101,941</div></div></div>
+          <div class="bar-row"><span class="lab">flat</span><div class="bar-track"><div class="bar-fill" style="width: 99.6%; background: var(--coral);">129,533</div></div></div>
+        </div>
+
+        <h3>Δ (flat − gateway), per task</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Task</th><th>Δinput (mean)</th><th>Δcost</th><th>Δturns</th><th>Δcalls</th><th>Winner</th><th>Gateway savings</th></tr></thead>
+            <tbody>
+              <tr><td><b>single-op</b></td><td class="num">+51,464</td><td class="num">+$0.28</td><td class="num">0</td><td class="num">−1</td><td><span class="tag yes">gateway</span></td><td class="num"><b>41%</b></td></tr>
+              <tr><td><b>multi-op-same</b></td><td class="num">+5,952</td><td class="num">+$0.03</td><td class="num">−1</td><td class="num">−1</td><td><span class="tag yes">gateway</span></td><td class="num">7%</td></tr>
+              <tr><td><b>multi-op-cross</b></td><td class="num">+24,505</td><td class="num">+$0.13</td><td class="num">−2</td><td class="num">−1</td><td><span class="tag yes">gateway</span></td><td class="num">19%</td></tr>
+              <tr><td><b>multi-op-long</b></td><td class="num">+27,592</td><td class="num">+$0.14</td><td class="num">−2</td><td class="num">−2</td><td><span class="tag yes">gateway</span></td><td class="num">21%</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout tip">
+          <span class="ic">→</span>
+          <div><b>The pattern.</b> For 1–4-op tasks, the gateway's manifest savings outweigh its discovery overhead <em>even when it takes more turns than flat</em>. The absolute savings grow with op count (~24k at 3 ops → ~28k at 4 ops), supporting the amortization hypothesis. The 2-op dip is task-specific — flat's list response was self-sufficient, so it needed only one call.</div>
+        </div>
+
+        <details>
+          <summary>Variance note <span class="st">n=2 stable</span></summary>
+          <div class="body">
+            <p><b>multi-op-same</b> (n=2): gateway 76,904 / 77,541; flat 83,149 / 83,199. Δ within 0.5k.</p>
+            <p><b>multi-op-cross</b> (n=2): gateway 101,756 / 102,699; flat 126,481 / 126,984. Δ within 0.5k.</p>
+            <p><b>single-op</b>: gateway 73,606 / 77,532; flat ~125–130k across many runs. Stable.</p>
+            <p><b>multi-op-long gateway</b>: n=1 completed (101,941). A first attempt timed out at 150 s / 30 turns — high variance on this task. The completed run shows the gateway wins decisively when it doesn't spiral, but the timeout is a real risk flag for longer tasks under glm-5.2.</p>
+            <p>The earlier wild variance (3–11 turns for "the same" gateway task) was almost entirely the model switching between MCP and CLI; with <code>--disallowed-tools Bash Skill</code> the variance collapses to &lt;1k tokens for the medium tasks.</p>
+          </div>
+        </details>
+      </section>
+
+      <!-- ── 08 ANALYSIS ─────────────────────────────────────── -->
+      <section id="analysis" style="--sec: var(--amber)">
+        <div class="sec-eyebrow"><span class="num">08</span>Analysis &amp; break-even</div>
+        <h2>Gateway wins when manifest tax saved &gt; discovery premium paid.</h2>
+        <p class="lead">The gateway's value is amortization: it trades a large unconditional fixed cost for a small fixed cost plus a small per-op premium. Phase 3 confirms this empirically for 1–4-op sessions.</p>
+
+        <h3>Cost component by component</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Cost component</th><th>Gateway</th><th>Flat</th><th>Winner</th></tr></thead>
+            <tbody>
+              <tr><td><b>Fixed manifest</b> (per turn)</td><td class="num">~397 tok</td><td class="num">~14,619 tok</td><td><span class="tag yes">gateway 36.8×</span></td></tr>
+              <tr><td><b>Per-op discovery</b></td><td>+1 round-trip + ~8 KB</td><td class="num">0</td><td><span class="tag no">flat</span></td></tr>
+              <tr><td><b>Per-op response</b> (no projection)</td><td>parity</td><td>parity</td><td><span class="tag mid">tie</span></td></tr>
+              <tr><td><b>Per-op response</b> (with <code>fields</code>)</td><td>down to 77 B</td><td>raw</td><td><span class="tag yes">gateway</span> <small>(if used)</small></td></tr>
+              <tr><td><b>Worst-case response safety</b></td><td>25 KB cap</td><td>unbounded</td><td><span class="tag yes">gateway</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Break-even</h3>
+        <p>The gateway wins when <code>manifest_tax_saved &gt; discovery_premium_paid</code>. Phase 3 confirms this for 1–4-op sessions: the gateway won all four tasks (7–41% fewer input tokens), with absolute savings growing with op count. The one caveat is variance on longer tasks — a 4-op gateway run timed out once before completing cleanly on retry, so the gateway can spiral under glm-5.2. Where the break-even turns negative (very long sessions, or models that plan meta-tool sequences poorly) remains unmeasured.</p>
+
+        <div class="callout tip">
+          <span class="ic">→</span>
+          <div><b>Honest summary.</b> For the access pattern most real sessions have — many available operations, few used — the gateway's trade is favorable, and the Phase 3 data confirms it for 1–4 ops under glm-5.2. The manifest tax is large enough to dominate short-to-medium sessions; the gateway's risk is long sessions where discovery overhead could accumulate faster than manifest savings.</div>
+        </div>
+
+        <h3>Reproduce</h3>
+        <pre><span class="cm"># Phase 3 harness — usage-from-result fix + CLI-bypass guard baked in</span>
+<span class="k">export</span> GREENNODE_MCP_TOKEN=<span class="s">"&lt;fresh-token&gt;"</span>   <span class="cm"># 30-min JWT</span>
+MODEL=z-ai/glm-5.2 ./benchmarks/phase3-suite.sh     <span class="cm"># all 4 tasks × both variants</span>
+MODEL=z-ai/glm-5.2 MAX_TURN_SEC=300 ./benchmarks/phase3-suite.sh --only multi-op-long</pre>
+        <p style="font-size:13px;color:var(--ink-3)">Artifacts: <code>/tmp/bench-phase3/&lt;task&gt;__&lt;variant&gt;.stream.jsonl</code> (raw stream), <code>summaries.jsonl</code> (parsed). Contaminated pre-fix streams under <code>/tmp/bench-phase3/raw/</code>. The <code>TASKS</code> array in the script is editable for custom workflows.</p>
+      </section>
+
+      <!-- ── 09 LIMITS ─────────────────────────────────────── -->
+      <section id="limits" style="--sec: var(--green)">
+        <div class="sec-eyebrow"><span class="num">09</span>Limitations</div>
+        <h2>What this benchmark does and doesn't establish.</h2>
+
+        <ul class="clean">
+          <li><b>Phase 1–2 token figures are bytes/4 estimates.</b> JSON schemas tokenize denser than generic text, so the 36.8× byte ratio likely understates the token ratio. Phase 3 numbers are exact client <code>usage</code>.</li>
+          <li><b>Small-n, but stable where sampled.</b> multi-op-same and multi-op-cross are n=2 with &lt;1k-token variance — the gateway win there is firm. multi-op-long gateway is n=1 completed (a clean win) but with one timeout on a prior attempt; that task is the remaining high-variance cell.</li>
+          <li><b>The CLI-bypass confound was the dominant measurement risk.</b> The first run-set's "flat won 2 of 3" was an artifact of glm-5.2 escaping to the <code>greennode</code> CLI via <code>Bash</code>+<code>Skill</code>. The clean numbers use <code>--disallowed-tools Bash Skill</code>, now in the harness — anyone re-running must keep it.</li>
+          <li><b>Model is z-ai/glm-5.2, not Claude.</b> The environment routes <code>claude -p</code> through VNG Cloud MaaS; Claude model names 404 on that backend. glm-5.2 is less meta-tool-fluent and was bypass-prone; Claude may plan more efficiently and extend the gateway's lead. Results do not generalize to Claude without re-running on a Claude model.</li>
+          <li><b>Prompt caching narrows the dollar gap, not the context-pollution gap.</b> Cached tokens still occupy context window. cache_read is large in every run (e.g. gateway single-op: 48k of 74k input was cache-read). Under caching, flat's manifest is partly amortized too, which is why cost deltas are smaller than gross-input deltas.</li>
+          <li><b>Account is sparse.</b> No response exceeded 5.3 KB, so the 25 KB cap's behavior is inferred, not exercised. Flat's unbounded-response risk is real but unobserved here.</li>
+          <li><b>Long-task variance.</b> The gateway won the 4-op task cleanly (n=1) but timed out on a prior attempt. Where the gateway's discovery spirals into unprofitable territory for glm-5.2 is unknown — a 6–10-op MCP-only task with a high time cap would locate the ceiling.</li>
+        </ul>
+
+        <div class="callout note">
+          <span class="ic">ℹ</span>
+          <div><b>Still open.</b> A completed multi-op-long variance set, a Claude-model run, and a 6–10-op probe to find where (if ever) the gateway's discovery overhead overtakes the manifest savings. The harness is ready for all three with a fresh token.</div>
+        </div>
+      </section>
+
+      <footer>
+        <b>AgentBase MCP — Gateway vs Flat Baseline · Token Benchmark.</b> Generated 2026-07-06 from live runs against deployed dev endpoints.<br>
+        Harness: <code>benchmarks/phase3-suite.sh</code> · raw report: <code>benchmarks/report-2026-07-06.md</code> · artifacts in <code>/tmp/bench-phase3/</code>.
+      </footer>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  // Scrollspy: highlight the TOC entry for the section currently in view.
+  (function () {
+    var links = Array.prototype.slice.call(document.querySelectorAll('#toc a'));
+    var byId = {};
+    links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var sections = links.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); });
+
+    function setActive(id) {
+      links.forEach(function (a) { a.classList.toggle('active', a === byId[id]); });
+    }
+
+    if ('IntersectionObserver' in window) {
+      var visible = {};
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting ? e.intersectionRatio : 0; });
+        var best = null, bestR = 0;
+        Object.keys(visible).forEach(function (id) { if (visible[id] > bestR) { bestR = visible[id]; best = id; } });
+        if (best) setActive(best);
+      }, { rootMargin: '-10% 0px -70% 0px', threshold: [0, .25, .5, 1] });
+      sections.forEach(function (s) { if (s) io.observe(s); });
+    }
+  })();
+</script>

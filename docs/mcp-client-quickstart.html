@@ -1,0 +1,602 @@
+<title>AgentBase MCP — Client Quick Start</title>
+<meta name="description" content="Fast-start guide for connecting MCP clients to the AgentBase MCP gateway: Claude Desktop, Claude Code, Cursor, Windsurf, Claude.ai, agent frameworks, Cline, and Roo Code.">
+<style>
+  :root {
+    --ground:    #F5F8FB;
+    --surface:   #FFFFFF;
+    --surface-2: #EEF3F8;
+    --ink:       #0D1B2A;
+    --ink-2:     #3D5063;
+    --ink-3:     #6B7E90;
+    --border:    #DBE3EC;
+    --border-2:  #C6D2DE;
+
+    --cyan:   #1583B8;
+    --amber:  #BE780A;
+    --green:  #1E9E5A;
+    --indigo: #5458D6;
+    --coral:  #C2410C;
+
+    --ok:     #1E9E5A;
+    --ok-bg:  #E6F5EC;
+    --warn:   #C2410C;
+    --warn-bg:#FBEAE1;
+    --cyan-bg:#E4F1F8;
+    --amber-bg:#FAF0DC;
+
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+    --shadow: 0 1px 2px rgba(13,27,42,.04), 0 4px 16px rgba(13,27,42,.06);
+
+    --maxw: 820px;
+    --nav-w: 270px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; animation: none !important; } }
+
+  body { margin: 0; background: var(--ground); color: var(--ink); font-family: var(--sans); font-size: 16px; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+
+  .skip { position: absolute; left: -999px; top: 0; background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 6px; z-index: 100; }
+  .skip:focus { left: 12px; top: 12px; }
+  a { color: var(--cyan); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .shell { display: grid; grid-template-columns: var(--nav-w) 1fr; min-height: 100vh; }
+
+  .nav { position: sticky; top: 0; align-self: start; height: 100vh; border-right: 1px solid var(--border); background: var(--surface); display: flex; flex-direction: column; overflow-y: auto; }
+  .nav-head { padding: 24px 20px 16px; border-bottom: 1px solid var(--border); }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: var(--mono); font-weight: 700; font-size: 13px; letter-spacing: .02em; color: var(--ink); }
+  .brand .glyph { width: 28px; height: 28px; border-radius: 7px; flex: none; background: linear-gradient(135deg, var(--cyan), var(--indigo)); display: grid; place-items: center; color: #fff; font-size: 15px; }
+  .brand-sub { margin-top: 10px; font-size: 12px; color: var(--ink-3); line-height: 1.5; font-family: var(--mono); }
+  .pill { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--green); background: var(--ok-bg); padding: 4px 9px; border-radius: 999px; font-weight: 600; }
+  .pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+
+  .toc { list-style: none; margin: 0; padding: 12px 10px 24px; }
+  .toc li { margin: 1px 0; }
+  .toc a { display: grid; grid-template-columns: 24px 1fr; align-items: baseline; gap: 4px; padding: 7px 12px; border-radius: 8px; color: var(--ink-2); font-size: 13px; line-height: 1.3; transition: background .14s, color .14s; }
+  .toc a:hover { background: var(--surface-2); text-decoration: none; color: var(--ink); }
+  .toc a .n { font-family: var(--mono); font-size: 11px; color: var(--ink-3); font-weight: 600; }
+  .toc a.active { background: var(--cyan-bg); color: var(--ink); font-weight: 600; box-shadow: inset 2px 0 0 var(--cyan); }
+  .toc a.active .n { color: var(--cyan); }
+
+  main { min-width: 0; }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 32px; }
+
+  .hero { padding: 64px 0 40px; border-bottom: 1px solid var(--border); }
+  .hero .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--cyan); font-weight: 600; margin-bottom: 16px; }
+  .hero h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; margin: 0 0 18px; letter-spacing: -.02em; font-weight: 800; text-wrap: balance; }
+  .hero p { font-size: 17px; color: var(--ink-2); margin: 0; max-width: 62ch; }
+  .hero .meta { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 10px; font-family: var(--mono); font-size: 12px; }
+  .hero .meta span { background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 6px 13px; color: var(--ink-2); }
+  .hero .meta b { color: var(--ink); font-weight: 600; }
+
+  section { padding: 48px 0; border-bottom: 1px solid var(--border); scroll-margin-top: 20px; }
+  section:last-of-type { border-bottom: none; }
+  .sec-eyebrow { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; color: var(--sec); }
+  .sec-eyebrow .num { width: 28px; height: 28px; border-radius: 8px; flex: none; display: grid; place-items: center; color: #fff; background: var(--sec); font-size: 13px; letter-spacing: 0; }
+  section h2 { font-size: clamp(22px, 2.8vw, 28px); margin: 0 0 14px; letter-spacing: -.015em; font-weight: 750; line-height: 1.15; text-wrap: balance; }
+  section h3 { font-size: 15px; margin: 28px 0 8px; font-weight: 700; display: flex; align-items: center; gap: 9px; }
+  section h3::before { content: ""; width: 7px; height: 7px; border-radius: 2px; background: var(--sec); flex: none; }
+  p { margin: 0 0 14px; }
+  .lead { font-size: 16.5px; color: var(--ink-2); }
+  strong { font-weight: 650; color: var(--ink); }
+  code { font-family: var(--mono); font-size: .87em; background: var(--surface-2); padding: 2px 6px; border-radius: 5px; color: var(--ink); border: 1px solid var(--border); }
+
+  ul.clean { list-style: none; margin: 0 0 14px; padding: 0; }
+  ul.clean li { position: relative; padding-left: 22px; margin: 8px 0; }
+  ul.clean li::before { content: ""; position: absolute; left: 4px; top: 10px; width: 6px; height: 6px; border-radius: 2px; background: var(--sec); }
+
+  .callout { border-radius: 12px; padding: 14px 16px; margin: 18px 0; font-size: 14px; line-height: 1.6; border: 1px solid; display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; }
+  .callout .ic { font-family: var(--mono); font-weight: 700; font-size: 13px; margin-top: 1px; }
+  .callout.tip  { background: var(--cyan-bg);  border-color: #BCDDEB; color: #0c3c52; }
+  .callout.tip .ic { color: var(--cyan); }
+  .callout.warn { background: var(--warn-bg);  border-color: #F0CDB9; color: #6e2a0d; }
+  .callout.warn .ic { color: var(--warn); }
+  .callout.note { background: var(--amber-bg); border-color: #EAD9AE; color: #5e480c; }
+  .callout.note .ic { color: var(--amber); }
+  .callout b { color: inherit; }
+
+  pre { background: #0E1C2B; color: #C9DCEA; border-radius: 12px; padding: 16px 18px; overflow-x: auto; font-family: var(--mono); font-size: 12.5px; line-height: 1.6; margin: 16px 0; border: 1px solid #1a3450; }
+  pre .cm { color: #5B7B93; font-style: italic; }
+  pre .k  { color: #6FB8E0; }
+  pre .s  { color: #E0A95C; }
+  pre .n  { color: #8FD8A8; }
+  pre .c2 { color: #7C93A8; }
+
+  .steps { counter-reset: step; list-style: none; margin: 18px 0; padding: 0; }
+  .steps > li { position: relative; padding-left: 38px; margin: 14px 0; }
+  .steps > li::before { counter-increment: step; content: counter(step); position: absolute; left: 0; top: 1px; width: 26px; height: 26px; border-radius: 50%; background: var(--sec); color: #fff; font-family: var(--mono); font-size: 12px; font-weight: 700; display: grid; place-items: center; }
+
+  .client-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 18px 0 0; padding: 0; list-style: none; border-bottom: 1px solid var(--border); }
+  .client-tabs button { font-family: var(--mono); font-size: 12px; font-weight: 600; padding: 8px 14px; border: 1px solid var(--border); border-bottom: none; border-radius: 8px 8px 0 0; background: var(--surface); color: var(--ink-2); cursor: pointer; }
+  .client-tabs button[aria-selected="true"] { background: var(--sec); color: #fff; border-color: var(--sec); }
+  .tab-panel { display: none; }
+  .tab-panel[hidden="false"] { display: block; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+  @media (max-width: 620px) { .grid2 { grid-template-columns: 1fr; } }
+
+  .info { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin: 14px 0; font-size: 14px; }
+  .info .k { font-family: var(--mono); font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .05em; font-weight: 600; }
+  .info .v { font-family: var(--mono); font-size: 13px; color: var(--ink); word-break: break-all; }
+
+  footer { padding: 36px 0 60px; color: var(--ink-3); font-size: 13px; font-family: var(--mono); line-height: 1.7; }
+  footer b { color: var(--ink-2); }
+</style>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="shell">
+
+  <!-- sidebar -->
+  <nav class="nav" aria-label="Contents">
+    <div class="nav-head">
+      <div class="brand">
+        <span class="glyph" aria-hidden="true">◳</span>
+        <span>AgentBase&nbsp;MCP</span>
+      </div>
+      <div class="brand-sub">Client quick start<br>Connect any MCP client</div>
+      <span class="pill">Fast start</span>
+    </div>
+    <ol class="toc" id="toc">
+      <li><a href="#prereq"><span class="n">01</span><span>Prerequisites</span></a></li>
+      <li><a href="#claude-desktop"><span class="n">02</span><span>Claude Desktop (stdio)</span></a></li>
+      <li><a href="#claude-code"><span class="n">03</span><span>Claude Code (stdio)</span></a></li>
+      <li><a href="#cursor-windsurf"><span class="n">04</span><span>Cursor / Windsurf</span></a></li>
+      <li><a href="#claude-ai"><span class="n">05</span><span>Claude.ai (HTTP)</span></a></li>
+      <li><a href="#frameworks"><span class="n">06</span><span>Agent frameworks</span></a></li>
+      <li><a href="#cline-roo"><span class="n">07</span><span>Cline / Roo Code</span></a></li>
+    </ol>
+  </nav>
+
+  <main id="main">
+    <div class="wrap">
+
+      <header class="hero">
+        <div class="eyebrow">Client Quick Start</div>
+        <h1>Connect any MCP client to AgentBase in under five minutes.</h1>
+        <p>The AgentBase MCP gateway exposes your AgentBase services — runtimes, gateways, policies, identities, memory, container registry — through three meta-tools. Pick your client below, copy the config, and go. Two ways to connect: <strong>local stdio</strong> (run the server on your machine) or <strong>remote HTTP</strong> (use the gateway endpoint).</p>
+        <div class="meta">
+          <span><b>Gateway</b> · 3 meta-tools</span>
+          <span><b>Transports</b> · stdio + HTTP</span>
+          <span><b>Clients</b> · 7 covered</span>
+        </div>
+      </header>
+
+      <!-- ── 01 PREREQ ─────────────────────────────────────── -->
+      <section id="prereq" style="--sec: var(--cyan)">
+        <div class="sec-eyebrow"><span class="num">01</span>Prerequisites &amp; installation</div>
+        <h2>Two things you need before any client.</h2>
+        <p class="lead">A bearer token, and (for the local stdio path) the server running on your machine. The remote HTTP path skips the local install entirely.</p>
+
+        <h3>The bearer token</h3>
+        <p>Every connection authenticates with an AgentBase bearer token. Get one from your IAM service account (client id + secret → token). You'll set it as an environment variable named <code>GREENNODE_MCP_TOKEN</code> (or any name you configure via <code>TOKEN_ENV</code>).</p>
+
+        <div class="callout warn">
+          <span class="ic">⚠</span>
+          <div><b>Treat the token like a password.</b> Never commit it to git or paste it into shared config. All client configs below reference it as <code>${GREENNODE_MCP_TOKEN}</code> so the value stays in your environment, not the file.</div>
+        </div>
+
+        <h3>Choose your connection path</h3>
+        <div class="grid2">
+          <div class="callout tip" style="margin:0">
+            <span class="ic">⎘</span>
+            <div><b>Local stdio</b> — the client spawns the server as a subprocess. You clone the repo and run <code>npx tsx src/index.ts</code>. Used by Claude Desktop, Claude Code, Cursor, Windsurf, Cline, Roo Code. Best for development and when you control the machine.</div>
+          </div>
+          <div class="callout note" style="margin:0">
+            <span class="ic">☁</span>
+            <div><b>Remote HTTP</b> — the client talks to the AgentBase MCP <strong>gateway</strong> over HTTPS (IAM-authenticated front door). No local install. Used by Claude.ai (web) and any client that supports Streamable HTTP. Best when you can't or don't want to run the server locally.</div>
+          </div>
+        </div>
+
+        <h3>For the local stdio path: clone &amp; install</h3>
+        <pre><span class="cm"># clone and install dependencies (Node &gt;= 20)</span>
+git clone &lt;repo-url&gt; greennode-agentbase-mcp
+<span class="k">cd</span> greennode-agentbase-mcp
+npm install
+
+<span class="cm"># set your token in the environment (do this in your shell profile too)</span>
+<span class="k">export</span> GREENNODE_MCP_TOKEN=<span class="s">"&lt;your-token&gt;"</span>
+
+<span class="cm"># sanity check — should print a startup banner and wait for input</span>
+npx tsx src/index.ts
+<span class="c2"># → greennode-agentbase-mcp stdio  (Ctrl-C to exit)</span></pre>
+
+        <div class="callout note">
+          <span class="ic">ℹ</span>
+          <div><b>Why clone for stdio?</b> The stdio server loads a bundled operation registry (<code>registry.generated.json</code>) at startup. It ships with the repo, so the local server needs the checkout. The remote HTTP endpoint already has it baked into the deployed image — no clone needed.</div>
+        </div>
+
+        <h3>Token rotation</h3>
+        <p>The <code>GREENNODE_MCP_TOKEN</code> is an IAM service-account JWT — short-lived (≈30 min). The same token works on the stdio path and at the gateway. The repo ships a helper that mints (or returns a cached, not-yet-expired) token:</p>
+        <pre><span class="cm"># mints via grant_type=client_credentials, caches in .agentbase/token_cache,</span>
+<span class="cm"># reuses the cache until 60s before exp. Pass --force to mint fresh.</span>
+<span class="k">export</span> GREENNODE_MCP_TOKEN=$(bash .claude/skills/agentbase/scripts/get_token.sh)</pre>
+        <p>The helper needs your IAM <strong>client credentials</strong> — <code>GREENNODE_CLIENT_ID</code> + <code>GREENNODE_CLIENT_SECRET</code> in the env, or a <code>.greennode.json</code> in the repo root. That's the minting secret, not the token itself.</p>
+
+        <div class="callout tip">
+          <span class="ic">↻</span>
+          <div><b>The stdio rotation wrapper.</b> stdio clients read the token at <em>spawn</em> and hold it static, so a long-running server can outlive the token. The repo ships <code>scripts/mcp-launch.sh</code> — it mints a fresh token, then <code>exec</code>s the server. Point your client at it instead of <code>npx tsx</code> and every relaunch rotates automatically:
+          <pre>"command": "bash",
+"args": ["/ABSOLUTE/PATH/TO/greennode-agentbase-mcp/scripts/mcp-launch.sh"]</pre>
+          Each client section below shows its relaunch lever (quit the app, <code>/mcp</code> reconnect, restart MCP). If you only have a static token and no client secret, skip the wrapper and just re-export <code>GREENNODE_MCP_TOKEN</code> before relaunching.</div>
+        </div>
+      </section>
+
+      <!-- ── 02 CLAUDE DESKTOP ─────────────────────────────────────── -->
+      <section id="claude-desktop" style="--sec: var(--amber)">
+        <div class="sec-eyebrow"><span class="num">02</span>Claude Desktop (stdio) — start here</div>
+        <h2>The widest reach. Edit one JSON file.</h2>
+        <p class="lead">Claude Desktop (the macOS / Windows app) speaks MCP over stdio. You point it at a command and it spawns the server for you. This is the recommended starting point — no terminal, no long-running process to manage.</p>
+
+        <h3>Steps</h3>
+        <ol class="steps">
+          <li>Complete <a href="#prereq">§01</a> — clone the repo, <code>npm install</code>, and export <code>GREENNODE_MCP_TOKEN</code>.</li>
+          <li>Open (or create) the Claude Desktop MCP config:
+            <pre><span class="cm"># macOS</span>
+~/Library/Application Support/Claude/claude_desktop_config.json
+
+<span class="cm"># Windows</span>
+%APPDATA%\Claude\claude_desktop_config.json</pre>
+          </li>
+          <li>Add the <code>agentbase</code> server entry below. Use <strong>absolute paths</strong> for the repo and <code>npx</code> — Claude Desktop needs them.</li>
+          <li>Quit Claude Desktop fully (not just close the window) and relaunch.</li>
+          <li>Start a new chat. You should see <code>agentbase</code> listed under connected MCP servers. Try: <em>"List my agent runtimes."</em></li>
+        </ol>
+
+        <h3>Config</h3>
+        <pre>{
+  <span class="k">"mcpServers"</span>: {
+    <span class="k">"agentbase"</span>: {
+      <span class="k">"command"</span>: <span class="s">"npx"</span>,
+      <span class="k">"args"</span>: [<span class="s">"tsx"</span>, <span class="s">"/ABSOLUTE/PATH/TO/greennode-agentbase-mcp/src/index.ts"</span>],
+      <span class="k">"cwd"</span>: <span class="s">"/ABSOLUTE/PATH/TO/greennode-agentbase-mcp"</span>,
+      <span class="k">"env"</span>: {
+        <span class="k">"GREENNODE_MCP_TOKEN"</span>: <span class="s">"&lt;your-token&gt;"</span>
+      }
+    }
+  }
+}</pre>
+
+        <div class="callout warn">
+          <span class="ic">⚠</span>
+          <div><b>Use absolute paths.</b> Claude Desktop launches from a different working directory than your shell. Replace <code>/ABSOLUTE/PATH/TO/greennode-agentbase-mcp</code> with the real path (e.g. <code>/Users/you/src/greennode-agentbase-mcp</code>).</div>
+        </div>
+
+        <div class="callout tip">
+          <span class="ic">✓</span>
+          <div><b>It worked when</b> a new chat shows the server connected, and asking <em>"what AgentBase services are available?"</em> calls the <code>list_servers</code> tool and returns the six services.</div>
+        </div>
+
+        <div class="callout tip">
+          <span class="ic">↻</span>
+          <div><b>Rotating the token.</b> Claude Desktop reads <code>GREENNODE_MCP_TOKEN</code> when it spawns the server and holds it static. To rotate: <strong>quit Claude Desktop fully and relaunch</strong> — it re-spawns the server with a fresh token. For auto-rotation at every launch, swap <code>npx tsx</code> for the wrapper from <a href="#prereq">§01</a> (<code>"command": "bash", "args": ["…/scripts/mcp-launch.sh"]</code>); the wrapper needs <code>GREENNODE_CLIENT_ID</code> + <code>GREENNODE_CLIENT_SECRET</code> on the machine.</div>
+        </div>
+      </section>
+
+      <!-- ── 03 CLAUDE CODE ─────────────────────────────────────── -->
+      <section id="claude-code" style="--sec: var(--green)">
+        <div class="sec-eyebrow"><span class="num">03</span>Claude Code (stdio) — for developers</div>
+        <h2>The natural next step if you live in the terminal.</h2>
+        <p class="lead">Claude Code is the CLI. It reads MCP servers from <code>~/.claude.json</code> (or a project <code>.mcp.json</code>) and connects on startup. Same stdio mechanism as Claude Desktop, configured once for all your sessions.</p>
+
+        <h3>Steps</h3>
+        <ol class="steps">
+          <li>Complete <a href="#prereq">§01</a>.</li>
+          <li>Add the server. Easiest way — run this in the repo directory:
+            <pre>claude mcp add agentbase \
+  -e GREENNODE_MCP_TOKEN=<span class="s">"&lt;your-token&gt;"</span> \
+  -- npx tsx src/index.ts</pre>
+            Or edit <code>~/.claude.json</code> directly — add an entry under <code>mcpServers</code> in the relevant project (or the top-level).
+          </li>
+          <li>Restart Claude Code (or start it in this repo).</li>
+          <li>Verify the server is connected: run <code>/mcp</code> inside a session. <code>agentbase</code> should show as connected with 3 tools.</li>
+        </ol>
+
+        <h3>Config (in <code>~/.claude.json</code>)</h3>
+        <pre>{
+  <span class="k">"mcpServers"</span>: {
+    <span class="k">"agentbase"</span>: {
+      <span class="k">"type"</span>: <span class="s">"stdio"</span>,
+      <span class="k">"command"</span>: <span class="s">"npx"</span>,
+      <span class="k">"args"</span>: [<span class="s">"tsx"</span>, <span class="s">"src/index.ts"</span>],
+      <span class="k">"cwd"</span>: <span class="s">"/ABSOLUTE/PATH/TO/greennode-agentbase-mcp"</span>,
+      <span class="k">"env"</span>: {
+        <span class="k">"GREENNODE_MCP_TOKEN"</span>: <span class="s">"&lt;your-token&gt;"</span>
+      }
+    }
+  }
+}</pre>
+
+        <div class="callout tip">
+          <span class="ic">→</span>
+          <div><b>Repo-relative path works here.</b> Claude Code respects the <code>cwd</code> field, so <code>src/index.ts</code> resolves correctly. Still pin <code>cwd</code> to an absolute path so the server works from any session.</div>
+        </div>
+
+        <div class="callout note">
+          <span class="ic">ℹ</span>
+          <div><b>Project vs user scope.</b> Put the entry under <code>projects["&lt;repo-path&gt;"].mcpServers</code> to scope it to this repo, or under the top-level <code>mcpServers</code> for every session. The <code>claude mcp add</code> command scopes to the current project by default.</div>
+        </div>
+
+        <div class="callout tip">
+          <span class="ic">↻</span>
+          <div><b>Rotating the token.</b> Claude Code holds the token static after spawn. With the <a href="#prereq">§01 wrapper</a> as your command, running <code>/mcp</code> and reconnecting the <code>agentbase</code> server re-spawns the wrapper and mints a fresh token — no full relaunch needed. Without the wrapper, re-mint (<code>export GREENNODE_MCP_TOKEN=$(bash .claude/skills/agentbase/scripts/get_token.sh)</code>) and relaunch Claude Code.</div>
+        </div>
+      </section>
+
+      <!-- ── 04 CURSOR / WINDSURF ─────────────────────────────────────── -->
+      <section id="cursor-windsurf" style="--sec: var(--indigo)">
+        <div class="sec-eyebrow"><span class="num">04</span>Cursor &amp; Windsurf (stdio) — combined</div>
+        <h2>Same config shape, same stdio transport.</h2>
+        <p class="lead">Cursor and Windsurf both support MCP over stdio with near-identical config. The only difference is the file location and the JSON key name.</p>
+
+        <h3>Steps (Cursor)</h3>
+        <ol class="steps">
+          <li>Complete <a href="#prereq">§01</a>.</li>
+          <li>Open <strong>Settings → Cursor Settings → MCP</strong>, click <strong>Add new MCP server</strong>, or edit <code>~/.cursor/mcp.json</code> directly.</li>
+          <li>Paste the config below.</li>
+        </ol>
+
+        <h3>Steps (Windsurf)</h3>
+        <ol class="steps">
+          <li>Complete <a href="#prereq">§01</a>.</li>
+          <li>Open <strong>Settings → MCP Servers</strong>, or edit <code>~/.codeium/windsurf/mcp_config.json</code>.</li>
+          <li>Paste the config below (Windsurf uses the same shape).</li>
+        </ol>
+
+        <h3>Config</h3>
+        <pre>{
+  <span class="k">"mcpServers"</span>: {
+    <span class="k">"agentbase"</span>: {
+      <span class="k">"command"</span>: <span class="s">"npx"</span>,
+      <span class="k">"args"</span>: [<span class="s">"tsx"</span>, <span class="s">"/ABSOLUTE/PATH/TO/greennode-agentbase-mcp/src/index.ts"</span>],
+      <span class="k">"cwd"</span>: <span class="s">"/ABSOLUTE/PATH/TO/greennode-agentbase-mcp"</span>,
+      <span class="k">"env"</span>: {
+        <span class="k">"GREENNODE_MCP_TOKEN"</span>: <span class="s">"&lt;your-token&gt;"</span>
+      }
+    }
+  }
+}</pre>
+
+        <div class="callout tip">
+          <span class="ic">✓</span>
+          <div><b>Verify:</b> in Cursor, the MCP panel shows <code>agentbase</code> as active. In chat, mention <em>"use the agentbase server to list my gateways"</em> — the model will call <code>list_servers</code> then <code>search_tools</code> then <code>execute</code>.</div>
+        </div>
+
+        <div class="callout tip">
+          <span class="ic">↻</span>
+          <div><b>Rotating the token.</b> Cursor / Windsurf hold the token after spawn. On a <code>401</code>, click <strong>Restart</strong> next to the <code>agentbase</code> server in the MCP panel — with the <a href="#prereq">§01 wrapper</a> as the command, that re-mints automatically; without it, re-export <code>GREENNODE_MCP_TOKEN</code> in your shell first (the editor inherits the env it was launched with).</div>
+        </div>
+      </section>
+
+      <!-- ── 05 CLAUDE.AI (HTTP) ─────────────────────────────────────── -->
+      <section id="claude-ai" style="--sec: var(--coral)">
+        <div class="sec-eyebrow"><span class="num">05</span>Claude.ai (HTTP Streamable) — remote</div>
+        <h2>No local install — use the gateway endpoint.</h2>
+        <p class="lead">For Claude.ai (the web app) and any client that supports Streamable HTTP, point at the AgentBase MCP <strong>gateway</strong> — the IAM-authenticated front door that proxies the runtime. No local install; you just supply the URL and token.</p>
+
+        <div class="info">
+          <span class="k">Endpoint</span>
+          <span class="v">https://gw-agentbase-mcp-53461.agentbase-gateway.aiplatform.vngcloud.vn/agentbase_mcp/mcp</span>
+        </div>
+
+        <h3>Steps</h3>
+        <ol class="steps">
+          <li>Get your <code>GREENNODE_MCP_TOKEN</code> (you do <em>not</em> need to clone the repo for this path).</li>
+          <li>In your client's MCP settings, add an HTTP server with the URL and a Bearer auth header.</li>
+          <li>Connect and verify with a <em>"list my agent runtimes"</em> prompt.</li>
+        </ol>
+
+        <h3>Config (Claude Code, HTTP entry)</h3>
+        <pre>{
+  <span class="k">"mcpServers"</span>: {
+    <span class="k">"agentbase"</span>: {
+      <span class="k">"type"</span>: <span class="s">"http"</span>,
+      <span class="k">"url"</span>: <span class="s">"https://gw-agentbase-mcp-53461.agentbase-gateway.aiplatform.vngcloud.vn/agentbase_mcp/mcp"</span>,
+      <span class="k">"headers"</span>: {
+        <span class="k">"Authorization"</span>: <span class="s">"Bearer ${GREENNODE_MCP_TOKEN}"</span>
+      }
+    }
+  }
+}</pre>
+
+        <div class="callout note">
+          <span class="ic">ℹ</span>
+          <div><b>Claude.ai web connector.</b> Claude.ai's web UI adds remote MCP servers via <strong>Settings → Connectors → Add custom connector</strong>. Give it the gateway URL and the Bearer header. The connector runs server-side, so your token is stored with Anthropic — use a token scoped for this purpose if that matters to you.</div>
+        </div>
+
+        <div class="callout warn">
+          <span class="ic">⚠</span>
+          <div><b>Token TTL.</b> The <code>GREENNODE_MCP_TOKEN</code> is an IAM service-account JWT (≈30 min). The gateway validates it on the way in, so the same token works here and on the stdio path. For a long-running remote connector, expect to refresh periodically — failed calls with <code>401</code> mean the token expired.</div>
+        </div>
+
+        <div class="callout tip">
+          <span class="ic">→</span>
+          <div><b>Direct-endpoint fallback.</b> Prefer the gateway — it enforces IAM inbound auth and centralizes access logging. If you need an always-on client that can't refresh short-lived JWTs, the underlying runtime also accepts a long-lived access token at <code>https://endpoint-556ba588-2efe-4b68-8799-6645bae86e4d.agentbase-runtime.aiplatform.vngcloud.vn/mcp</code> with the same <code>Authorization: Bearer</code> header. That path skips the gateway's auth and audit layer.</div>
+        </div>
+
+        <div class="callout tip">
+          <span class="ic">↻</span>
+          <div><b>Rotating the token.</b> The web connector stores the Bearer with Anthropic and runs server-side — there's no process of yours on a schedule, so it <em>can't</em> self-rotate. Three options: (1) <strong>manual</strong> — re-mint and re-paste the token into the connector on <code>401</code> (fine for short sessions); (2) <strong>refresh proxy</strong> — run a small HTTPS endpoint that mints per request and forwards to the gateway, and point the connector at it (the proxy becomes your trust boundary — restrict inbound to it); (3) <strong>long-lived token on the direct endpoint</strong> — the fallback above: no rotation, but no gateway audit either.</div>
+        </div>
+      </section>
+
+      <!-- ── 06 FRAMEWORKS ─────────────────────────────────────── -->
+      <section id="frameworks" style="--sec: var(--cyan)">
+        <div class="sec-eyebrow"><span class="num">06</span>Agent frameworks — programmatic</div>
+        <h2>One pick: the MCP TypeScript SDK.</h2>
+        <p class="lead">If you're building an agent in code (not using a chat client), connect to the gateway with the official MCP client SDK. The SDK handles the JSON-RPC handshake, tool discovery, and calls. Here's the TypeScript client over stdio — the same pattern works in Python.</p>
+
+        <h3>TypeScript (stdio)</h3>
+        <pre><span class="k">import</span> { Client } <span class="k">from</span> <span class="s">"@modelcontextprotocol/sdk/client/index.js"</span>;
+<span class="k">import</span> { StdioClientTransport } <span class="k">from</span> <span class="s">"@modelcontextprotocol/sdk/client/stdio.js"</span>;
+
+<span class="k">const</span> transport = <span class="k">new</span> StdioClientTransport({
+  command: <span class="s">"npx"</span>,
+  args: [<span class="s">"tsx"</span>, <span class="s">"src/index.ts"</span>],
+  cwd: <span class="s">"/path/to/greennode-agentbase-mcp"</span>,
+  env: { ...process.env, GREENNODE_MCP_TOKEN: process.env.GREENNODE_MCP_TOKEN! },
+});
+
+<span class="k">const</span> client = <span class="k">new</span> Client(
+  { name: <span class="s">"my-agent"</span>, version: <span class="s">"0.1.0"</span> },
+  { capabilities: {} },
+);
+<span class="k">await</span> client.connect(transport);
+
+<span class="cm">// 1. orient</span>
+<span class="k">const</span> { tools } = <span class="k">await</span> client.listTools();
+console.log(tools.map(t =&gt; t.name)); <span class="c2">// ["list_servers","search_tools","execute"]</span>
+
+<span class="cm">// 2. discover the operation you need</span>
+<span class="k">const</span> search = <span class="k">await</span> client.callTool({
+  name: <span class="s">"search_tools"</span>,
+  arguments: { query: <span class="s">"list agent runtimes"</span>, limit: <span class="n">5</span> },
+});
+
+<span class="cm">// 3. execute it (id comes from the search hits — real ids mirror the</span>
+<span class="cm">//    upstream spec's operationId, so e.g. listing runtimes is "runtime.list_1")</span>
+<span class="k">const</span> result = <span class="k">await</span> client.callTool({
+  name: <span class="s">"execute"</span>,
+  arguments: { id: <span class="s">"runtime.list_1"</span>, args: {} },
+});</pre>
+
+        <div class="callout tip">
+          <span class="ic">→</span>
+          <div><b>The three-step pattern.</b> Every interaction is <code>list_servers</code> (orient) → <code>search_tools</code> (discover) → <code>execute</code> (run). You can skip <code>list_servers</code> once you know the service you want. <strong>Always take the <code>id</code> from <code>search_tools</code></strong> — operation ids mirror the upstream OpenAPI spec's <code>operationId</code>, so they're not always pretty (<code>runtime.list_1</code>, <code>runtime.get</code>, <code>runtime.listEndpoints</code> …) and can shift between spec versions. Pass <code>fields</code> to <code>execute</code> for a JMESPath projection that shrinks large responses.</div>
+        </div>
+
+        <h3>Python (stdio) — same shape</h3>
+        <pre><span class="k">from</span> mcp <span class="k">import</span> ClientSession, StdioServerParameters
+<span class="k">from</span> mcp.client.stdio <span class="k">import</span> stdio_client
+
+params = StdioServerParameters(
+    command=<span class="s">"npx"</span>,
+    args=[<span class="s">"tsx"</span>, <span class="s">"src/index.ts"</span>],
+    cwd=<span class="s">"/path/to/greennode-agentbase-mcp"</span>,
+    env={<span class="s">"GREENNODE_MCP_TOKEN"</span>: token},
+)
+
+<span class="k">async with</span> stdio_client(params) <span class="k">as</span> (read, write):
+    <span class="k">async with</span> ClientSession(read, write) <span class="k">as</span> session:
+        <span class="k">await</span> session.initialize()
+        tools = <span class="k">await</span> session.list_tools()
+        hits = <span class="k">await</span> session.call_tool(<span class="s">"search_tools"</span>, {<span class="s">"query"</span>: <span class="s">"list runtimes"</span>})
+        result = <span class="k">await</span> session.call_tool(<span class="s">"execute"</span>, {<span class="s">"id"</span>: <span class="s">"runtime.list_1"</span>, <span class="s">"args"</span>: {}})</pre>
+
+        <h3>Rotating the token (in code)</h3>
+        <p>You own the loop, so mint, cache, and refresh explicitly. Refresh ~5 min before the JWT <code>exp</code> and retry once on <code>401</code>. For stdio, set the env before spawning; for HTTP, set <code>Authorization</code> per call. Decode the JWT payload yourself (no extra deps) as shown, or use a library — the logic is the same.</p>
+<pre><span class="k">let</span> cached: { token: <span class="k">string</span>; exp: <span class="k">number</span> } | <span class="k">undefined</span>;
+
+<span class="k">async function</span> freshToken(): Promise&lt;<span class="k">string</span>&gt; {
+  <span class="k">if</span> (cached &amp;&amp; cached.exp &gt; Date.now() / <span class="n">1000</span> + <span class="n">300</span>) <span class="k">return</span> cached.token;
+  <span class="k">const</span> res = <span class="k">await</span> fetch(<span class="s">"https://iam.api.vngcloud.vn/accounts-api/v2/auth/token"</span>, {
+    method: <span class="s">"POST"</span>,
+    headers: {
+      <span class="s">"Authorization"</span>: <span class="s">"Basic "</span> + Buffer.from(
+        `${process.env.GREENNODE_CLIENT_ID}:${process.env.GREENNODE_CLIENT_SECRET}`
+      ).toString(<span class="s">"base64"</span>),
+      <span class="s">"Content-Type"</span>: <span class="s">"application/x-www-form-urlencoded"</span>,
+    },
+    body: <span class="s">"grant_type=client_credentials"</span>,
+  });
+  <span class="k">const</span> { access_token } = <span class="k">await</span> res.json();
+  <span class="k">const</span> seg = access_token.split(<span class="s">"."</span>)[<span class="n">1</span>].replace(/-/g, <span class="s">"+"</span>).replace(/_/g, <span class="s">"/"</span>);
+  <span class="k">const</span> payload = JSON.parse(Buffer.from(seg, <span class="s">"base64"</span>).toString(<span class="s">"utf8"</span>));
+  cached = { token: access_token, exp: payload.exp };
+  <span class="k">return</span> access_token;
+}
+
+<span class="cm">// HTTP gateway: attach a fresh Bearer per call (refresh + 401-retry)</span>
+headers: { Authorization: <span class="s">`Bearer ${await freshToken()}`</span> }</pre>
+
+        <div class="callout note">
+          <span class="ic">ℹ</span>
+          <div><b>Same primitive, in-process.</b> This is exactly what <code>.claude/skills/agentbase/scripts/get_token.sh</code> does (mint → cache → expiry check with a safety margin), ported into your agent. For stdio, call it once and pass the result as <code>GREENNODE_MCP_TOKEN</code> to the spawn env; refresh by re-spawning. For Python, the same <code>grant_type=client_credentials</code> POST with <code>requests.auth.HTTPBasicAuth</code> and a <code>time.time() &gt; exp - 300</code> guard.</div>
+        </div>
+      </section>
+
+      <!-- ── 07 CLINE / ROO ─────────────────────────────────────── -->
+      <section id="cline-roo" style="--sec: var(--amber)">
+        <div class="sec-eyebrow"><span class="num">07</span>Cline &amp; Roo Code — VS Code power users</div>
+        <h2>VS Code extensions that drive MCP tools in your editor.</h2>
+        <p class="lead">Cline and Roo Code are VS Code extensions that act as autonomous coding agents and can use MCP servers. Both read MCP config from a file in your workspace or user settings.</p>
+
+        <h3>Steps (Cline)</h3>
+        <ol class="steps">
+          <li>Complete <a href="#prereq">§01</a>.</li>
+          <li>Open the Cline extension panel → click the <strong>MCP</strong> icon → <strong>Edit MCP Settings</strong>. This opens <code>~/.cline/mcp_settings.json</code> (or the workspace <code>.cline/mcp_settings.json</code>).</li>
+          <li>Paste the config below.</li>
+        </ol>
+
+        <h3>Steps (Roo Code)</h3>
+        <ol class="steps">
+          <li>Complete <a href="#prereq">§01</a>.</li>
+          <li>Open Roo Code settings → <strong>MCP Servers</strong> → <strong>Edit</strong>, or edit <code>~/.roo/mcp_settings.json</code>.</li>
+          <li>Paste the config below.</li>
+        </ol>
+
+        <h3>Config</h3>
+        <pre>{
+  <span class="k">"mcpServers"</span>: {
+    <span class="k">"agentbase"</span>: {
+      <span class="k">"command"</span>: <span class="s">"npx"</span>,
+      <span class="k">"args"</span>: [<span class="s">"tsx"</span>, <span class="s">"/ABSOLUTE/PATH/TO/greennode-agentbase-mcp/src/index.ts"</span>],
+      <span class="k">"cwd"</span>: <span class="s">"/ABSOLUTE/PATH/TO/greennode-agentbase-mcp"</span>,
+      <span class="k">"env"</span>: {
+        <span class="k">"GREENNODE_MCP_TOKEN"</span>: <span class="s">"&lt;your-token&gt;"</span>
+      },
+      <span class="k">"disabled"</span>: <span class="n">false</span>,
+      <span class="k">"alwaysAllow"</span>: []
+    }
+  }
+}</pre>
+
+        <div class="callout tip">
+          <span class="ic">✓</span>
+          <div><b>Verify:</b> the extension's MCP panel shows <code>agentbase</code> as connected with 3 tools. In a Cline/Roo task, ask <em>"use the agentbase server to search for a tool that lists gateways, then run it"</em> — watch it call <code>search_tools</code> then <code>execute</code>.</div>
+        </div>
+
+        <div class="callout note">
+          <span class="ic">ℹ</span>
+          <div><b>Always-allow.</b> The <code>alwaysAllow</code> array lets you pre-approve tool names so the extension doesn't prompt each call. Add <code>"list_servers"</code>, <code>"search_tools"</code>, <code>"execute"</code> to skip confirmations for read-heavy workflows — but keep <code>execute</code> prompted if you're mutating resources.</div>
+        </div>
+
+        <div class="callout tip">
+          <span class="ic">↻</span>
+          <div><b>Rotating the token.</b> Cline / Roo hold the token after spawn. On <code>401</code>, use the extension's MCP panel to <strong>restart</strong> the <code>agentbase</code> server — with the <a href="#prereq">§01 wrapper</a> as the command, that re-mints automatically; without it, re-export <code>GREENNODE_MCP_TOKEN</code> in the terminal you launched VS Code from, then restart the server.</div>
+        </div>
+      </section>
+
+      <footer>
+        <b>AgentBase MCP — Client Quick Start.</b> The gateway exposes 3 meta-tools (<code>list_servers</code>, <code>search_tools</code>, <code>execute</code>) over stdio or HTTP.<br>
+        Local stdio: <code>npx tsx src/index.ts</code> · Remote HTTP: <code>https://gw-agentbase-mcp-53461.agentbase-gateway.aiplatform.vngcloud.vn/agentbase_mcp/mcp</code> · Token: <code>GREENNODE_MCP_TOKEN</code>.
+      </footer>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  // Scrollspy
+  (function () {
+    var links = Array.prototype.slice.call(document.querySelectorAll('#toc a'));
+    var byId = {};
+    links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var sections = links.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); });
+    function setActive(id) { links.forEach(function (a) { a.classList.toggle('active', a === byId[id]); }); }
+    if ('IntersectionObserver' in window) {
+      var visible = {};
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting ? e.intersectionRatio : 0; });
+        var best = null, bestR = 0;
+        Object.keys(visible).forEach(function (id) { if (visible[id] > bestR) { bestR = visible[id]; best = id; } });
+        if (best) setActive(best);
+      }, { rootMargin: '-10% 0px -70% 0px', threshold: [0, .25, .5, 1] });
+      sections.forEach(function (s) { if (s) io.observe(s); });
+    }
+  })();
+</script>

@@ -1,0 +1,2288 @@
+{
+  "schemes": [
+    "https"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "MCP (Model Context Protocol) gateway management service.",
+    "title": "agent-core-gateway",
+    "contact": {},
+    "version": "0.1.0"
+  },
+  "host": "agentbase.api.vngcloud.vn",
+  "basePath": "/gateway",
+  "paths": {
+    "/api/v1/flavors": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Returns enabled flavors from the catalog. Optional resourceType filters to flavors selectable for that resource (whitelist match). Each item carries an `availability` token: YES (bookable, or no zone capacity to probe), NO (currently full / zone has no covering cluster), or UNKNOWN (zone-aware probe failed; static catalog rules still apply).",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "flavors"
+        ],
+        "summary": "List flavors",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Resource type whitelist filter (e.g. GATEWAY)",
+            "name": "resourceType",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "PUBLIC | PRIVATE",
+            "name": "networkMode",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Zone UUID; only honored with networkMode=PRIVATE",
+            "name": "zoneId",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/handler.FlavorListResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/gateways": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "gateways"
+        ],
+        "summary": "List caller's gateways",
+        "parameters": [
+          {
+            "enum": [
+              "WAITING_CREATING",
+              "CREATING",
+              "ACTIVE",
+              "WAITING_UPDATING",
+              "UPDATING",
+              "WAITING_DELETING",
+              "DELETING",
+              "DELETED",
+              "WAITING_ERROR_DELETING",
+              "ERROR_DELETING",
+              "WAITING_CREATE_ERROR_CLEANING",
+              "CREATE_ERROR_CLEANING",
+              "CREATE_ERROR",
+              "UPDATE_ERROR",
+              "ERROR"
+            ],
+            "type": "string",
+            "description": "Filter by gateway state",
+            "name": "state",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by bound policy group id (exact match)",
+            "name": "policyGroupId",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "Page number, 1-based (default 1)",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "Page size (default 50, max 100)",
+            "name": "pageSize",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/handler.GatewayListResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Creates a new gateway owned by the caller. Provisioning runs asynchronously: the response is **202** and the gateway starts in `WAITING_CREATING`, then progresses to `CREATING` once the worker picks up the create job, and finally `ACTIVE`. Poll `GET /api/v1/gateways/{name}` to track state.\n\n### Body fields\n\n**`name`** *(string, required, 3–40 chars, charset `[a-z0-9-]` with no leading/trailing dash)* — caller-chosen identifier. **Sealed at create**; cannot be changed later. Used in URL paths.\n\n**`displayName`** *(string, optional, ≤100, charset `[A-Za-z0-9_.-]`)* — free-text label.\n\n**`description`** *(string, optional, ≤500, charset `[A-Za-z0-9_.\\-, ]`)* — free-text description.\n\n**`networkMode`** *(string, required, one of `PUBLIC` | `PRIVATE`)* — **sealed at create**. Drives placement: `PUBLIC` runs on the shared public node pool; `PRIVATE` runs on per-tenant VPC infra. Cannot be changed after create — recreate the gateway to switch.\n\n**`privateNetwork`** *(object)* — **required when `networkMode=PRIVATE`**, must be absent (or null) for `PUBLIC`. Sealed at create except for `routes` (mutable via the routes sub-resource).\n- `vpcId` *(required, ≤50, charset `[A-Za-z0-9_-]`)* — VServer VPC id owned by the caller.\n- `subnetId` *(required, ≤50, charset `[A-Za-z0-9_-]`)* — subnet within the referenced VPC; the gateway service derives the owning `projectId` by probing the user's VServer projects.\n- `routes` *(optional, ≤50 entries, each IPv4 CIDR like `10.0.0.0/16`; IPv6 rejected)* — extra node routes programmed into the PRIVATE gateway's pod network. Cross-VPC overlap (user-VPC, cluster-VPC) is rejected at the service layer.\n- `publicEndpointEnabled` *(optional, bool, default false)* — when true, the PRIVATE gateway is also exposed on an internet-reachable endpoint (an extra HTTP route). Rejected for PUBLIC (which has no `privateNetwork` block). The public URL is returned as `publicEndpoint`.\n\n**`flavorId`** *(string, required, 1–50, charset `[A-Za-z0-9_-]`)* — id of a catalog flavor; choose one from `GET /api/v1/flavors`. **Sealed at create** — recreate the gateway to resize. A flavor snapshot is stored on the gateway so disabling/deleting the catalog row does not affect existing gateways.\n\n**`replicas`** *(int, required, 1–10)* — dataplane replica count. **Sealed at create**.\n\n**`inboundAuth`** *(object, required)* — auth scheme that clients must satisfy when calling the gateway endpoint. Required at create; can be replaced (whole-object) via PATCH. See the `InboundAuthDTO` schema for the variants supported.\n- `inboundAuth.clientRedirectUris` *(array of strings, optional, ≤32 entries, ≤1024 chars each, http(s) URLs)* — mode-agnostic allowlist for MCP-client redirect_uri, enforced at DCR /register and /authorize. Loopback targets (http://127.0.0.1, http://[::1], http://localhost, any port/path) are auto-allowed at request time without a list entry (RFC 8252 §7.3); non-loopback targets must be listed here.\n\n**`policyGroupId`** *(string, optional, 1–50, charset `[A-Za-z0-9_-]`)* — bind to a policy group at create time. Ownership is verified server-side. Omit to leave the gateway unbound; can be set/cleared later via PATCH.\n\n**`targets`** *(array of target objects, optional)* — initial MCP target list. Omit / `[]` creates an empty gateway. Count is capped by the operator-configured `gateway.maxTargets` (422 on exceed). Each target's shape: see `CreateTargetRequest` schema — `name` (3–50, must start with `[A-Za-z0-9]`, charset `[A-Za-z0-9_]`), `type` (`MCP`), `endpoint` (absolute `http://` or `https://` URL, ≤1000 chars; hostname or `ip:port` host both accepted; missing scheme is rejected — callers must state the protocol), `outboundAuth` (required, see schema).\n\n**`allowedCidrs`** *(array of IPv4 CIDRs, optional, ≤50 entries)* — inbound client-IP allowlist. Omitted or `null` → allow-all default (`0.0.0.0/0`); explicit `[]` → block all client IPs; populated array → restrict to those CIDRs. Each entry must be a valid IPv4 CIDR.\n\n### Pre-conditions\nThe caller must be whitelisted with sufficient remaining quota, the catalog must contain at least one `ACTIVE` cluster with a non-empty `workerReceiver`, and the chosen flavor must be `enabled`. For `PRIVATE` mode, the flavor must additionally carry a `vksFlavorByZone` entry for the destination zone derived from the subnet.\n\n### Response\n- **202** — accepted; gateway exists in `WAITING_CREATING`. ETag header carries the initial `resourceVersion`.\n- **400** — validation error (shape, charset, length, network-mode mismatch).\n- **409** — name already in use by the caller.\n- **422** — quota exceeded, target count over cap, deduped union of 3LO `returnUrl` values over the identity-side cap of 100, or no eligible cluster/flavor available.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "gateways"
+        ],
+        "summary": "Create a gateway",
+        "parameters": [
+          {
+            "description": "Gateway payload",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/handler.CreateGatewayRequest"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "schema": {
+              "$ref": "#/definitions/handler.GatewayResponse"
+            },
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Current resourceVersion (quoted)"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/gateways/{name}": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "gateways"
+        ],
+        "summary": "Get a gateway by name",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Gateway name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/handler.GatewayResponse"
+            },
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Current resourceVersion (quoted)"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Marks the gateway for deletion. Accepted from any non-deleted state — including in-flight states (WAITING_CREATING, CREATING, WAITING_UPDATING, UPDATING): the in-flight CREATE or UPDATE is short-circuited and the gateway transitions toward DELETED. If the gateway is already in a delete phase (WAITING_DELETING, DELETING, WAITING_ERROR_DELETING, ERROR_DELETING), the call returns 409 Conflict with code `delete_in_progress`. Deletion of the underlying Kubernetes resource finishes asynchronously.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "gateways"
+        ],
+        "summary": "Delete a gateway",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Gateway name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "schema": {
+              "$ref": "#/definitions/handler.GatewayResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      },
+      "patch": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Patches the user-mutable subset of a gateway spec with **JSON Merge Patch** semantics (RFC 7396). The body carries only the fields the client wants to touch.\n\n### General rule (applies to every field)\n- **Key omitted** → no-op, the stored value is left alone.\n- **Key present with a concrete value** → replace the stored value.\n- **Key present with JSON `null`** → clear (per-field rules below).\n\nReplacement is **whole-object / whole-array**, never nested-merge. Sending `inboundAuth` replaces the entire auth config (all required sub-fields must be present, partial payloads are rejected). Sending `targets` replaces the whole target list atomically — there is no per-target add/remove API; to mutate one entry, GET the current list, edit it, and PATCH the full updated array back.\n\n### Per-field behaviour\n\n**`displayName`** *(string, ≤100, charset `[A-Za-z0-9_.-]`)*\n- omitted or `null` → no-op (preserve stored value)\n- `\"\"` → clear (stored value becomes `\"\"`; responses always emit `\"\"`)\n- `\"some name\"` → set\n\n**`description`** *(string, ≤500, charset `[A-Za-z0-9_.\\-, ]`)*\n- omitted or `null` → no-op (preserve stored value)\n- `\"\"` → clear (stored value becomes `\"\"`; responses always emit `\"\"`)\n- `\"some text\"` → set\n\n**`policyGroupId`** *(string, ≤50, charset `[A-Za-z0-9_-]`)* — strict RFC 7396\n- omitted → no-op\n- `\"<group-id>\"` → bind to that policy group (existence + ownership verified server-side)\n- `null` → **clear** (detach from policy group)\n- `\"\"` → **rejected with 400** (an empty string is never a valid id; send `null` to clear)\n\n**`inboundAuth`** *(object)*\n- omitted → no-op\n- object value → **whole-object replace** of the stored auth config; partial payloads fail validation\n- `null` → not a documented clear path; do not rely on it\n- `inboundAuth.clientRedirectUris` *(array of strings, optional, ≤32 entries, ≤1024 chars each, http(s) URLs)* — mode-agnostic allowlist for MCP-client redirect_uri. Loopback targets (http://127.0.0.1, http://[::1], http://localhost, any port/path) are auto-allowed at request time without a list entry (RFC 8252 §7.3); non-loopback targets must be listed here.\n\n**`targets`** *(array of target objects)*\n- omitted → no-op\n- non-empty array → replace the whole list (count must be within the operator-configured `gateway.maxTargets`)\n- `[]` → **clear** the list\n- `null` → treated as omitted (no-op)\n\n**`allowedCidrs`** *(array of IPv4 CIDRs, ≤50 entries)*\n- omitted → no-op (stored allowlist unchanged)\n- non-empty array → **replace** the stored allowlist with these CIDRs (each must be a valid IPv4 CIDR)\n- `[]` → **block all** client IPs (explicit empty replaces the stored list)\n- `null` → treated as omitted (no-op)\n\n### Optimistic concurrency (`If-Match`)\nOptional. When provided, the current `resourceVersion` must match or the request fails with **412**. Omitting `If-Match` does **not** mean last-write-wins: the storage layer always CAS-updates on the `resourceVersion` read at the start of the call, so a concurrent writer racing this one can still surface 412. Clients that don't send `If-Match` should still be prepared to retry on 412 (re-GET, then PATCH again).\n\n### Response status\n- **200** — accepted, no change or metadata-only change (no async work).\n- **202** — accepted, runtime-affecting change; gateway transitions to `UPDATING`.\n\n### Sealed-at-create fields (cannot be changed via PATCH)\n`name`, `networkMode`, `privateNetwork.vpcId`, `privateNetwork.subnetId`, `flavorId`, `replicas` — recreate the gateway to alter them. Unknown / sealed keys in the JSON body are silently ignored.\n\n`inboundAuth.jwt.idpApp` is also silently ignored here — use `PUT/DELETE /inbound-auth/jwt/idp-app` instead. The stored idpApp is preserved unchanged when PATCH touches the surrounding JWT block.\n\n**`privateNetwork`** *(object, PRIVATE only)* — block-replace: when present, BOTH `routes` and `publicEndpointEnabled` are required (a partial block is 400); the block fully describes the desired mutable private-network state. `allowedCidrs` applies to both the private and public routes. Concurrency: writes use optimistic concurrency on `resourceVersion` (CAS) — a racing PATCH / routes-PUT loser gets 412/409 and must re-GET and retry; changes are not auto-merged.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "gateways"
+        ],
+        "summary": "Update a gateway's user-mutable spec",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Gateway name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Current resourceVersion (quoted) — optional client-side optimistic-concurrency check (storage CAS still applies; see description)",
+            "name": "If-Match",
+            "in": "header"
+          },
+          {
+            "description": "Desired spec",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/handler.UpdateGatewaySpecRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No change or metadata-only",
+            "schema": {
+              "$ref": "#/definitions/handler.GatewayResponse"
+            },
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Current resourceVersion (quoted)"
+              }
+            }
+          },
+          "202": {
+            "description": "Update accepted; gateway transitions to UPDATING",
+            "schema": {
+              "$ref": "#/definitions/handler.GatewayResponse"
+            },
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Current resourceVersion (quoted)"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "409": {
+            "description": "Conflicting state",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "412": {
+            "description": "Stale If-Match",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "422": {
+            "description": "Target count exceeds the per-gateway limit (`target_limit_exceeded`), or the deduped union of 3LO `returnUrl` values exceeds the identity-side cap of 100 (`allowed_return_url_limit_exceeded`)",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/gateways/{name}/access-logs": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Returns a paginated, ownership-scoped view of the gateway's Kong-shipped access logs over the requested time window. Filters are intersected. Default window is the last 24 hours; max window is 30 days. Hard ES `from+size` cap (10000) is enforced server-side as `pagination_limit_exceeded`.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "access-logs"
+        ],
+        "summary": "List access logs for a gateway",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Gateway name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Inclusive lower bound, RFC3339 (default: now-24h)",
+            "name": "from",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Inclusive upper bound, RFC3339 (default: now)",
+            "name": "to",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Exact MCP method match (e.g. tools/call)",
+            "name": "mcpMethod",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Exact tool-name match",
+            "name": "toolName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Exact target-name match",
+            "name": "targetName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Exact HTTP status int (e.g. 200) or class (2xx/4xx/5xx)",
+            "name": "httpStatus",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Exact client-IP match",
+            "name": "clientIp",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "Page, 1-based (default 1)",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "Page size, 1..500 (default 50)",
+            "name": "pageSize",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/handler.AccessLogListResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/gateways/{name}/access-logs/stats": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Aggregations over the same filter universe as the list endpoint: total request count, success/error rate (by HTTP status: 2xx = success, 4xx+5xx = error, as fractions of total), duration over mcp.duration_ms (avgMs/minMs/maxMs), per-interval time series (each bucket carries total `count` plus `success`/`error` counts using the same status bounds as the rates), status histogram, and top tools / targets. The `interval` is auto-picked from the time range (≤2h → 1m; ≤1d → 5m; ≤7d → 1h; >7d → 1d) unless explicitly supplied.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "access-logs"
+        ],
+        "summary": "Access-log statistics for a gateway",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Gateway name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Inclusive lower bound, RFC3339",
+            "name": "from",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Inclusive upper bound, RFC3339",
+            "name": "to",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Exact MCP method match",
+            "name": "mcpMethod",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Exact tool-name match",
+            "name": "toolName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Exact target-name match",
+            "name": "targetName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Exact HTTP status int or class (2xx/4xx/5xx)",
+            "name": "httpStatus",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Exact client-IP match",
+            "name": "clientIp",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "1m | 5m | 1h | 1d (auto when omitted)",
+            "name": "interval",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "Top-N for topTools / topTargets (1..20, default 10)",
+            "name": "topN",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/handler.AccessLogStatsResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/gateways/{name}/inbound-auth/jwt/idp-app": {
+      "put": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Creates or fully replaces `inboundAuth.jwt.idpApp` on a gateway whose `inboundAuth.mode` is `JWT`.\n\n`clientId` is required (1..256 chars).\n\n`clientSecret` follows preserve-if-absent semantics:\n- **absent** or **`null`** → stored ciphertext preserved (rotate clientId alone)\n- **non-empty string** (1..4096 chars) → encrypted and stored; `idpApp.updatedAt` is stamped\n- to clear the secret in isolation, `DELETE /idp-app` then re-POST without `clientSecret`\n\nRedirect URIs are managed via `inboundAuth.clientRedirectUris` on gateway create/PATCH, not here.\n\nReturns **400** when `inboundAuth.mode` is not `JWT`, or when\n`inboundAuth.jwt.source` is not `DISCOVERY` (idpApp is inert under\n`JWKS` — the OAuth orchestration stack requires a discovery-derived issuer).",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "gateways"
+        ],
+        "summary": "Set the idpApp block on a JWT-mode gateway (PUT)",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Gateway name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "IdP app credentials",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/handler.PutIdpAppRequest"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "409": {
+            "description": "Conflicting state",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "412": {
+            "description": "Stale resource version",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Removes `inboundAuth.jwt.idpApp` entirely. On a `DISCOVERY`-source gateway the gateway falls back to passthrough mode (orchestrator forwards every /authorize and /token to the upstream IdP). Allowed on any JWT-mode gateway regardless of source — clearing stays open so a now-inert idpApp on a `JWKS`-source gateway is removable. Idempotent: returns 204 even if no idpApp was stored.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "gateways"
+        ],
+        "summary": "Clear the idpApp block on a JWT-mode gateway",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Gateway name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "412": {
+            "description": "Stale resource version",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/gateways/{name}/private-network/routes": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Returns the current routes list for a PRIVATE-mode gateway. PUBLIC gateways return 404 with code `private_network_not_applicable` because the sub-resource does not exist for them — `networkMode` is sealed at create. The ETag header carries the gateway-level resourceVersion so callers can chain a PUT with If-Match.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "gateways"
+        ],
+        "summary": "Read the gateway's private-network routes",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Gateway name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/handler.PrivateRoutesResponse"
+            },
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Current resourceVersion (quoted)"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "404": {
+            "description": "Gateway not found, or gateway is not in PRIVATE mode",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Replaces the stored routes list atomically. PRIVATE-mode gateways only — PUBLIC gateways return 404 with code `private_network_not_applicable` because the sub-resource does not exist for them. Send `routes: []` to clear all routes; the `routes` key is required so omitting it is a 400. Each entry must be a valid IPv4 CIDR; IPv6 is rejected at binding. Cross-VPC overlap with the user-VPC CIDR or cluster-VPC CIDR is rejected at the service layer. If-Match is the optional client-side OCC check; the storage layer always CAS-updates on the resourceVersion read at the start of the call, so callers should be prepared to retry on 412 even without If-Match. State must be ACTIVE or UPDATE_ERROR (409 otherwise). A no-op (incoming list equals stored AND state is ACTIVE) returns 200; a real change returns 202 and the gateway transitions to UPDATING. On 202 the returned `routes` is the newly-accepted desired list; the data plane may still be serving the previous list until the gateway returns to ACTIVE.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "gateways"
+        ],
+        "summary": "Replace the gateway's private-network routes",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Gateway name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Current resourceVersion (quoted) — optional client-side optimistic-concurrency check (storage CAS still applies; see description)",
+            "name": "If-Match",
+            "in": "header"
+          },
+          {
+            "description": "Desired routes list",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/handler.ReplacePrivateRoutesRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No change",
+            "schema": {
+              "$ref": "#/definitions/handler.PrivateRoutesResponse"
+            },
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Current resourceVersion (quoted)"
+              }
+            }
+          },
+          "202": {
+            "description": "Update accepted; gateway transitions to UPDATING",
+            "schema": {
+              "$ref": "#/definitions/handler.PrivateRoutesResponse"
+            },
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Current resourceVersion (quoted)"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "404": {
+            "description": "Gateway not found, or gateway is not in PRIVATE mode",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "409": {
+            "description": "Conflicting state",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "412": {
+            "description": "Stale If-Match",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/gateways/{name}/service-account/repair": {
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Reconciles the per-gateway IAM service account after the user has accidentally reset its client secret, disabled it, or deleted the SA from the IAM portal. The flow GETs the SA, activates it if disabled, resets the client secret, and re-encrypts it onto the gateway. If the SA is gone (404), a new SA is created and the operator-owned policies are re-attached. Allowed only when the gateway is in ACTIVE or UPDATE_ERROR — other states return 409. The caller's portal-user-id must match the gateway's owner. Two concurrent repair calls on the same gateway resolve via resourceVersion CAS: one wins; the loser receives 412 and may safely retry.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "gateways"
+        ],
+        "summary": "Repair the gateway's IAM service-account credentials",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Gateway name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/handler.GatewayResponse"
+            },
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Current resourceVersion (quoted)"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "409": {
+            "description": "Gateway not in a repairable state",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "412": {
+            "description": "Concurrent repair raced this call; retry after refreshing",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "502": {
+            "description": "service account repair failed (upstream)",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "domain.AccessLogCaller": {
+      "type": "object",
+      "properties": {
+        "authMode": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "domain.AccessLogCallerBucket": {
+      "type": "object",
+      "properties": {
+        "authMode": {
+          "type": "string"
+        },
+        "count": {
+          "type": "integer"
+        },
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "domain.AccessLogDurationStats": {
+      "type": "object",
+      "properties": {
+        "avgMs": {
+          "type": "number"
+        },
+        "maxMs": {
+          "type": "number"
+        },
+        "minMs": {
+          "type": "number"
+        }
+      }
+    },
+    "domain.AccessLogEntry": {
+      "type": "object",
+      "properties": {
+        "caller": {
+          "$ref": "#/definitions/domain.AccessLogCaller"
+        },
+        "durationMs": {
+          "type": "integer"
+        },
+        "errorCode": {
+          "type": "string"
+        },
+        "errorMessage": {
+          "type": "string"
+        },
+        "mcp": {
+          "$ref": "#/definitions/domain.AccessLogMCP"
+        },
+        "request": {
+          "$ref": "#/definitions/domain.AccessLogRequest"
+        },
+        "response": {
+          "$ref": "#/definitions/domain.AccessLogResponse"
+        },
+        "targetName": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "upstreamUrl": {
+          "type": "string"
+        }
+      }
+    },
+    "domain.AccessLogMCP": {
+      "type": "object",
+      "properties": {
+        "jsonRpcId": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
+        },
+        "toolName": {
+          "type": "string"
+        }
+      }
+    },
+    "domain.AccessLogPagination": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "pageSize": {
+          "type": "integer"
+        },
+        "total": {
+          "type": "integer"
+        }
+      }
+    },
+    "domain.AccessLogRequest": {
+      "type": "object",
+      "properties": {
+        "clientIp": {
+          "type": "string"
+        },
+        "contentType": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "method": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "userAgent": {
+          "type": "string"
+        }
+      }
+    },
+    "domain.AccessLogResponse": {
+      "type": "object",
+      "properties": {
+        "contentType": {
+          "type": "string"
+        },
+        "status": {
+          "type": "integer"
+        },
+        "streaming": {
+          "type": "boolean"
+        }
+      }
+    },
+    "domain.AccessLogStatsRange": {
+      "type": "object",
+      "properties": {
+        "from": {
+          "type": "string"
+        },
+        "interval": {
+          "type": "string"
+        },
+        "to": {
+          "type": "string"
+        }
+      }
+    },
+    "domain.AccessLogStatusBucket": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer"
+        },
+        "status": {
+          "type": "integer"
+        }
+      }
+    },
+    "domain.AccessLogTermBucket": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "domain.AccessLogTimeBucket": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer"
+        },
+        "error": {
+          "type": "integer"
+        },
+        "success": {
+          "type": "integer"
+        },
+        "timestamp": {
+          "type": "string"
+        }
+      }
+    },
+    "domain.CustomClaimRule": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "operator": {
+          "type": "string"
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "domain.InboundAuthMode": {
+      "type": "string",
+      "enum": [
+        "NONE",
+        "IAM",
+        "JWT"
+      ],
+      "x-enum-varnames": [
+        "InboundAuthNone",
+        "InboundAuthIAM",
+        "InboundAuthJWT"
+      ]
+    },
+    "domain.JWTSource": {
+      "type": "string",
+      "enum": [
+        "DISCOVERY",
+        "JWKS"
+      ],
+      "x-enum-varnames": [
+        "JWTSourceDiscovery",
+        "JWTSourceJWKS"
+      ]
+    },
+    "domain.NetworkMode": {
+      "type": "string",
+      "enum": [
+        "PUBLIC",
+        "PRIVATE"
+      ],
+      "x-enum-varnames": [
+        "NetworkModePublic",
+        "NetworkModePrivate"
+      ]
+    },
+    "domain.OutboundAuth": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "customParameters": {
+          "description": "CustomParameters is forwarded verbatim to the identity service when\nresolving an OAUTH + 3LO secret. Keys/values are opaque to the gateway —\nthe upstream provider decides what they mean. Ignored for any other\n(Type, Flow) combination and stripped by Normalize.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "flow": {
+          "type": "string",
+          "enum": [
+            "2LO",
+            "3LO"
+          ]
+        },
+        "headerName": {
+          "type": "string"
+        },
+        "headerValuePrefix": {
+          "type": "string"
+        },
+        "providerName": {
+          "type": "string"
+        },
+        "returnUrl": {
+          "type": "string"
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "NONE",
+            "APIKEY",
+            "OAUTH"
+          ]
+        }
+      }
+    },
+    "domain.ResourceType": {
+      "type": "string",
+      "enum": [
+        "GATEWAY"
+      ],
+      "x-enum-varnames": [
+        "ResourceGateway"
+      ]
+    },
+    "domain.State": {
+      "type": "string",
+      "enum": [
+        "WAITING_CREATING",
+        "CREATING",
+        "ACTIVE",
+        "WAITING_UPDATING",
+        "UPDATING",
+        "WAITING_DELETING",
+        "DELETING",
+        "DELETED",
+        "WAITING_ERROR_DELETING",
+        "ERROR_DELETING",
+        "WAITING_CREATE_ERROR_CLEANING",
+        "CREATE_ERROR_CLEANING",
+        "CREATE_ERROR",
+        "UPDATE_ERROR",
+        "ERROR"
+      ],
+      "x-enum-varnames": [
+        "StateWaitingCreating",
+        "StateCreating",
+        "StateActive",
+        "StateWaitingUpdating",
+        "StateUpdating",
+        "StateWaitingDeleting",
+        "StateDeleting",
+        "StateDeleted",
+        "StateWaitingErrorDeleting",
+        "StateErrorDeleting",
+        "StateWaitingCreateErrorCleaning",
+        "StateCreateErrorCleaning",
+        "StateCreateError",
+        "StateUpdateError",
+        "StateError"
+      ]
+    },
+    "domain.Target": {
+      "type": "object",
+      "properties": {
+        "endpoint": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "outboundAuth": {
+          "$ref": "#/definitions/domain.OutboundAuth"
+        },
+        "type": {
+          "$ref": "#/definitions/domain.TargetType"
+        }
+      }
+    },
+    "domain.TargetType": {
+      "type": "string",
+      "enum": [
+        "MCP"
+      ],
+      "x-enum-varnames": [
+        "TargetTypeMCP"
+      ]
+    },
+    "handler.AccessLogListResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/domain.AccessLogEntry"
+          }
+        },
+        "pagination": {
+          "$ref": "#/definitions/domain.AccessLogPagination"
+        }
+      }
+    },
+    "handler.AccessLogStatsResponse": {
+      "type": "object",
+      "properties": {
+        "duration": {
+          "$ref": "#/definitions/domain.AccessLogDurationStats"
+        },
+        "errorRate": {
+          "type": "number"
+        },
+        "range": {
+          "$ref": "#/definitions/domain.AccessLogStatsRange"
+        },
+        "statusHistogram": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/domain.AccessLogStatusBucket"
+          }
+        },
+        "successRate": {
+          "description": "SuccessRate / ErrorRate are fractions (0..1) of TotalRequests, derived\nfrom the HTTP status histogram: 2xx counts as success, 4xx+5xx as error.\n1xx/3xx fall in neither bucket, so the two need not sum to 1.",
+          "type": "number"
+        },
+        "timeSeries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/domain.AccessLogTimeBucket"
+          }
+        },
+        "topCallers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/domain.AccessLogCallerBucket"
+          }
+        },
+        "topTargets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/domain.AccessLogTermBucket"
+          }
+        },
+        "topTools": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/domain.AccessLogTermBucket"
+          }
+        },
+        "topUserAgents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/domain.AccessLogTermBucket"
+          }
+        },
+        "totalRequests": {
+          "type": "integer"
+        }
+      }
+    },
+    "handler.AppliedSpecResponse": {
+      "type": "object",
+      "properties": {
+        "allowedCidrs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "flavor": {
+          "$ref": "#/definitions/handler.FlavorSnapshotResponse"
+        },
+        "hostAliases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/handler.HostAliasDTO"
+          }
+        },
+        "inboundAuth": {
+          "$ref": "#/definitions/handler.InboundAuthResponseDTO"
+        },
+        "policyGroupId": {
+          "type": "string"
+        },
+        "replicas": {
+          "type": "integer"
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/domain.Target"
+          }
+        }
+      }
+    },
+    "handler.CreateGatewayRequest": {
+      "type": "object",
+      "required": [
+        "flavorId",
+        "inboundAuth",
+        "name",
+        "networkMode",
+        "replicas"
+      ],
+      "properties": {
+        "allowedCidrs": {
+          "description": "AllowedCIDRs is the inbound client-IP allowlist (IPv4 CIDRs). Pointer so\nthe service can tell \"omitted\" (nil -> allow-all default) from an\nexplicit empty array (block all). Each entry must be a valid IPv4 CIDR;\nthe list is capped at 50. `dive` validates each element of the slice\n(the *[]string + dive form is also used for AllowedCIDRs in UpdateGatewaySpecRequest).",
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "displayName": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "flavorId": {
+          "type": "string",
+          "maxLength": 50,
+          "minLength": 1
+        },
+        "hostAliases": {
+          "description": "HostAliases is the user-supplied /etc/hosts override list applied to the\ngateway pods. Omitted = empty array (no overrides). Each ip must be IPv4\nand each hostname a valid RFC-1123 name; capped at 50 entries / 10\nhostnames each. ip and hostname uniqueness are enforced in the service.",
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/definitions/handler.HostAliasDTO"
+          }
+        },
+        "inboundAuth": {
+          "$ref": "#/definitions/handler.InboundAuthDTO"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 40,
+          "minLength": 3
+        },
+        "networkMode": {
+          "type": "string",
+          "enum": [
+            "PUBLIC",
+            "PRIVATE"
+          ]
+        },
+        "policyGroupId": {
+          "type": "string",
+          "maxLength": 50,
+          "minLength": 1
+        },
+        "privateNetwork": {
+          "description": "PrivateNetwork is required when networkMode=PRIVATE and must be omitted\n(or null) when networkMode=PUBLIC. Enforced by required_if /\nexcluded_unless binding tags.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/handler.PrivateNetworkInput"
+            }
+          ]
+        },
+        "replicas": {
+          "type": "integer",
+          "maximum": 10,
+          "minimum": 1
+        },
+        "targets": {
+          "description": "Targets count cap is enforced in the service layer against the\noperator-configurable gateway.maxTargets — DTO stays shape-level only\nper the type doc above. `dive` still validates each element.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/handler.CreateTargetRequest"
+          }
+        }
+      }
+    },
+    "handler.CreateTargetRequest": {
+      "type": "object",
+      "required": [
+        "endpoint",
+        "name",
+        "outboundAuth",
+        "type"
+      ],
+      "properties": {
+        "endpoint": {
+          "description": "Endpoint must be an absolute http:// or https:// URL (hostname or\nIP:port host both accepted). The scheme is mandatory — a bare\nhost[:port] is rejected so callers state the protocol explicitly.\nURL shape and length cap are enforced by domain.Target.Validate()\nin the service layer.",
+          "type": "string",
+          "maxLength": 1000
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 50,
+          "minLength": 3
+        },
+        "outboundAuth": {
+          "$ref": "#/definitions/domain.OutboundAuth"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "MCP"
+          ]
+        }
+      }
+    },
+    "handler.ErrorBody": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "$ref": "#/definitions/handler.ErrorDetail"
+        }
+      }
+    },
+    "handler.ErrorDetail": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        }
+      }
+    },
+    "handler.FlavorListResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/handler.FlavorResponse"
+          }
+        }
+      }
+    },
+    "handler.FlavorResponse": {
+      "type": "object",
+      "properties": {
+        "availability": {
+          "$ref": "#/definitions/service.AvailabilityStatus"
+        },
+        "cpu": {
+          "type": "integer"
+        },
+        "description": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "memoryGi": {
+          "type": "integer"
+        },
+        "networkModes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/domain.NetworkMode"
+          }
+        },
+        "resourceTypes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/domain.ResourceType"
+          }
+        },
+        "sortOrder": {
+          "type": "integer"
+        }
+      }
+    },
+    "handler.FlavorSnapshotResponse": {
+      "type": "object",
+      "properties": {
+        "cpu": {
+          "type": "integer"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "memoryGi": {
+          "type": "integer"
+        }
+      }
+    },
+    "handler.GatewayListResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/handler.GatewayResponse"
+          }
+        },
+        "pagination": {
+          "$ref": "#/definitions/handler.Pagination"
+        }
+      }
+    },
+    "handler.GatewayResponse": {
+      "type": "object",
+      "properties": {
+        "agentIdentityName": {
+          "type": "string"
+        },
+        "allowedCidrs": {
+          "description": "AllowedCIDRs is the effective inbound client-IP allowlist. A gateway\nwith no stored allowlist (legacy / pre-feature) surfaces as [\"0.0.0.0/0\"]\n(allow all); an explicit empty array means block all client IPs.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "appliedAt": {
+          "type": "string"
+        },
+        "appliedResourceVersion": {
+          "description": "AppliedResourceVersion is the resourceVersion currently running.\nAppliedAt is when the running version was last confirmed. Both empty\nuntil the first successful apply.",
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "endpoint": {
+          "type": "string"
+        },
+        "flavor": {
+          "$ref": "#/definitions/handler.FlavorSnapshotResponse"
+        },
+        "hostAliases": {
+          "description": "HostAliases is the gateway's /etc/hosts override list. Always present\n(no omitempty): a gateway with none renders [].",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/handler.HostAliasDTO"
+          }
+        },
+        "iam": {
+          "$ref": "#/definitions/handler.iamResponse"
+        },
+        "id": {
+          "type": "string"
+        },
+        "inboundAuth": {
+          "$ref": "#/definitions/handler.InboundAuthResponseDTO"
+        },
+        "lastError": {
+          "$ref": "#/definitions/handler.LastErrorResponse"
+        },
+        "name": {
+          "type": "string"
+        },
+        "networkMode": {
+          "$ref": "#/definitions/domain.NetworkMode"
+        },
+        "policyGroupId": {
+          "type": "string"
+        },
+        "previousAppliedSpec": {
+          "description": "PreviousAppliedSpec is the spec still running while the top-level spec\nis being applied (UPDATING) or has failed to apply (UPDATE_FAILED).\nCompare against the top-level fields to see desired vs running.\nAbsent in steady state (ACTIVE) — top-level IS the running spec.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/handler.AppliedSpecResponse"
+            }
+          ]
+        },
+        "privateEndpoint": {
+          "type": "string"
+        },
+        "privateNetwork": {
+          "$ref": "#/definitions/handler.PrivateNetworkResponse"
+        },
+        "publicEndpoint": {
+          "type": "string"
+        },
+        "replicas": {
+          "type": "integer"
+        },
+        "state": {
+          "$ref": "#/definitions/domain.State"
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/domain.Target"
+          }
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      }
+    },
+    "handler.HostAliasDTO": {
+      "type": "object",
+      "required": [
+        "hostnames",
+        "ip"
+      ],
+      "properties": {
+        "hostnames": {
+          "type": "array",
+          "maxItems": 10,
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "ip": {
+          "type": "string"
+        }
+      }
+    },
+    "handler.IdpAppDTO": {
+      "type": "object",
+      "required": [
+        "clientId"
+      ],
+      "properties": {
+        "clientId": {
+          "type": "string",
+          "maxLength": 256,
+          "minLength": 1
+        },
+        "clientSecret": {
+          "type": "string",
+          "maxLength": 4096,
+          "minLength": 1,
+          "x-nullable": "true"
+        },
+        "scopes": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "handler.IdpAppResponseDTO": {
+      "type": "object",
+      "properties": {
+        "clientId": {
+          "type": "string"
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "handler.InboundAuthDTO": {
+      "type": "object",
+      "required": [
+        "mode"
+      ],
+      "properties": {
+        "clientRedirectUris": {
+          "description": "ClientRedirectURIs is the MCP-client leg redirect_uri allowlist, enforced\nat DCR /register and /authorize. Non-loopback entries must be http(s)\nURLs; loopback (127.0.0.1/::1/localhost) is auto-allowed at request time\nregardless of this list. Whole-object replace on create/PATCH.",
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "type": "string"
+          }
+        },
+        "jwt": {
+          "description": "JWT is required when mode=JWT (enforced by required_if) and may be\nomitted when mode is NONE or IAM. A stale block sent with another\nmode is dropped silently — callers toggling modes do not need to\nclean up their payload.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/handler.JWTConfigDTO"
+            }
+          ]
+        },
+        "mode": {
+          "description": "swaggertype:\"string\" suppresses swag's $ref to domain.InboundAuthMode so\nthe inline enum from `oneof` is the only enum on the property — without\nit Swagger UI shows the values twice (once from the $ref, once inline).",
+          "type": "string",
+          "enum": [
+            "NONE",
+            "IAM",
+            "JWT"
+          ]
+        }
+      }
+    },
+    "handler.InboundAuthResponseDTO": {
+      "type": "object",
+      "properties": {
+        "clientRedirectUris": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "jwt": {
+          "$ref": "#/definitions/handler.JWTConfigResponseDTO"
+        },
+        "mode": {
+          "description": "swaggertype:\"string\" — same as the request type.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/domain.InboundAuthMode"
+            }
+          ]
+        }
+      }
+    },
+    "handler.JWTConfigDTO": {
+      "type": "object",
+      "required": [
+        "source"
+      ],
+      "properties": {
+        "allowedAudiences": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "type": "string"
+          }
+        },
+        "allowedClients": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "type": "string"
+          }
+        },
+        "allowedScopes": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "type": "string"
+          }
+        },
+        "customClaims": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/domain.CustomClaimRule"
+          }
+        },
+        "discoveryUrl": {
+          "type": "string"
+        },
+        "idpApp": {
+          "description": "IdpApp carries the OAuth client at the upstream IdP. ClientSecret is\nwrite-only: it is encrypted server-side and never returned over the wire.\nOmit IdpApp to leave any stored IdpApp untouched (preserve-if-absent is\nenforced by mergeOrchestratorFields, not here).",
+          "allOf": [
+            {
+              "$ref": "#/definitions/handler.IdpAppDTO"
+            }
+          ]
+        },
+        "jwks": {
+          "type": "object"
+        },
+        "principalClaim": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "DISCOVERY",
+            "JWKS"
+          ]
+        }
+      }
+    },
+    "handler.JWTConfigResponseDTO": {
+      "type": "object",
+      "properties": {
+        "allowedAudiences": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "allowedClients": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "allowedScopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "customClaims": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/domain.CustomClaimRule"
+          }
+        },
+        "discoveryUrl": {
+          "type": "string"
+        },
+        "idpApp": {
+          "$ref": "#/definitions/handler.IdpAppResponseDTO"
+        },
+        "jwks": {
+          "type": "object"
+        },
+        "principalClaim": {
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/definitions/domain.JWTSource"
+        }
+      }
+    },
+    "handler.LastErrorResponse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "stage": {
+          "type": "string"
+        }
+      }
+    },
+    "handler.Pagination": {
+      "type": "object",
+      "properties": {
+        "hasMore": {
+          "type": "boolean"
+        },
+        "page": {
+          "type": "integer"
+        },
+        "pageSize": {
+          "type": "integer"
+        },
+        "totalItems": {
+          "type": "integer"
+        }
+      }
+    },
+    "handler.PrivateNetworkInput": {
+      "type": "object",
+      "required": [
+        "subnetId",
+        "vpcId"
+      ],
+      "properties": {
+        "publicEndpointEnabled": {
+          "description": "PublicEndpointEnabled opts a PRIVATE gateway into an internet-reachable\nendpoint. Meaningless for PUBLIC (which rejects the whole privateNetwork\nblock), so it is structurally PRIVATE-only.",
+          "type": "boolean"
+        },
+        "routes": {
+          "description": "Routes is an optional list of IPv4 CIDRs (e.g. \"172.16.0.0/12\") that the\nkube-worker will program as node routes inside the PRIVATE gateway's pod\nnetwork. Each entry must be a valid IPv4 CIDR (IPv6 is rejected at the\nbinding layer). The hard cap of 50 entries is enforced here; semantic\nchecks (overlap, vs admin/user VPC CIDR) run in the service / saga layer.",
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "type": "string"
+          }
+        },
+        "subnetId": {
+          "description": "SubnetID is a subnet within the referenced VPC.",
+          "type": "string",
+          "maxLength": 50,
+          "minLength": 1
+        },
+        "vpcId": {
+          "description": "VPCID is a VServer VPC identifier owned by the caller.",
+          "type": "string",
+          "maxLength": 50,
+          "minLength": 1
+        }
+      }
+    },
+    "handler.PrivateNetworkResponse": {
+      "type": "object",
+      "properties": {
+        "publicEndpointEnabled": {
+          "type": "boolean"
+        },
+        "routes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "subnetId": {
+          "type": "string"
+        },
+        "vpcId": {
+          "type": "string"
+        }
+      }
+    },
+    "handler.PrivateRoutesResponse": {
+      "type": "object",
+      "properties": {
+        "resourceVersion": {
+          "type": "string"
+        },
+        "routes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "state": {
+          "type": "string"
+        }
+      }
+    },
+    "handler.PutIdpAppRequest": {
+      "type": "object",
+      "required": [
+        "clientId"
+      ],
+      "properties": {
+        "clientId": {
+          "type": "string",
+          "maxLength": 256,
+          "minLength": 1
+        },
+        "clientSecret": {
+          "type": "string",
+          "maxLength": 4096,
+          "minLength": 1,
+          "x-nullable": "true"
+        },
+        "scopes": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "handler.ReplacePrivateRoutesRequest": {
+      "type": "object",
+      "required": [
+        "routes"
+      ],
+      "properties": {
+        "routes": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "handler.UpdateGatewaySpecRequest": {
+      "type": "object",
+      "properties": {
+        "allowedCidrs": {
+          "description": "AllowedCIDRs uses JSON Merge Patch semantics: absent (nil) = no-op,\na present array replaces the stored allowlist. An explicit empty array\nmeans block all client IPs. Each entry must be a valid IPv4 CIDR (max 50).",
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": {
+          "type": "string",
+          "x-nullable": "true"
+        },
+        "displayName": {
+          "description": "DisplayName and Description: nil (absent / null) preserves the stored\nvalue; a non-nil pointer replaces — pass \"\" to clear, any non-empty\nvalue to set. Format checks (length + charset) on non-empty values run\ninline in the handler. Swagger renders them as strings with x-nullable.",
+          "type": "string",
+          "x-nullable": "true"
+        },
+        "hostAliases": {
+          "description": "HostAliases uses whole-list replace semantics: absent (nil) = no-op, a\npresent array replaces the stored list (explicit [] = clear all\noverrides). Validation matches CreateGatewayRequest.",
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/definitions/handler.HostAliasDTO"
+          }
+        },
+        "inboundAuth": {
+          "$ref": "#/definitions/handler.InboundAuthDTO"
+        },
+        "policyGroupId": {
+          "description": "PolicyGroupID uses JSON Merge Patch semantics: absent = no-op,\nJSON null = clear, non-empty string = set. The binding tag is bypassed\nbecause Nullable[string] is not a string; format (refid + length)\nand the rejection of empty strings are enforced in the handler before\nthe service is called. Swagger renders it as a string for the\nhappy-path documentation.",
+          "type": "string",
+          "x-nullable": "true"
+        },
+        "privateNetwork": {
+          "description": "PrivateNetwork is the PRIVATE-only mutable block (block-replace; both\nsub-fields required when present). Omit to leave routes + toggle alone.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/handler.UpdatePrivateNetworkInput"
+            }
+          ]
+        },
+        "targets": {
+          "description": "Targets count cap is enforced in the service layer against the\noperator-configurable gateway.maxTargets (see CreateGatewayRequest).",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/handler.CreateTargetRequest"
+          }
+        }
+      }
+    },
+    "handler.UpdatePrivateNetworkInput": {
+      "type": "object",
+      "properties": {
+        "publicEndpointEnabled": {
+          "type": "boolean"
+        },
+        "routes": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "handler.iamResponse": {
+      "type": "object",
+      "properties": {
+        "lastAuthFailureAt": {
+          "description": "LastAuthFailureAt is the wall-clock instant when IAM most recently\nrejected this gateway's OAuth2 client-credentials exchange — i.e.\nthe IAM-side credential is broken (SA secret reset, SA disabled,\nSA deleted out-of-band) and\n`POST /api/v1/gateways/{name}/service-account/repair` is the next\naction. Nil means \"no rejection observed since the\ngateway was created or last repaired\". Cleared implicitly by a\nsuccessful RepairServiceAccount. UI treats a non-null value as \"show the\nRepair Service Account button\".",
+          "type": "string"
+        },
+        "serviceAccountId": {
+          "type": "string"
+        }
+      }
+    },
+    "service.AvailabilityStatus": {
+      "type": "string",
+      "enum": [
+        "YES",
+        "NO",
+        "UNKNOWN"
+      ],
+      "x-enum-varnames": [
+        "AvailabilityYes",
+        "AvailabilityNo",
+        "AvailabilityUnknown"
+      ]
+    }
+  },
+  "securityDefinitions": {
+    "BearerAuth": {
+      "description": "Paste `Bearer <access-token>`. Required for /api/v1/*.",
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    }
+  }
+}

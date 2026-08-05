@@ -1,0 +1,1084 @@
+{
+  "schemes": [],
+  "swagger": "2.0",
+  "info": {
+    "description": "Policy management and Cedar-based authorization evaluation service.",
+    "title": "Agent Core Policy API",
+    "contact": {
+      "name": "VNG Cloud AI Platform"
+    },
+    "version": "1.0"
+  },
+  "host": "agentbase.api.vngcloud.vn/policy",
+  "basePath": "/",
+  "paths": {
+    "/api/v1/policies/condition-operators": {
+      "get": {
+        "description": "Returns every operator accepted by policy template conditions,\nwith its arity, accepted value types, and a ready-made JSON\nexample. Localized via Accept-Language (en | vi; en fallback).",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "policy"
+        ],
+        "summary": "List supported condition operators",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "en | vi",
+            "name": "Accept-Language",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/handler.operatorList"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/policy-groups": {
+      "get": {
+        "description": "List all policy groups for the authenticated user with pagination.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "policy-groups"
+        ],
+        "summary": "List policy groups",
+        "parameters": [
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "Page number (1-based)",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 10,
+            "description": "Items per page",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by name (case-insensitive substring)",
+            "name": "name",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/handler.pagedPolicyGroupResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Create a new policy group. Maximum 20 per user.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "policy-groups"
+        ],
+        "summary": "Create a policy group",
+        "parameters": [
+          {
+            "description": "Create policy group request",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/model.CreatePolicyGroupRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/model.PolicyGroupResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/policy-groups/{group_id}": {
+      "get": {
+        "description": "Get a policy group by ID.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "policy-groups"
+        ],
+        "summary": "Get a policy group",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Policy Group ID",
+            "name": "group_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/model.PolicyGroupResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Update a policy group by ID.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "policy-groups"
+        ],
+        "summary": "Update a policy group",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Policy Group ID",
+            "name": "group_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Update policy group request",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/model.UpdatePolicyGroupRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/model.PolicyGroupResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete a policy group and all its policies.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "policy-groups"
+        ],
+        "summary": "Delete a policy group",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Policy Group ID",
+            "name": "group_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/policy-groups/{group_id}/policies": {
+      "get": {
+        "description": "List all policies for a policy engine with pagination.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "policies"
+        ],
+        "summary": "List policies",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Policy Group ID",
+            "name": "group_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "Page number (1-based)",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 10,
+            "description": "Items per page",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by name (case-insensitive substring)",
+            "name": "name",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/handler.pagedPolicyResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Create a new policy within a policy group. Maximum 10 policies per group.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "policies"
+        ],
+        "summary": "Create a policy",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Policy Group ID",
+            "name": "group_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Create policy request",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/model.CreatePolicyRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/model.PolicyResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/policy-groups/{group_id}/policies/{policy_id}": {
+      "get": {
+        "description": "Get a policy by ID.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "policies"
+        ],
+        "summary": "Get a policy",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Policy Group ID",
+            "name": "group_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Policy ID",
+            "name": "policy_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/model.PolicyResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Update a policy by ID. Updating the template recompiles the Cedar statement.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "policies"
+        ],
+        "summary": "Update a policy",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Policy Group ID",
+            "name": "group_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Policy ID",
+            "name": "policy_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Update policy request",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/model.UpdatePolicyRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/model.PolicyResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete a policy by ID.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "policies"
+        ],
+        "summary": "Delete a policy",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Policy Group ID",
+            "name": "group_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Policy ID",
+            "name": "policy_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/internal/api/v1/gateways/{gatewayName}/targets/{targetName}/decisions": {
+      "post": {
+        "description": "Called by agent-core-gateway per inbound request. Always returns 200 with {allow, reason?}.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "internal"
+        ],
+        "summary": "Decide on an authorization request",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Gateway name",
+            "name": "gatewayName",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Target name",
+            "name": "targetName",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Decision request",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/model.DecisionRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/model.DecisionResult"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.errorResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "handler.errorResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        }
+      }
+    },
+    "handler.operatorItem": {
+      "type": "object",
+      "properties": {
+        "acceptsKeyPrefixes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "arity": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "example": {},
+        "name": {
+          "type": "string"
+        },
+        "valueTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "handler.operatorList": {
+      "type": "object",
+      "properties": {
+        "operators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/handler.operatorItem"
+          }
+        }
+      }
+    },
+    "handler.pagedPolicyGroupResponse": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/model.PolicyGroupResponse"
+          }
+        },
+        "page": {
+          "type": "integer"
+        },
+        "pageSize": {
+          "type": "integer"
+        },
+        "totalItem": {
+          "type": "integer"
+        },
+        "totalPage": {
+          "type": "integer"
+        }
+      }
+    },
+    "handler.pagedPolicyResponse": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/model.PolicyResponse"
+          }
+        },
+        "page": {
+          "type": "integer"
+        },
+        "pageSize": {
+          "type": "integer"
+        },
+        "totalItem": {
+          "type": "integer"
+        },
+        "totalPage": {
+          "type": "integer"
+        }
+      }
+    },
+    "model.Clause": {
+      "type": "object",
+      "additionalProperties": {}
+    },
+    "model.CreatePolicyGroupRequest": {
+      "description": "Request body for creating a policy group",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "model.CreatePolicyRequest": {
+      "description": "Request body for creating a policy",
+      "type": "object",
+      "required": [
+        "name",
+        "statement"
+      ],
+      "properties": {
+        "active": {
+          "type": "boolean"
+        },
+        "description": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "statement": {
+          "$ref": "#/definitions/model.PolicyTemplate"
+        }
+      }
+    },
+    "model.DecisionRequest": {
+      "description": "Authorization decision request",
+      "type": "object",
+      "required": [
+        "action",
+        "policyGroupId",
+        "user"
+      ],
+      "properties": {
+        "action": {
+          "$ref": "#/definitions/model.JSONRPCAction"
+        },
+        "context": {
+          "type": "object",
+          "additionalProperties": {}
+        },
+        "policyGroupId": {
+          "type": "string"
+        },
+        "principal": {
+          "type": "object",
+          "additionalProperties": {}
+        },
+        "user": {
+          "$ref": "#/definitions/model.UserInput"
+        }
+      }
+    },
+    "model.DecisionResult": {
+      "description": "Authorization decision result",
+      "type": "object",
+      "properties": {
+        "allow": {
+          "type": "boolean"
+        },
+        "reason": {
+          "$ref": "#/definitions/model.Reason"
+        }
+      }
+    },
+    "model.JSONRPCAction": {
+      "type": "object",
+      "required": [
+        "jsonrpc",
+        "method"
+      ],
+      "properties": {
+        "id": {},
+        "jsonrpc": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
+        },
+        "params": {
+          "$ref": "#/definitions/model.JSONRPCParams"
+        }
+      }
+    },
+    "model.JSONRPCParams": {
+      "type": "object",
+      "properties": {
+        "arguments": {
+          "type": "object",
+          "additionalProperties": {}
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "model.PolicyGroupResponse": {
+      "description": "Policy group object returned by the API",
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      }
+    },
+    "model.PolicyResponse": {
+      "description": "Policy object returned by the API",
+      "type": "object",
+      "properties": {
+        "active": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "policyGroupId": {
+          "type": "string"
+        },
+        "statement": {
+          "$ref": "#/definitions/model.PolicyTemplate"
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      }
+    },
+    "model.PolicyTemplate": {
+      "type": "object",
+      "properties": {
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "condition": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/model.Clause"
+          }
+        },
+        "effect": {
+          "type": "string"
+        },
+        "principal": {
+          "type": "string"
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "model.Reason": {
+      "description": "Explanation for a deny decision",
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "policyId": {
+          "type": "string"
+        }
+      }
+    },
+    "model.UpdatePolicyGroupRequest": {
+      "description": "Request body for updating a policy group",
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "model.UpdatePolicyRequest": {
+      "description": "Request body for updating a policy",
+      "type": "object",
+      "properties": {
+        "active": {
+          "type": "boolean"
+        },
+        "description": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "statement": {
+          "$ref": "#/definitions/model.PolicyTemplate"
+        }
+      }
+    },
+    "model.UserInput": {
+      "description": "End user being evaluated",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "description": "\"iam\" | \"jwt\"",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "description": "Policy group CRUD operations",
+      "name": "policy-groups"
+    },
+    {
+      "description": "Policy CRUD operations (nested under a policy group)",
+      "name": "policies"
+    },
+    {
+      "description": "Internal endpoints called by agent-core-gateway",
+      "name": "internal"
+    }
+  ]
+}
