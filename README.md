@@ -107,6 +107,48 @@ execute({ id: "policy.get_api_v1_policy_groups", args: { page: 1, page_size: 10 
 
 **Why meta-tools:** 3 tool definitions (~1–2K resident tokens) instead of one tool per operation. See [`benchmarks/report-2026-07-06.md`](benchmarks/report-2026-07-06.md) for the token math — a 36.8× smaller manifest and 7–41% fewer input tokens end-to-end versus the flat (one-tool-per-op) variant.
 
+## Transports: stdio vs. streamable HTTP
+
+| | stdio | streamable HTTP |
+|---|---|---|
+| Use case | local, any MCP client | deployed runtime / remote clients |
+| Default | yes (`TRANSPORT=stdio`) | opt-in (`TRANSPORT=http`) |
+| Lifecycle | one server for the process lifetime | fresh server + transport per request (stateless) |
+| Token source | env var (`GREENNODE_MCP_TOKEN`, or `TOKEN_ENV`) | `Authorization: Bearer` header, per request |
+| Endpoint | stdin/stdout (JSON-RPC) | `POST /mcp` |
+| Health | — | `GET /healthz`, `GET /health` |
+
+### stdio (default)
+
+The server reads JSON-RPC from stdin and writes responses to stdout. **stdout is the protocol** — all diagnostics and the one-line startup banner go to stderr, so they never corrupt the stream.
+
+```bash
+GREENNODE_MCP_TOKEN=<your-token> npm start   # TRANSPORT=stdio is the default
+```
+
+The token is read **once at startup** from the env var named by `TOKEN_ENV` (default `GREENNODE_MCP_TOKEN`). The server runs for the process lifetime and exits when the client closes stdin. See [Quick start](#quick-start) for the client-wiring snippet.
+
+### Streamable HTTP
+
+For a deployed runtime or remote clients. Each `POST /mcp` builds a fresh server + `StreamableHTTPServerTransport` for that request (stateless) and authenticates from the `Authorization` header. The token is **not** read from the environment in this mode.
+
+```bash
+TRANSPORT=http npm start   # listens on :8080 (PORT); pass the token per request, not via env
+```
+
+Smoke-test it:
+
+```bash
+curl http://localhost:8080/healthz          # → {"ok":true}
+
+# a raw initialize request to /mcp (clients normally build this JSON-RPC envelope for you)
+curl -X POST http://localhost:8080/mcp \
+  -H "Authorization: Bearer <your-token>" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"curl","version":"0"}}}'
+```
+
 ## License
 
 See [`LICENSE`](LICENSE).
