@@ -196,6 +196,13 @@ The bearer token is supplied per request via the `Authorization` header (same as
 
 > ⚠️ **`TRANSPORT` defaults to `stdio`.** A deployed HTTP runtime — and the shipped `Dockerfile` (which sets `PORT` but **not** `TRANSPORT`) — **must set `TRANSPORT=http`** explicitly. Without it the process starts in stdio mode and listens on no port. The `docker run` command above passes `-e TRANSPORT=http`; for a production image, bake `ENV TRANSPORT=http` into the Dockerfile.
 
+## Further reading
+
+- [`docs/mcp-client-quickstart.html`](docs/mcp-client-quickstart.html) — per-client wiring (Claude Desktop/Code, Cursor, Windsurf, Claude.ai, Cline, Roo Code, agent frameworks)
+- [`benchmarks/report-2026-07-06.md`](benchmarks/report-2026-07-06.md) — gateway vs. flat token math
+- [`specs/README.md`](specs/README.md) — spec sources and regenerate notes
+- [`docs/superpowers/specs/`](docs/superpowers/specs/) — design docs (gateway, stdio local server, flatten baseline)
+
 ## License
 
 See [`LICENSE`](LICENSE).
