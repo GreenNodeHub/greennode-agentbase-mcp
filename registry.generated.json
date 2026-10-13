@@ -6675,6 +6675,1048 @@
           "endpointId"
         ]
       }
+    },
+    {
+      "id": "tools.get_browsers",
+      "service": "tools",
+      "operationId": "get_browsers",
+      "method": "GET",
+      "path": "/browsers",
+      "summary": "List the browsers",
+      "tags": [
+        "browsers"
+      ],
+      "parameters": [
+        {
+          "name": "page",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1
+          }
+        },
+        {
+          "name": "size",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 10
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 10
+          }
+        }
+      }
+    },
+    {
+      "id": "tools.post_browsers",
+      "service": "tools",
+      "operationId": "post_browsers",
+      "method": "POST",
+      "path": "/browsers",
+      "summary": "Create a browser",
+      "tags": [
+        "browsers"
+      ],
+      "parameters": [],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "object",
+            "required": [
+              "name"
+            ],
+            "properties": {
+              "description": {
+                "type": "string",
+                "maxLength": 1000
+              },
+              "name": {
+                "type": "string",
+                "maxLength": 255
+              }
+            }
+          }
+        },
+        "required": [
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "tools.get_browsers__id_",
+      "service": "tools",
+      "operationId": "get_browsers__id_",
+      "method": "GET",
+      "path": "/browsers/{id}",
+      "summary": "Get a browser",
+      "tags": [
+        "browsers"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": "tools.delete_browsers__id_",
+      "service": "tools",
+      "operationId": "delete_browsers__id_",
+      "method": "DELETE",
+      "path": "/browsers/{id}",
+      "summary": "Delete a browser",
+      "tags": [
+        "browsers"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": "tools.get_browsers__id__sessions",
+      "service": "tools",
+      "operationId": "get_browsers__id__sessions",
+      "method": "GET",
+      "path": "/browsers/{id}/sessions",
+      "summary": "List the sessions of a browser",
+      "tags": [
+        "browser-sessions"
+      ],
+      "parameters": [
+        {
+          "name": "X-End-User-ID",
+          "location": "header",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "page",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1
+          }
+        },
+        {
+          "name": "size",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 10
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "X-End-User-ID": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 10
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": "tools.post_browsers__id__sessions",
+      "service": "tools",
+      "operationId": "post_browsers__id__sessions",
+      "method": "POST",
+      "path": "/browsers/{id}/sessions",
+      "summary": "Create a session on a browser",
+      "tags": [
+        "browser-sessions"
+      ],
+      "parameters": [
+        {
+          "name": "X-End-User-ID",
+          "location": "header",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": true,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "X-End-User-ID": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "maxLength": 255
+              }
+            }
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": "tools.get_browsers__id__sessions__sessionId_",
+      "service": "tools",
+      "operationId": "get_browsers__id__sessions__sessionId_",
+      "method": "GET",
+      "path": "/browsers/{id}/sessions/{sessionId}",
+      "summary": "Get a session of a browser",
+      "tags": [
+        "browser-sessions"
+      ],
+      "parameters": [
+        {
+          "name": "X-End-User-ID",
+          "location": "header",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "sessionId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "X-End-User-ID": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "sessionId"
+        ]
+      }
+    },
+    {
+      "id": "tools.delete_browsers__id__sessions__sessionId_",
+      "service": "tools",
+      "operationId": "delete_browsers__id__sessions__sessionId_",
+      "method": "DELETE",
+      "path": "/browsers/{id}/sessions/{sessionId}",
+      "summary": "Delete a session of a browser",
+      "tags": [
+        "browser-sessions"
+      ],
+      "parameters": [
+        {
+          "name": "X-End-User-ID",
+          "location": "header",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "sessionId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "X-End-User-ID": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "sessionId"
+        ]
+      }
+    },
+    {
+      "id": "tools.post_browsers__id__sessions__sessionId__live_view_stream_sign",
+      "service": "tools",
+      "operationId": "post_browsers__id__sessions__sessionId__live_view_stream_sign",
+      "method": "POST",
+      "path": "/browsers/{id}/sessions/{sessionId}/live-view-stream-sign",
+      "summary": "Sign a live view stream url",
+      "tags": [
+        "browser-sessions"
+      ],
+      "parameters": [
+        {
+          "name": "X-End-User-ID",
+          "location": "header",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "sessionId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "X-End-User-ID": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "sessionId"
+        ]
+      }
+    },
+    {
+      "id": "tools.get_browsers__id__sessions__sessionId__recording",
+      "service": "tools",
+      "operationId": "get_browsers__id__sessions__sessionId__recording",
+      "method": "GET",
+      "path": "/browsers/{id}/sessions/{sessionId}/recording",
+      "summary": "Download the recording of a session",
+      "tags": [
+        "browser-sessions"
+      ],
+      "parameters": [
+        {
+          "name": "X-End-User-ID",
+          "location": "header",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "sessionId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "X-End-User-ID": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "sessionId"
+        ]
+      }
+    },
+    {
+      "id": "tools.put_browsers__id__sessions__sessionId__streams",
+      "service": "tools",
+      "operationId": "put_browsers__id__sessions__sessionId__streams",
+      "method": "PUT",
+      "path": "/browsers/{id}/sessions/{sessionId}/streams",
+      "summary": "Update the streams of a session",
+      "tags": [
+        "browser-sessions"
+      ],
+      "parameters": [
+        {
+          "name": "X-End-User-ID",
+          "location": "header",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "sessionId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": true,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "X-End-User-ID": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "automationStreamUpdate": {
+                "type": "object",
+                "required": [
+                  "streamStatus"
+                ],
+                "properties": {
+                  "streamStatus": {
+                    "type": "string",
+                    "enum": [
+                      "ENABLED",
+                      "DISABLED"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "id",
+          "sessionId"
+        ]
+      }
+    },
+    {
+      "id": "tools.get_code_interpreters",
+      "service": "tools",
+      "operationId": "get_code_interpreters",
+      "method": "GET",
+      "path": "/code-interpreters",
+      "summary": "List the code interpreters",
+      "tags": [
+        "code-interpreters"
+      ],
+      "parameters": [
+        {
+          "name": "page",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1
+          }
+        },
+        {
+          "name": "size",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 10
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 10
+          }
+        }
+      }
+    },
+    {
+      "id": "tools.post_code_interpreters",
+      "service": "tools",
+      "operationId": "post_code_interpreters",
+      "method": "POST",
+      "path": "/code-interpreters",
+      "summary": "Create a code interpreter",
+      "tags": [
+        "code-interpreters"
+      ],
+      "parameters": [],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "object",
+            "required": [
+              "name"
+            ],
+            "properties": {
+              "description": {
+                "type": "string",
+                "maxLength": 1000
+              },
+              "name": {
+                "type": "string",
+                "maxLength": 255
+              }
+            }
+          }
+        },
+        "required": [
+          "body"
+        ]
+      }
+    },
+    {
+      "id": "tools.get_code_interpreters__id_",
+      "service": "tools",
+      "operationId": "get_code_interpreters__id_",
+      "method": "GET",
+      "path": "/code-interpreters/{id}",
+      "summary": "Get a code interpreter",
+      "tags": [
+        "code-interpreters"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": "tools.delete_code_interpreters__id_",
+      "service": "tools",
+      "operationId": "delete_code_interpreters__id_",
+      "method": "DELETE",
+      "path": "/code-interpreters/{id}",
+      "summary": "Delete a code interpreter",
+      "tags": [
+        "code-interpreters"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": "tools.get_code_interpreters__id__sessions",
+      "service": "tools",
+      "operationId": "get_code_interpreters__id__sessions",
+      "method": "GET",
+      "path": "/code-interpreters/{id}/sessions",
+      "summary": "List the sessions of a code interpreter",
+      "tags": [
+        "sessions"
+      ],
+      "parameters": [
+        {
+          "name": "X-End-User-ID",
+          "location": "header",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "page",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1
+          }
+        },
+        {
+          "name": "size",
+          "location": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 10
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "X-End-User-ID": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 10
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": "tools.post_code_interpreters__id__sessions",
+      "service": "tools",
+      "operationId": "post_code_interpreters__id__sessions",
+      "method": "POST",
+      "path": "/code-interpreters/{id}/sessions",
+      "summary": "Create a session on a code interpreter",
+      "tags": [
+        "sessions"
+      ],
+      "parameters": [
+        {
+          "name": "X-End-User-ID",
+          "location": "header",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": true,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "X-End-User-ID": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "maxLength": 255
+              }
+            }
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": "tools.delete_code_interpreters__id__sessions__sessionId_",
+      "service": "tools",
+      "operationId": "delete_code_interpreters__id__sessions__sessionId_",
+      "method": "DELETE",
+      "path": "/code-interpreters/{id}/sessions/{sessionId}",
+      "summary": "Delete a session of a code interpreter",
+      "tags": [
+        "sessions"
+      ],
+      "parameters": [
+        {
+          "name": "X-End-User-ID",
+          "location": "header",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "sessionId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": false,
+      "bodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "X-End-User-ID": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "sessionId"
+        ]
+      }
+    },
+    {
+      "id": "tools.post_code_interpreters__id__sessions__sessionId__invoke",
+      "service": "tools",
+      "operationId": "post_code_interpreters__id__sessions__sessionId__invoke",
+      "method": "POST",
+      "path": "/code-interpreters/{id}/sessions/{sessionId}/invoke",
+      "summary": "Invoke a tool inside a session",
+      "tags": [
+        "sessions"
+      ],
+      "parameters": [
+        {
+          "name": "X-End-User-ID",
+          "location": "header",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "id",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "sessionId",
+          "location": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "hasBody": true,
+      "bodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "X-End-User-ID": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "required": [
+              "arguments",
+              "name"
+            ],
+            "properties": {
+              "arguments": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "command": {
+                    "type": "string"
+                  },
+                  "content": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "blob": {
+                          "type": "string"
+                        },
+                        "path": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "directoryPath": {
+                    "type": "string"
+                  },
+                  "language": {
+                    "type": "string"
+                  },
+                  "paths": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "taskId": {
+                    "type": "string"
+                  }
+                }
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "id",
+          "sessionId",
+          "body"
+        ]
+      }
     }
   ]
 }

@@ -103,16 +103,50 @@ describe("normalizeSpec + extractOperations", () => {
     expect(ops[0].hasBody).toBe(true);
     expect(ops[0].inputSchema.properties.body.properties.name).toBeDefined();
   });
+
+  it("skips SSE relay endpoints that would hang the generic execute relay", () => {
+    const doc = {
+      openapi: "3.0.0",
+      info: { title: "tools", version: "1" },
+      paths: {
+        "/browsers/{id}/sessions/{sessionId}/automation-stream": {
+          get: { operationId: "getAutomationStream", summary: "Relay stream" },
+        },
+        "/browsers/{id}/sessions/{sessionId}/live-view-stream": {
+          get: { operationId: "getLiveViewStream", summary: "Live view" },
+        },
+        "/browsers/{id}/sessions/{sessionId}/live-view-stream-sign": {
+          post: { operationId: "signLiveViewStream", summary: "Sign URL" },
+        },
+      },
+    };
+    const ops = extractOperations("tools", doc);
+    // the two held-open SSE GETs are excluded...
+    expect(ops.map((o) => o.operationId)).toEqual(["signLiveViewStream"]);
+    // ...while every other operation on the same paths stays in
+    expect(ops.length).toBe(1);
+  });
 });
 
 describe("generated registry artifact", () => {
-  it("contains 109 operations across 6 services", () => {
+  it("contains 128 operations across 7 services", () => {
     const path = join(process.cwd(), "registry.generated.json");
     const reg = JSON.parse(readFileSync(path, "utf8"));
-    expect(reg.operations.length).toBe(109);
+    expect(reg.operations.length).toBe(128);
     const services = new Set(reg.operations.map((o: any) => o.service));
     expect([...services].sort()).toEqual(
-      ["cr", "gateway", "identity", "memory", "policy", "runtime"].sort(),
+      ["cr", "gateway", "identity", "memory", "policy", "runtime", "tools"].sort(),
     );
+  });
+
+  it("excludes the two browser SSE stream relay endpoints from tools", () => {
+    const path = join(process.cwd(), "registry.generated.json");
+    const reg = JSON.parse(readFileSync(path, "utf8"));
+    const tools = reg.operations.filter((o: any) => o.service === "tools");
+    // 21 spec operations minus the 2 excluded SSE relay GETs
+    expect(tools.length).toBe(19);
+    expect(
+      tools.filter((o: any) => o.path.endsWith("-stream")),
+    ).toEqual([]);
   });
 });

@@ -19,7 +19,7 @@ Connect a local MCP client (Claude Code, Cursor, Windsurf, …) to the gateway o
 **Prerequisites**
 
 - Node.js ≥ 20 (see `package.json` `engines`)
-- A GreenNode AgentBase bearer token — one token is valid across all six services
+- A GreenNode AgentBase bearer token — one token is valid across all seven services
 
 **1. Install**
 
@@ -88,7 +88,7 @@ Instead of exposing 100+ operations as individual MCP tools (a large manifest th
 Discovery is two steps: `search_tools` returns enough to call `execute` directly (the input schema is inline), so there's no separate describe step.
 
 ```jsonc
-// 1) orient on the six services
+// 1) orient on the seven services
 list_servers()
 // → [{ "name": "policy", "description": "policy service (… operations)", "operationCount": …, "tags": […] }, …]
 
@@ -106,6 +106,25 @@ execute({ id: "policy.get_api_v1_policy_groups", args: { page: 1, page_size: 10 
 **Operation ids** look like `service.<method>_<slugified-path>` (e.g. `policy.get_api_v1_policy_groups`). Always take an id from `search_tools` — never type one by hand.
 
 **Why meta-tools:** 3 tool definitions (~1–2K resident tokens) instead of one tool per operation. See [`benchmarks/report-2026-07-06.md`](benchmarks/report-2026-07-06.md) for the token math — a 36.8× smaller manifest and 7–41% fewer input tokens end-to-end versus the flat (one-tool-per-op) variant.
+
+### Services
+
+| Service | What it covers |
+|---|---|
+| `policy` | policy groups, conditions, bindings |
+| `cr` | container registry credentials |
+| `gateway` | MCP gateways, flavors, metrics |
+| `identity` | outbound auth providers (OAuth2, API key) |
+| `memory` | agent memories and records |
+| `runtime` | agent runtimes, openclaws |
+| `tools` | built-in browsers + code interpreters |
+
+`tools` (the built-in browsers + code interpreters API) is **dev-only today**: its prod base URL is a placeholder pending go-live, mirroring the `greennode-cli` wiring. Its spec is therefore fetched from the dev host (`scripts/fetch-specs.ts`).
+
+Two caveats on `tools`:
+
+- The two browser **SSE stream relay endpoints** (`automation-stream`, `live-view-stream`) are **excluded from the registry** — the generic `execute` relay is a bounded JSON request/response and would hang on a held-open stream. Drive these streams with the dedicated `greennode-browser-mcp` server ([github.com/GreenNodeHub/greennode-browser-mcp](https://github.com/GreenNodeHub/greennode-browser-mcp)), which speaks the stream protocol natively.
+- Code-interpreter `invoke` is held open server-side; it works through `execute` for short-running invokes. For session-driven interpreter work, prefer the dedicated `greennode-code-interpreter-mcp` server ([github.com/GreenNodeHub/greennode-code-interpreter-mcp](https://github.com/GreenNodeHub/greennode-code-interpreter-mcp)).
 
 ## Transports: stdio vs. streamable HTTP
 
@@ -156,7 +175,7 @@ All config is via environment variables, read once at startup by `loadEnvConfig`
 | Var | Default | Notes |
 |---|---|---|
 | `TRANSPORT` | `stdio` | `stdio` or `http`. Any other value throws at boot — the process exits non-zero, nothing listens. |
-| `GREENNODE_MCP_TOKEN` | — | Upstream bearer token, **stdio only**. Forwarded to all six services on `execute`. |
+| `GREENNODE_MCP_TOKEN` | — | Upstream bearer token, **stdio only**. Forwarded to all seven services on `execute`. |
 | `TOKEN_ENV` | `GREENNODE_MCP_TOKEN` | Name of the env var that holds the token, **stdio only**. Set this to read the token from a differently-named var. |
 | `PORT` | `8080` | HTTP transport listen port. |
 | `MAX_RESPONSE_BYTES` | `25000` | Hard cap on `execute` responses; over-cap responses are truncated with a notice. |

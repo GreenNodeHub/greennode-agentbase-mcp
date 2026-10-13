@@ -10,6 +10,18 @@ import type {
 
 const HTTP_METHODS = ["get", "post", "put", "delete", "patch"] as const;
 
+// SSE relay endpoints, keyed "<METHOD> <path>". The browser automation and
+// live-view streams are held open server-side — the generic execute relay is
+// a bounded JSON request/response with no stream handling and no call
+// timeout, so relaying one of these would hang the call until the upstream
+// dies. The dedicated greennode-browser-mcp server drives these streams
+// properly, so the umbrella registry skips them (the CLI and the integration
+// test take the same stance: nothing exercises the raw relays).
+const STREAM_RELAY_ENDPOINTS = new Set([
+  "GET /browsers/{id}/sessions/{sessionId}/automation-stream",
+  "GET /browsers/{id}/sessions/{sessionId}/live-view-stream",
+]);
+
 /** Convert Swagger 2.0 -> OpenAPI 3 if needed, then dereference all $refs. */
 export async function normalizeSpec(rawSpec: unknown): Promise<any> {
   const doc = rawSpec as any;
@@ -71,6 +83,7 @@ export function extractOperations(
     for (const method of HTTP_METHODS) {
       const op = item[method];
       if (!op) continue;
+      if (STREAM_RELAY_ENDPOINTS.has(`${method.toUpperCase()} ${path}`)) continue;
 
       const rawParams: any[] = [
         ...(item.parameters ?? []),

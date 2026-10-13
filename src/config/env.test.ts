@@ -4,11 +4,14 @@ import { loadEnvConfig, SERVICES } from "./env.js";
 const base = {} as NodeJS.ProcessEnv;
 
 describe("loadEnvConfig", () => {
-  it("resolves prod base urls for all six services", () => {
+  it("resolves prod base urls for all seven services", () => {
     const cfg = loadEnvConfig(base);
     expect(Object.keys(cfg.baseUrls).sort()).toEqual([...SERVICES].sort());
     expect(cfg.baseUrls.memory).toBe("https://agentbase.api.vngcloud.vn/memory");
     expect(cfg.baseUrls.policy).toBe("https://agentbase.api.vngcloud.vn/policy");
+    expect(cfg.baseUrls.tools).toBe(
+      "https://agent-core-built-in-tools.api.vngcloud.vn/v1",
+    );
   });
 
   it("applies defaults", () => {

@@ -1,0 +1,1973 @@
+{
+  "schemes": [
+    "https"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "The built-in tools agents call. Each tool is hosted under its own path prefix.",
+    "title": "agent-core-built-in-tools",
+    "contact": {},
+    "version": "1.0"
+  },
+  "host": "pub-iamapis.api-dev.vngcloud.tech",
+  "basePath": "/agent-core-built-in-tools/v1",
+  "paths": {
+    "/browsers": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "One page of the caller's browsers that have not been deleted.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "browsers"
+        ],
+        "summary": "List the browsers",
+        "parameters": [
+          {
+            "minimum": 1,
+            "type": "integer",
+            "default": 1,
+            "description": "1-indexed page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "minimum": 1,
+            "type": "integer",
+            "default": 10,
+            "description": "How many entries per page",
+            "name": "size",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Page-Browser"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Registers a browser and starts creating the runtime behind it.\nThe 201 says CREATING: poll GET /browsers/{id} until it is ACTIVE\nbefore creating a session on it.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "browsers"
+        ],
+        "summary": "Create a browser",
+        "parameters": [
+          {
+            "description": "The labels to create it under",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateBrowserRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/Browser"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "the account is disabled or not whitelisted for this tool",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "the caller's quota is already used up, or already has a browser by this name",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/browsers/{id}": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Its status is what says whether a session can be created on it yet.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "browsers"
+        ],
+        "summary": "Get a browser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The browser's id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Browser"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Takes down the runtime behind it and gives the caller's quota back, both for the\nbrowser and for every session that was running on it.\nA browser that is still being created cannot be taken down yet and is a 409, which the same delete resolves once it is active.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "browsers"
+        ],
+        "summary": "Delete a browser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The browser's id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/browsers/{id}/sessions": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "The paging is the runtime endpoint's own: the sessions live there.\nDeleted sessions are listed too; their status says so.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "browser-sessions"
+        ],
+        "summary": "List the sessions of a browser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optional. An end user of your own product to scope the call to: sessions created with it are listed and reached only with the same value, and another end user's session is a 404. Without it the call sees every session. 1 to 128 of A-Z a-z 0-9 . _ : @ -",
+            "name": "X-End-User-ID",
+            "in": "header"
+          },
+          {
+            "type": "string",
+            "description": "The browser's id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "minimum": 1,
+            "type": "integer",
+            "default": 1,
+            "description": "1-indexed page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "minimum": 1,
+            "type": "integer",
+            "default": 10,
+            "description": "How many entries per page",
+            "name": "size",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Page-BrowserSession"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "the browser has no endpoint to call yet",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "The browser must be ACTIVE; one that is still creating is refused with a 409.\nEach session is a browser of its own, in a micro vm of its own.\nA session is charged to the caller's session allowance, which is the sessions\nthey hold across all of their browsers rather than a limit per one.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "browser-sessions"
+        ],
+        "summary": "Create a session on a browser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optional. An end user of your own product to scope the call to: sessions created with it are listed and reached only with the same value, and another end user's session is a 404. Without it the call sees every session. 1 to 128 of A-Z a-z 0-9 . _ : @ -",
+            "name": "X-End-User-ID",
+            "in": "header"
+          },
+          {
+            "type": "string",
+            "description": "The browser's id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "The label to create it under",
+            "name": "request",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateBrowserSessionRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/BrowserSession"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "the account is disabled or not whitelisted for sessions",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "the browser is not active yet, or the caller's session quota is already used up",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "504": {
+            "description": "the session did not start in time; it may still come up, so it stays charged to the quota until it is deleted, or the browser is — list the sessions to find it before creating another",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/browsers/{id}/sessions/{sessionId}": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "The session as a listing serves it, and its streams. The automation stream's\nstatus is read from the session itself, and is UNKNOWN when it could not be.\nThe live view stream endpoint is not opened as is: a viewer opens the url\nPOST /live-view-stream-sign answers with.\nA deleted session is served too: its status says Deleted, and its automation\nstream's is UNKNOWN.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "browser-sessions"
+        ],
+        "summary": "Get a session of a browser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optional. An end user of your own product to scope the call to: sessions created with it are listed and reached only with the same value, and another end user's session is a 404. Without it the call sees every session. 1 to 128 of A-Z a-z 0-9 . _ : @ -",
+            "name": "X-End-User-ID",
+            "in": "header"
+          },
+          {
+            "type": "string",
+            "description": "The browser's id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "The session's id",
+            "name": "sessionId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/BrowserSessionDetail"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "the browser has no endpoint to call yet",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Gives the caller's session allowance back. Deleting the browser does the same\nfor every session that was running on it.\n\nWhat the session recorded is archived first, and is served afterwards by\nGET /browsers/{id}/sessions/{sessionId}/recording. Archiving is best-effort:\nthe session is deleted even where its recording could not be kept. Sessions\ntaken down by deleting the browser are not archived.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "browser-sessions"
+        ],
+        "summary": "Delete a session of a browser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optional. An end user of your own product to scope the call to: sessions created with it are listed and reached only with the same value, and another end user's session is a 404. Without it the call sees every session. 1 to 128 of A-Z a-z 0-9 . _ : @ -",
+            "name": "X-End-User-ID",
+            "in": "header"
+          },
+          {
+            "type": "string",
+            "description": "The browser's id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "The session's id",
+            "name": "sessionId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "the browser has no endpoint to call yet",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/browsers/{id}/sessions/{sessionId}/automation-stream": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Relays the request to the automation port inside the session, which is where\nthe browser is driven. The browser must be ACTIVE; one that is still creating\nis refused with a 409.\n\nThis url is the root of the browser's own devtools api, not a json endpoint of\nthis service: everything under it is relayed too, on any method, and the reply\nis the browser's. A remote devtools client is pointed at this url — it reads\n/automation-stream/json/version, and the websocket url it is answered with\npoints back here rather than into the micro vm.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "browser-sessions"
+        ],
+        "summary": "Open the automation stream of a session",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optional. An end user of your own product to scope the call to: sessions created with it are listed and reached only with the same value, and another end user's session is a 404. Without it the call sees every session. 1 to 128 of A-Z a-z 0-9 . _ : @ -",
+            "name": "X-End-User-ID",
+            "in": "header"
+          },
+          {
+            "type": "string",
+            "description": "The browser's id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "The session's id",
+            "name": "sessionId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "101": {
+            "description": "the connection is relayed to the browser",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "200": {
+            "description": "the browser's own reply",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "400": {
+            "description": "the path addressed under the stream leaves the port it is relayed to",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "the browser is not active yet",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "502": {
+            "description": "the session's automation port could not be reached",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/browsers/{id}/sessions/{sessionId}/live-view-stream": {
+      "get": {
+        "description": "Relays the request to the live view stream port inside the session, where the screen\nthe browser is drawing on is served over novnc and websockify. The browser must\nbe ACTIVE; one that is still creating is refused with a 409.\n\nThis url is the root of that port rather than a json endpoint of this service:\neverything under it is relayed too, on any method. The page is at\n/live-view-stream/vnc.html and the connection it opens at /live-view-stream/websockify.\n\nIt is not opened directly, and it is not assembled by a caller. A viewer is\nauthenticated by the url they were given rather than by a header they cannot\nsend, so the url to open is the one POST /live-view-stream-sign answers with: it\nnames this page and tells novnc where its websocket connects back, with the\nticket on that address.\n\nWhat is authenticated is everything that could reach the screen: /websockify,\nwhose url this service writes, and any other request asking to upgrade, since\nthe port answers a websocket handshake wherever one arrives. One presenting no\nticket, or none that stands up, is refused with a 403. The page and the novnc\nbundle are fetched relatively by the page and can carry no credential, so they\nare served to whoever asks for them.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "browser-sessions"
+        ],
+        "summary": "Open the live view stream of a session",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The browser's id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "The session's id",
+            "name": "sessionId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "The ticket, on the /websockify upgrade alone. The signed url puts it there; a caller never does.",
+            "name": "t",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "101": {
+            "description": "the connection is relayed to the browser's screen",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "200": {
+            "description": "the live view stream port's own reply",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "400": {
+            "description": "the path addressed under the stream leaves the port it is relayed to",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "no ticket on the upgrade, or one that does not stand up",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "the browser is not active yet",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "502": {
+            "description": "the session's live view stream port could not be reached",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/browsers/{id}/sessions/{sessionId}/live-view-stream-sign": {
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Mints a short-lived url for the live view stream of one session, which is what\na website frames to show a person the screen the browser is drawing on.\n\nThe live view is the one url here a person's browser opens rather than an\nagent, and a browser can send no portal-user-id header on an iframe load or a\nwebsocket upgrade. So it is authenticated here instead: this call is made for\nthe caller who owns the browser, and the url it answers with carries a ticket\nsaying so. The url is used as it is given — as an iframe src — and never\nassembled by the caller.\n\nexpiresIn bounds opening the url, not watching through it: the iframe spends it\nthe moment it loads, and the connection it opens runs on past it. What stops\nworking once it has passed is the reconnect, which is where a page that means to\ncarry on signs a fresh url and reloads the iframe.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "browser-sessions"
+        ],
+        "summary": "Sign a live view stream url",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optional. An end user of your own product to scope the call to: sessions created with it are listed and reached only with the same value, and another end user's session is a 404. Without it the call sees every session. 1 to 128 of A-Z a-z 0-9 . _ : @ -",
+            "name": "X-End-User-ID",
+            "in": "header"
+          },
+          {
+            "type": "string",
+            "description": "The browser's id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "The session's id",
+            "name": "sessionId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/BrowserLiveViewStreamSignature"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "the browser is not active yet",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/browsers/{id}/sessions/{sessionId}/recording": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "The recording is archived when the session is deleted, so a session that is\nstill running has none yet and is a 404. It stays downloadable after the\nbrowser itself is deleted. The body is json lines, one event per line.",
+        "produces": [
+          "application/x-ndjson"
+        ],
+        "tags": [
+          "browser-sessions"
+        ],
+        "summary": "Download the recording of a session",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optional. An end user of your own product to scope the call to: sessions created with it are listed and reached only with the same value, and another end user's session is a 404. Without it the call sees every session. 1 to 128 of A-Z a-z 0-9 . _ : @ -",
+            "name": "X-End-User-ID",
+            "in": "header"
+          },
+          {
+            "type": "string",
+            "description": "The browser's id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "The session's id",
+            "name": "sessionId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the recording",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "no recording was archived for the session",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/browsers/{id}/sessions/{sessionId}/streams": {
+      "put": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Enables or disables the automation stream of a session. Disabling it is\nenforced by the session itself. A stream left out of the body, or an\nempty body, is switched to ENABLED.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "browser-sessions"
+        ],
+        "summary": "Update the streams of a session",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optional. An end user of your own product to scope the call to: sessions created with it are listed and reached only with the same value, and another end user's session is a 404. Without it the call sees every session. 1 to 128 of A-Z a-z 0-9 . _ : @ -",
+            "name": "X-End-User-ID",
+            "in": "header"
+          },
+          {
+            "type": "string",
+            "description": "The browser's id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "The session's id",
+            "name": "sessionId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "The state to switch each stream to",
+            "name": "request",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateBrowserSessionStreamsRequest"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "updated"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "the browser has no endpoint to call yet",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/code-interpreters": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "One page of the caller's code interpreters that have not been deleted.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "code-interpreters"
+        ],
+        "summary": "List the code interpreters",
+        "parameters": [
+          {
+            "minimum": 1,
+            "type": "integer",
+            "default": 1,
+            "description": "1-indexed page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "minimum": 1,
+            "type": "integer",
+            "default": 10,
+            "description": "How many entries per page",
+            "name": "size",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Page-CodeInterpreter"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Registers a code interpreter and starts creating the runtime behind it.\nThe 201 says CREATING: poll GET /code-interpreters/{id} until it is ACTIVE\nbefore creating a session on it.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "code-interpreters"
+        ],
+        "summary": "Create a code interpreter",
+        "parameters": [
+          {
+            "description": "The labels to create it under",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateCodeInterpreterRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/CodeInterpreter"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "the account is disabled or not whitelisted for this tool",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "the caller's quota is already used up, or already has a code interpreter by this name",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/code-interpreters/{id}": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Its status is what says whether a session can be created on it yet.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "code-interpreters"
+        ],
+        "summary": "Get a code interpreter",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The code interpreter's id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CodeInterpreter"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Takes down the runtime behind it and gives the caller's quota back, both for the\ncode interpreter itself and for the sessions that were running on it.\nA code interpreter that is still being created cannot be taken down yet and is a 409, which the same delete resolves once it is active.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "code-interpreters"
+        ],
+        "summary": "Delete a code interpreter",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The code interpreter's id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/code-interpreters/{id}/sessions": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "The paging is the runtime endpoint's own: the sessions live there.\nDeleted sessions are listed too; their status says so.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "sessions"
+        ],
+        "summary": "List the sessions of a code interpreter",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optional. An end user of your own product to scope the call to: sessions created with it are listed and reached only with the same value, and another end user's session is a 404. Without it the call sees every session. 1 to 128 of A-Z a-z 0-9 . _ : @ -",
+            "name": "X-End-User-ID",
+            "in": "header"
+          },
+          {
+            "type": "string",
+            "description": "The code interpreter's id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "minimum": 1,
+            "type": "integer",
+            "default": 1,
+            "description": "1-indexed page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "minimum": 1,
+            "type": "integer",
+            "default": 10,
+            "description": "How many entries per page",
+            "name": "size",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Page-Session"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "the code interpreter has no endpoint to call yet",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "The code interpreter must be ACTIVE; one that is still creating is refused with a 409.\nA session is charged to the caller's session allowance, which is the sessions\nthey hold across all of their code interpreters rather than a limit per one.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "sessions"
+        ],
+        "summary": "Create a session on a code interpreter",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optional. An end user of your own product to scope the call to: sessions created with it are listed and reached only with the same value, and another end user's session is a 404. Without it the call sees every session. 1 to 128 of A-Z a-z 0-9 . _ : @ -",
+            "name": "X-End-User-ID",
+            "in": "header"
+          },
+          {
+            "type": "string",
+            "description": "The code interpreter's id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "The label to create it under",
+            "name": "request",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateSessionRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/Session"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "the account is disabled or not whitelisted for sessions",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "the code interpreter is not active yet, or the caller's session quota is already used up",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/code-interpreters/{id}/sessions/{sessionId}": {
+      "delete": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Gives the caller's session allowance back. Deleting the code interpreter does\nthe same for every session that was running on it.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "sessions"
+        ],
+        "summary": "Delete a session of a code interpreter",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optional. An end user of your own product to scope the call to: sessions created with it are listed and reached only with the same value, and another end user's session is a 404. Without it the call sees every session. 1 to 128 of A-Z a-z 0-9 . _ : @ -",
+            "name": "X-End-User-ID",
+            "in": "header"
+          },
+          {
+            "type": "string",
+            "description": "The code interpreter's id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "The session's id",
+            "name": "sessionId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "the code interpreter has no endpoint to call yet",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/code-interpreters/{id}/sessions/{sessionId}/invoke": {
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "name selects the tool and arguments carries that tool's inputs:\nexecuteCode takes language and code, executeCommand and startCommandExecution\ntake command, listFiles takes directoryPath, writeFiles takes content,\nreadFiles takes paths, and getTask takes taskId.\n\nThe request is held open for as long as the command runs, up to the\nconfigured commandTimeout. startCommandExecution is the exception: it answers\nwith a task id as soon as the command has started, and getTask is how that\ntask is followed.\n\nA 400 naming an unsupported tool or language also lists the accepted ones,\nbeside the message.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "sessions"
+        ],
+        "summary": "Invoke a tool inside a session",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optional. An end user of your own product to scope the call to: sessions created with it are listed and reached only with the same value, and another end user's session is a 404. Without it the call sees every session. 1 to 128 of A-Z a-z 0-9 . _ : @ -",
+            "name": "X-End-User-ID",
+            "in": "header"
+          },
+          {
+            "type": "string",
+            "description": "The code interpreter's id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "The session's id",
+            "name": "sessionId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "The tool to run and its arguments",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/InvokeRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/InvokeResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "the code interpreter, the session, or the file or task the invoke named is not there",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "the code interpreter has no endpoint to call yet",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "413": {
+            "description": "the file is larger than this service carries in either direction, the command longer than the shell takes (128 KiB), or the request larger than an invoke may be",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Browser": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      }
+    },
+    "BrowserAutomationStream": {
+      "type": "object",
+      "properties": {
+        "streamEndpoint": {
+          "type": "string"
+        },
+        "streamStatus": {
+          "type": "string",
+          "enum": [
+            "ENABLED",
+            "DISABLED",
+            "UNKNOWN"
+          ]
+        }
+      }
+    },
+    "BrowserLiveViewStream": {
+      "type": "object",
+      "properties": {
+        "streamEndpoint": {
+          "type": "string"
+        }
+      }
+    },
+    "BrowserLiveViewStreamSignature": {
+      "type": "object",
+      "properties": {
+        "expiresIn": {
+          "description": "ExpiresIn is in seconds, and is how long the url may be opened for rather\nthan how long it may be watched for: the iframe spends it the moment it\nloads, and the connection it opens is never re-authenticated.",
+          "type": "integer"
+        },
+        "url": {
+          "type": "string"
+        }
+      }
+    },
+    "BrowserSession": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string"
+        },
+        "endUserId": {
+          "description": "EndUserID is the end user the session was created for, the X-End-User-ID\nit was created with. A session created without one is served an empty id,\nand is reachable only by a caller that sends none.",
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the caller's own label for the session, stored by the session api\nand served back on a listing so that one session can be told from another.\nA session created without one is served an empty name.",
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "BrowserSessionDetail": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string"
+        },
+        "endUserId": {
+          "description": "EndUserID is the end user the session was created for, the X-End-User-ID\nit was created with. A session created without one is served an empty id,\nand is reachable only by a caller that sends none.",
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the caller's own label for the session, stored by the session api\nand served back on a listing so that one session can be told from another.\nA session created without one is served an empty name.",
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "streams": {
+          "$ref": "#/definitions/BrowserSessionStreams"
+        }
+      }
+    },
+    "BrowserSessionStreamUpdate": {
+      "type": "object",
+      "required": [
+        "streamStatus"
+      ],
+      "properties": {
+        "streamStatus": {
+          "type": "string",
+          "enum": [
+            "ENABLED",
+            "DISABLED"
+          ]
+        }
+      }
+    },
+    "BrowserSessionStreams": {
+      "type": "object",
+      "properties": {
+        "automationStream": {
+          "$ref": "#/definitions/BrowserAutomationStream"
+        },
+        "liveViewStream": {
+          "$ref": "#/definitions/BrowserLiveViewStream"
+        }
+      }
+    },
+    "CodeInterpreter": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      }
+    },
+    "CreateBrowserRequest": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "description": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 255
+        }
+      }
+    },
+    "CreateBrowserSessionRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 255
+        }
+      }
+    },
+    "CreateCodeInterpreterRequest": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "description": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 255
+        }
+      }
+    },
+    "CreateSessionRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 255
+        }
+      }
+    },
+    "Error": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "FileContent": {
+      "type": "object",
+      "properties": {
+        "blob": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        }
+      }
+    },
+    "InvokeArguments": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "command": {
+          "type": "string"
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FileContent"
+          }
+        },
+        "directoryPath": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string"
+        },
+        "paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "taskId": {
+          "type": "string"
+        }
+      }
+    },
+    "InvokeRequest": {
+      "type": "object",
+      "required": [
+        "arguments",
+        "name"
+      ],
+      "properties": {
+        "arguments": {
+          "$ref": "#/definitions/InvokeArguments"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "InvokeResponse": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "array",
+          "items": {}
+        },
+        "isError": {
+          "description": "IsError says whether the content is a failure rather than a result. It is a\npointer because it is stated by the tools whose api states it and left off\nentirely by the rest; an absent one reads as false either way.\n\nIt is not how a failed invoke is reported: that is answered with a status and\na message by the controller rather than with a 200 carrying a flag. What sets\nit is the invoke succeeding and what it answers with not being a result the\ncaller can act on: the command it ran failed — one stopped at commandTimeout,\nor exiting non-zero — or the output came back cut at the buffer's limit. Both\nare a 200, and both are the thing a caller cannot tell from the content alone,\nsince a short answer reads exactly like a whole one.",
+          "type": "boolean"
+        },
+        "structuredContent": {
+          "description": "StructuredContent is the same answer as data, for the part of it a caller acts\non rather than shows a model: the task tools serve the id to poll and the state\nit is in there, where the text beside it is what a model reads. It is left off\nby the tools that have no such part, since a command's output is text and\nnothing else."
+        }
+      }
+    },
+    "Page-Browser": {
+      "type": "object",
+      "properties": {
+        "listData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Browser"
+          }
+        },
+        "page": {
+          "type": "integer"
+        },
+        "pageSize": {
+          "type": "integer"
+        },
+        "totalItem": {
+          "type": "integer"
+        },
+        "totalPage": {
+          "type": "integer"
+        }
+      }
+    },
+    "Page-BrowserSession": {
+      "type": "object",
+      "properties": {
+        "listData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BrowserSession"
+          }
+        },
+        "page": {
+          "type": "integer"
+        },
+        "pageSize": {
+          "type": "integer"
+        },
+        "totalItem": {
+          "type": "integer"
+        },
+        "totalPage": {
+          "type": "integer"
+        }
+      }
+    },
+    "Page-CodeInterpreter": {
+      "type": "object",
+      "properties": {
+        "listData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CodeInterpreter"
+          }
+        },
+        "page": {
+          "type": "integer"
+        },
+        "pageSize": {
+          "type": "integer"
+        },
+        "totalItem": {
+          "type": "integer"
+        },
+        "totalPage": {
+          "type": "integer"
+        }
+      }
+    },
+    "Page-Session": {
+      "type": "object",
+      "properties": {
+        "listData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Session"
+          }
+        },
+        "page": {
+          "type": "integer"
+        },
+        "pageSize": {
+          "type": "integer"
+        },
+        "totalItem": {
+          "type": "integer"
+        },
+        "totalPage": {
+          "type": "integer"
+        }
+      }
+    },
+    "Session": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string"
+        },
+        "endUserId": {
+          "description": "EndUserID is the end user the session was created for, the X-End-User-ID\nit was created with. A session created without one is served an empty id,\nand is reachable only by a caller that sends none.",
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the caller's own label for the session, stored by the session api\nand served back on a listing so that one session can be told from another.\nA session created without one is served an empty name.",
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "UpdateBrowserSessionStreamsRequest": {
+      "type": "object",
+      "properties": {
+        "automationStreamUpdate": {
+          "$ref": "#/definitions/BrowserSessionStreamUpdate"
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "BearerAuth": {
+      "description": "VNG Cloud IAM OAuth2 access token, entered as `Bearer <access_token>`. Obtain one by exchanging your service account clientId/clientSecret at the IAM token endpoint (grant_type=client_credentials). The gateway validates it and sets the portal user the request acts for from it.",
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    }
+  }
+}
