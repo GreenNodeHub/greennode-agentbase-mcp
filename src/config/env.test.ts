@@ -10,7 +10,7 @@ describe("loadEnvConfig", () => {
     expect(cfg.baseUrls.memory).toBe("https://agentbase.api.vngcloud.vn/memory");
     expect(cfg.baseUrls.policy).toBe("https://agentbase.api.vngcloud.vn/policy");
     expect(cfg.baseUrls.tools).toBe(
-      "https://agent-core-built-in-tools.api.vngcloud.vn/v1",
+      "https://agentbase.api.vngcloud.vn/built-in-tools/v1",
     );
   });
 

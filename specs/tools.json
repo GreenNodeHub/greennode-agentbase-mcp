@@ -10,7 +10,7 @@
     "version": "1.0"
   },
   "host": "pub-iamapis.api-dev.vngcloud.tech",
-  "basePath": "/agent-core-built-in-tools/v1",
+  "basePath": "/built-in-tools/v1",
   "paths": {
     "/browsers": {
       "get": {

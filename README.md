@@ -119,7 +119,7 @@ execute({ id: "policy.get_api_v1_policy_groups", args: { page: 1, page_size: 10 
 | `runtime` | agent runtimes, openclaws |
 | `tools` | built-in browsers + code interpreters |
 
-`tools` (the built-in browsers + code interpreters API) is **dev-only today**: its prod base URL is a placeholder pending go-live, mirroring the `greennode-cli` wiring. Its spec is therefore fetched from the dev host (`scripts/fetch-specs.ts`).
+`tools` (the built-in browsers + code interpreters API) is **dev-only today**: its prod base URL (`https://agentbase.api.vngcloud.vn/built-in-tools`) follows the shared agentbase host pattern, mirroring the `greennode-cli` wiring, and awaits go-live. Its spec is therefore fetched from the dev host (`scripts/fetch-specs.ts`).
 
 Two caveats on `tools`:
 
