@@ -14,6 +14,11 @@
   "paths": {
     "/api/v1/policies/condition-operators": {
       "get": {
+        "security": [
+          {
+            "portal-user-id": []
+          }
+        ],
         "description": "Returns every operator accepted by policy template conditions,\nwith its arity, accepted value types, and a ready-made JSON\nexample. Localized via Accept-Language (en | vi; en fallback).",
         "produces": [
           "application/json"
@@ -48,6 +53,11 @@
     },
     "/api/v1/policy-groups": {
       "get": {
+        "security": [
+          {
+            "portal-user-id": []
+          }
+        ],
         "description": "List all policy groups for the authenticated user with pagination.",
         "produces": [
           "application/json"
@@ -100,6 +110,11 @@
         }
       },
       "post": {
+        "security": [
+          {
+            "portal-user-id": []
+          }
+        ],
         "description": "Create a new policy group. Maximum 20 per user.",
         "consumes": [
           "application/json"
@@ -164,6 +179,11 @@
     },
     "/api/v1/policy-groups/{group_id}": {
       "get": {
+        "security": [
+          {
+            "portal-user-id": []
+          }
+        ],
         "description": "Get a policy group by ID.",
         "produces": [
           "application/json"
@@ -209,6 +229,11 @@
         }
       },
       "put": {
+        "security": [
+          {
+            "portal-user-id": []
+          }
+        ],
         "description": "Update a policy group by ID.",
         "consumes": [
           "application/json"
@@ -278,6 +303,11 @@
         }
       },
       "delete": {
+        "security": [
+          {
+            "portal-user-id": []
+          }
+        ],
         "description": "Delete a policy group and all its policies.",
         "produces": [
           "application/json"
@@ -328,6 +358,11 @@
     },
     "/api/v1/policy-groups/{group_id}/policies": {
       "get": {
+        "security": [
+          {
+            "portal-user-id": []
+          }
+        ],
         "description": "List all policies for a policy engine with pagination.",
         "produces": [
           "application/json"
@@ -393,6 +428,11 @@
         }
       },
       "post": {
+        "security": [
+          {
+            "portal-user-id": []
+          }
+        ],
         "description": "Create a new policy within a policy group. Maximum 10 policies per group.",
         "consumes": [
           "application/json"
@@ -470,6 +510,11 @@
     },
     "/api/v1/policy-groups/{group_id}/policies/{policy_id}": {
       "get": {
+        "security": [
+          {
+            "portal-user-id": []
+          }
+        ],
         "description": "Get a policy by ID.",
         "produces": [
           "application/json"
@@ -522,6 +567,11 @@
         }
       },
       "put": {
+        "security": [
+          {
+            "portal-user-id": []
+          }
+        ],
         "description": "Update a policy by ID. Updating the template recompiles the Cedar statement.",
         "consumes": [
           "application/json"
@@ -598,6 +648,11 @@
         }
       },
       "delete": {
+        "security": [
+          {
+            "portal-user-id": []
+          }
+        ],
         "description": "Delete a policy by ID.",
         "produces": [
           "application/json"
@@ -655,6 +710,11 @@
     },
     "/internal/api/v1/gateways/{gatewayName}/targets/{targetName}/decisions": {
       "post": {
+        "security": [
+          {
+            "portal-user-id": []
+          }
+        ],
         "description": "Called by agent-core-gateway per inbound request. Always returns 200 with {allow, reason?}.",
         "consumes": [
           "application/json"
@@ -1067,6 +1127,18 @@
       }
     }
   },
+  "securityDefinitions": {
+    "portal-user-id": {
+      "type": "apiKey",
+      "name": "portal-user-id",
+      "in": "header"
+    }
+  },
+  "security": [
+    {
+      "portal-user-id": []
+    }
+  ],
   "tags": [
     {
       "description": "Policy group CRUD operations",

@@ -129,14 +129,54 @@ describe("normalizeSpec + extractOperations", () => {
 });
 
 describe("generated registry artifact", () => {
-  it("contains 128 operations across 7 services", () => {
+  it("contains 150 operations across 7 services", () => {
     const path = join(process.cwd(), "registry.generated.json");
     const reg = JSON.parse(readFileSync(path, "utf8"));
-    expect(reg.operations.length).toBe(128);
+    expect(reg.operations.length).toBe(150);
     const services = new Set(reg.operations.map((o: any) => o.service));
     expect([...services].sort()).toEqual(
       ["cr", "gateway", "identity", "memory", "policy", "runtime", "tools"].sort(),
     );
+    const byService: Record<string, number> = {};
+    for (const o of reg.operations) byService[o.service] = (byService[o.service] ?? 0) + 1;
+    expect(byService).toEqual({
+      runtime: 40,
+      identity: 32,
+      tools: 19,
+      gateway: 18,
+      memory: 16,
+      cr: 13,
+      policy: 12,
+    });
+  });
+
+  it("surfaces runtime inbound auth and gateway/identity operations added with the /v1 runtime paths", () => {
+    const path = join(process.cwd(), "registry.generated.json");
+    const reg = JSON.parse(readFileSync(path, "utf8"));
+    const create = reg.operations.find(
+      (o: any) => o.service === "runtime" && o.method === "POST" && o.path === "/v1/agent-runtimes",
+    )!;
+    expect(create).toBeDefined();
+    const body = create.inputSchema.properties.body.properties;
+    expect(body.inboundAuth.properties.mode.enum).toEqual(["NONE", "IAM", "JWT"]);
+    expect(body.inboundAuth.properties.jwt.properties.source.enum).toEqual([
+      "DISCOVERY",
+      "JWKS",
+    ]);
+    expect(body.allowedCidrs).toBeDefined();
+    expect(body.networkConfig.properties.mode.enum).toEqual(["PUBLIC", "VPC"]);
+    expect(body.protocol).toBeDefined();
+    // minReplicas is platform-owned (always 1) and no longer accepted
+    expect(body.autoscaling.properties.minReplicas).toBeUndefined();
+    for (const [service, suffix] of [
+      ["gateway", "/api/v1/mcp-connectors"],
+      ["gateway", "/api/v1/mcp-server-templates"],
+      ["identity", "/api/v1/outbound-auth/managed-oauth2-providers"],
+    ] as const) {
+      expect(
+        reg.operations.some((o: any) => o.service === service && o.path === suffix),
+      ).toBe(true);
+    }
   });
 
   it("excludes the two browser SSE stream relay endpoints from tools", () => {

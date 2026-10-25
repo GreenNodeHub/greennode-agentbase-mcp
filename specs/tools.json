@@ -9,7 +9,7 @@
     "contact": {},
     "version": "1.0"
   },
-  "host": "pub-iamapis.api-dev.vngcloud.tech",
+  "host": "agentbase.api.vngcloud.vn",
   "basePath": "/built-in-tools/v1",
   "paths": {
     "/browsers": {
@@ -252,7 +252,7 @@
             "BearerAuth": []
           }
         ],
-        "description": "The paging is the runtime endpoint's own: the sessions live there.\nDeleted sessions are listed too; their status says so.",
+        "description": "The paging is the runtime endpoint's own: the sessions live there.\nWithout a status, live and deleted sessions are listed together, newest first; a deleted one's status says so.\nWith one, only the sessions in it are: a live state such as Running, or Deleted for the deleted ones.\nOnly the newest 100000 sessions can be listed: page times size must be 100000 or less.",
         "produces": [
           "application/json"
         ],
@@ -283,11 +283,19 @@
             "in": "query"
           },
           {
+            "maximum": 100,
             "minimum": 1,
             "type": "integer",
             "default": 10,
             "description": "How many entries per page",
             "name": "size",
+            "in": "query"
+          },
+          {
+            "maxLength": 32,
+            "type": "string",
+            "description": "Optional. The one status to list: a live state such as Running, or Deleted. Matched ignoring case",
+            "name": "status",
             "in": "query"
           }
         ],
@@ -640,7 +648,7 @@
             }
           },
           "409": {
-            "description": "the browser is not active yet",
+            "description": "the browser is not active yet, or the session has failed and has to be deleted and created again",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -662,7 +670,7 @@
     },
     "/browsers/{id}/sessions/{sessionId}/live-view-stream": {
       "get": {
-        "description": "Relays the request to the live view stream port inside the session, where the screen\nthe browser is drawing on is served over novnc and websockify. The browser must\nbe ACTIVE; one that is still creating is refused with a 409.\n\nThis url is the root of that port rather than a json endpoint of this service:\neverything under it is relayed too, on any method. The page is at\n/live-view-stream/vnc.html and the connection it opens at /live-view-stream/websockify.\n\nIt is not opened directly, and it is not assembled by a caller. A viewer is\nauthenticated by the url they were given rather than by a header they cannot\nsend, so the url to open is the one POST /live-view-stream-sign answers with: it\nnames this page and tells novnc where its websocket connects back, with the\nticket on that address.\n\nWhat is authenticated is everything that could reach the screen: /websockify,\nwhose url this service writes, and any other request asking to upgrade, since\nthe port answers a websocket handshake wherever one arrives. One presenting no\nticket, or none that stands up, is refused with a 403. The page and the novnc\nbundle are fetched relatively by the page and can carry no credential, so they\nare served to whoever asks for them.",
+        "description": "Relays the request to the live view stream port inside the session, where the screen\nthe browser is drawing on is served over novnc and websockify. The browser must\nbe ACTIVE; one that is still creating is refused with a 409.\n\nThis url is the root of that port rather than a json endpoint of this service:\neverything under it is relayed too, on any method. The page is at\n/live-view-stream/vnc.html and the connection it opens at /live-view-stream/websockify.\n\nIt is not opened directly, and it is not assembled by a caller. A viewer is\nauthenticated by the url they were given rather than by a header they cannot\nsend, so the url to open is the one POST /live-view-stream-sign answers with: it\nnames this page and tells novnc where its websocket connects back, with the\nticket on that address.\n\nWhat is authenticated is everything that could reach the screen: /websockify,\nwhose url this service writes, and any other request asking to upgrade, since\nthe port answers a websocket handshake wherever one arrives. One presenting no\nticket, or none that stands up, is refused with a 403. The page and the novnc\nbundle are fetched relatively by the page and can carry no credential, so a\nGET or HEAD of the page, its json files, or a file under /app, /core or /vendor\nis served to whoever asks for it. Anything else is asked for a ticket too.",
         "produces": [
           "application/json"
         ],
@@ -712,7 +720,7 @@
             }
           },
           "403": {
-            "description": "no ticket on the upgrade, or one that does not stand up",
+            "description": "no ticket on a request outside novnc's page and bundle, or one that does not stand up",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -807,7 +815,7 @@
             }
           },
           "409": {
-            "description": "the browser is not active yet",
+            "description": "the browser is not active yet, or the session has failed and has to be deleted and created again",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -963,7 +971,7 @@
             }
           },
           "409": {
-            "description": "the browser has no endpoint to call yet",
+            "description": "the browser has no endpoint to call yet, or the session has failed and has to be deleted and created again",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -1217,7 +1225,7 @@
             "BearerAuth": []
           }
         ],
-        "description": "The paging is the runtime endpoint's own: the sessions live there.\nDeleted sessions are listed too; their status says so.",
+        "description": "The paging is the runtime endpoint's own: the sessions live there.\nWithout a status, live and deleted sessions are listed together, newest first; a deleted one's status says so.\nWith one, only the sessions in it are: a live state such as Running, or Deleted for the deleted ones.\nOnly the newest 100000 sessions can be listed: page times size must be 100000 or less.",
         "produces": [
           "application/json"
         ],
@@ -1248,11 +1256,19 @@
             "in": "query"
           },
           {
+            "maximum": 100,
             "minimum": 1,
             "type": "integer",
             "default": 10,
             "description": "How many entries per page",
             "name": "size",
+            "in": "query"
+          },
+          {
+            "maxLength": 32,
+            "type": "string",
+            "description": "Optional. The one status to list: a live state such as Running, or Deleted. Matched ignoring case",
+            "name": "status",
             "in": "query"
           }
         ],
@@ -1530,7 +1546,7 @@
             }
           },
           "409": {
-            "description": "the code interpreter has no endpoint to call yet",
+            "description": "the code interpreter has no endpoint to call yet, or the session has failed and has to be deleted and created again",
             "schema": {
               "$ref": "#/definitions/Error"
             }
