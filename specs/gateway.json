@@ -1037,6 +1037,312 @@
           }
         }
       }
+    },
+    "/api/v1/gateways/{name}/targets/{target}/sync": {
+      "post": {
+        "description": "Fetches the live tools/list from the target's MCP endpoint and persists it. Non-interactive auth (NONE/2LO, or 3LO with cached consent) returns 200 with tools. Interactive auth (3LO without consent, INBOUND_FORWARD) returns 200 with status=authorization_required plus an authorizeUrl the caller opens in a popup; on completion the gateway finishes tools/list server-side and redirects the browser to the supplied returnTo.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "gateways"
+        ],
+        "summary": "Sync a target's tools/list",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Gateway name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Target name",
+            "name": "target",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Optional returnTo URL; the browser is redirected here after interactive tools/list completion (omit/empty renders a plain done page)",
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/handler.SyncRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/handler.SyncResponse"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/gateways/{name}/targets/{target}/tools": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "gateways"
+        ],
+        "summary": "Get a target's last-synced tools",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Gateway name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Target name",
+            "name": "target",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/handler.SyncResponse"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mcp-connectors": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Returns every MCP server (target) attached across the caller's gateways, flattened into one list. Each item carries a ready-to-use connect URL, the derived template type (or CUSTOM), the upstream outbound-auth descriptor, and parent-gateway context including inbound-auth mode. Optional filters by gateway name and gateway state.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mcp-connectors"
+        ],
+        "summary": "List MCP connectors",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Restrict to a single gateway by name",
+            "name": "gatewayName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by parent gateway state (e.g. ACTIVE)",
+            "name": "state",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "Page number, 1-based (default 1)",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "Page size (default 50, max 100)",
+            "name": "pageSize",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/handler.MCPConnectorListResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mcp-connectors/{gatewayName}/{targetName}": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Returns a single MCP connector (one target on one caller-owned gateway) by composite key (gatewayName, targetName). Ownership is enforced by the caller-scoped gateway lookup, so another user's gateway is indistinguishable from a non-existent one.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mcp-connectors"
+        ],
+        "summary": "Get an MCP connector",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Gateway name",
+            "name": "gatewayName",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Target (connector) name",
+            "name": "targetName",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/handler.MCPConnectorResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mcp-server-templates": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Returns enabled mcp server templates from the catalog, paginated. Optional displayName, vendor, and id filters, each a case-insensitive substring match (multiple filters AND together). Each item carries auth options whose Recommended* fields the frontend pre-fills into a target-creation form; the user edits before submitting via the existing gateway update path.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mcp-server-templates"
+        ],
+        "summary": "List mcp server templates",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Display name filter (case-insensitive substring match)",
+            "name": "displayName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Vendor filter (case-insensitive substring match)",
+            "name": "vendor",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Id filter (case-insensitive substring match)",
+            "name": "id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "Page number, 1-based (default 1)",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "Page size (default 50, max 100)",
+            "name": "pageSize",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/handler.MCPServerTemplateListResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/handler.ErrorBody"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -1252,6 +1558,23 @@
         }
       }
     },
+    "domain.EndpointVariable": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "UI hint",
+          "type": "string"
+        },
+        "key": {
+          "description": "\"tenant\"",
+          "type": "string"
+        },
+        "sample": {
+          "description": "placeholder text for the input",
+          "type": "string"
+        }
+      }
+    },
     "domain.InboundAuthMode": {
       "type": "string",
       "enum": [
@@ -1275,6 +1598,38 @@
         "JWTSourceDiscovery",
         "JWTSourceJWKS"
       ]
+    },
+    "domain.MCPServerTemplateAuthOption": {
+      "type": "object",
+      "properties": {
+        "flow": {
+          "$ref": "#/definitions/domain.OutboundAuthFlow"
+        },
+        "label": {
+          "type": "string"
+        },
+        "recommendedCustomParameters": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "recommendedHeaderName": {
+          "type": "string"
+        },
+        "recommendedHeaderValuePrefix": {
+          "type": "string"
+        },
+        "recommendedScopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "type": {
+          "$ref": "#/definitions/domain.OutboundAuthType"
+        }
+      }
     },
     "domain.NetworkMode": {
       "type": "string",
@@ -1316,6 +1671,13 @@
         "providerName": {
           "type": "string"
         },
+        "providerSource": {
+          "type": "string",
+          "enum": [
+            "CUSTOM",
+            "MANAGED"
+          ]
+        },
         "returnUrl": {
           "type": "string"
         },
@@ -1330,10 +1692,37 @@
           "enum": [
             "NONE",
             "APIKEY",
-            "OAUTH"
+            "OAUTH",
+            "INBOUND_FORWARD"
           ]
         }
       }
+    },
+    "domain.OutboundAuthFlow": {
+      "type": "string",
+      "enum": [
+        "2LO",
+        "3LO"
+      ],
+      "x-enum-varnames": [
+        "OutboundAuthFlow2LO",
+        "OutboundAuthFlow3LO"
+      ]
+    },
+    "domain.OutboundAuthType": {
+      "type": "string",
+      "enum": [
+        "NONE",
+        "APIKEY",
+        "OAUTH",
+        "INBOUND_FORWARD"
+      ],
+      "x-enum-varnames": [
+        "OutboundAuthNone",
+        "OutboundAuthAPIKey",
+        "OutboundAuthOAuth",
+        "OutboundAuthInboundForward"
+      ]
     },
     "domain.ResourceType": {
       "type": "string",
@@ -1384,6 +1773,10 @@
     "domain.Target": {
       "type": "object",
       "properties": {
+        "createdAt": {
+          "description": "CreatedAt is when the target was attached to this gateway. Preserved\nacross spec replaces (matched by name) and reset only when the target is\nremoved then re-added. Server-managed — never set by callers.",
+          "type": "string"
+        },
         "endpoint": {
           "type": "string"
         },
@@ -1395,6 +1788,10 @@
         },
         "type": {
           "$ref": "#/definitions/domain.TargetType"
+        },
+        "updatedAt": {
+          "description": "UpdatedAt is when the target's content was last modified. Server-managed.",
+          "type": "string"
         }
       }
     },
@@ -1614,7 +2011,7 @@
           "minLength": 3
         },
         "outboundAuth": {
-          "$ref": "#/definitions/domain.OutboundAuth"
+          "$ref": "#/definitions/handler.OutboundAuthRequest"
         },
         "type": {
           "type": "string",
@@ -1897,6 +2294,11 @@
             "type": "string"
           }
         },
+        "iamRequireOwner": {
+          "description": "IAMRequireOwner toggles owner-binding for Mode=IAM: when on, the caller's\nportal account must equal the gateway owner even after OPA allows the\nrequest. Pointer so an absent value resolves to the secure default (on);\nsend false to opt out and trust OPA alone. Ignored for non-IAM modes.",
+          "type": "boolean",
+          "x-nullable": "true"
+        },
         "jwt": {
           "description": "JWT is required when mode=JWT (enforced by required_if) and may be\nomitted when mode is NONE or IAM. A stale block sent with another\nmode is dropped silently — callers toggling modes do not need to\nclean up their payload.",
           "allOf": [
@@ -1924,6 +2326,10 @@
           "items": {
             "type": "string"
           }
+        },
+        "iamRequireOwner": {
+          "description": "IAMRequireOwner reflects the stored owner-binding toggle for Mode=IAM. A\nnil/absent value means the secure default (the check is on); false means\nthe owner explicitly opted out. Omitted for non-IAM gateways.",
+          "type": "boolean"
         },
         "jwt": {
           "$ref": "#/definitions/handler.JWTConfigResponseDTO"
@@ -2055,6 +2461,233 @@
         }
       }
     },
+    "handler.MCPConnectorGatewayRef": {
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string"
+        },
+        "endpoint": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "inboundAuth": {
+          "$ref": "#/definitions/handler.MCPConnectorInboundAuthDTO"
+        },
+        "name": {
+          "type": "string"
+        },
+        "networkMode": {
+          "$ref": "#/definitions/domain.NetworkMode"
+        },
+        "state": {
+          "$ref": "#/definitions/domain.State"
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      }
+    },
+    "handler.MCPConnectorInboundAuthDTO": {
+      "type": "object",
+      "properties": {
+        "discoveryUrl": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        }
+      }
+    },
+    "handler.MCPConnectorListResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/handler.MCPConnectorResponse"
+          }
+        },
+        "pagination": {
+          "$ref": "#/definitions/handler.Pagination"
+        }
+      }
+    },
+    "handler.MCPConnectorOutboundAuthDTO": {
+      "type": "object",
+      "properties": {
+        "flow": {
+          "type": "string"
+        },
+        "provider": {
+          "type": "string"
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "handler.MCPConnectorResponse": {
+      "type": "object",
+      "properties": {
+        "connectUrl": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "gateway": {
+          "$ref": "#/definitions/handler.MCPConnectorGatewayRef"
+        },
+        "name": {
+          "type": "string"
+        },
+        "outboundAuth": {
+          "$ref": "#/definitions/handler.MCPConnectorOutboundAuthDTO"
+        },
+        "template": {
+          "$ref": "#/definitions/handler.MCPConnectorTemplateRef"
+        },
+        "type": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      }
+    },
+    "handler.MCPConnectorTemplateRef": {
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "handler.MCPServerTemplateListResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/handler.MCPServerTemplateResponse"
+          }
+        },
+        "pagination": {
+          "$ref": "#/definitions/handler.Pagination"
+        }
+      }
+    },
+    "handler.MCPServerTemplateResponse": {
+      "type": "object",
+      "properties": {
+        "authOptions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/domain.MCPServerTemplateAuthOption"
+          }
+        },
+        "authVendor": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "endpoint": {
+          "type": "string"
+        },
+        "endpointVariables": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/domain.EndpointVariable"
+          }
+        },
+        "id": {
+          "type": "string"
+        },
+        "logo": {
+          "type": "string"
+        },
+        "sortOrder": {
+          "type": "integer"
+        },
+        "vendor": {
+          "type": "string"
+        }
+      }
+    },
+    "handler.OutboundAuthRequest": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "customParameters": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "flow": {
+          "type": "string",
+          "enum": [
+            "2LO",
+            "3LO"
+          ]
+        },
+        "headerName": {
+          "type": "string"
+        },
+        "headerValuePrefix": {
+          "type": "string"
+        },
+        "providerName": {
+          "type": "string"
+        },
+        "providerSource": {
+          "type": "string",
+          "enum": [
+            "CUSTOM",
+            "MANAGED"
+          ]
+        },
+        "returnUrl": {
+          "type": "string"
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "NONE",
+            "APIKEY",
+            "OAUTH",
+            "INBOUND_FORWARD"
+          ]
+        }
+      }
+    },
     "handler.Pagination": {
       "type": "object",
       "properties": {
@@ -2183,6 +2816,64 @@
         }
       }
     },
+    "handler.SyncRequest": {
+      "type": "object",
+      "properties": {
+        "returnTo": {
+          "description": "ReturnTo is where the gateway redirects the browser once interactive\ntools/list completion finishes. Omit/leave empty for a plain \"done\" page.",
+          "type": "string"
+        }
+      }
+    },
+    "handler.SyncResponse": {
+      "type": "object",
+      "properties": {
+        "authorizeUrl": {
+          "type": "string"
+        },
+        "error": {
+          "type": "string"
+        },
+        "lastSyncedAt": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "syncSessionId": {
+          "type": "string"
+        },
+        "toolCount": {
+          "type": "integer"
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/handler.ToolDTO"
+          }
+        }
+      }
+    },
+    "handler.ToolDTO": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "inputSchema": {
+          "type": "object"
+        },
+        "name": {
+          "type": "string"
+        },
+        "outputSchema": {
+          "type": "object"
+        },
+        "title": {
+          "type": "string"
+        }
+      }
+    },
     "handler.UpdateGatewaySpecRequest": {
       "type": "object",
       "properties": {
@@ -2284,5 +2975,10 @@
       "name": "Authorization",
       "in": "header"
     }
-  }
+  },
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ]
 }

@@ -33,6 +33,14 @@
       "description": "APIs for managing agent identities - digital identities for agents to access external services"
     },
     {
+      "name": "Managed OAuth2 Provider",
+      "description": "Retrieve 3LO tokens for platform-managed OAuth2 providers"
+    },
+    {
+      "name": "Managed OAuth2 Provider",
+      "description": "Read-only APIs for discovering platform-managed OAuth2 providers"
+    },
+    {
       "name": "OAuth2 Provider",
       "description": "APIs for managing OAuth2 providers and retrieving OAuth2 tokens (M2M and 3-Legged OAuth)"
     }
@@ -43,24 +51,39 @@
         "tags": [
           "OAuth2 Provider"
         ],
+        "summary": "Get OAuth2 provider",
+        "description": "Retrieves an OAuth2 provider by name.",
         "operationId": "getByName",
         "parameters": [
           {
             "name": "name",
             "in": "path",
+            "description": "Name of the OAuth2 provider to retrieve",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "my-agent",
+              "pattern": "^[a-zA-Z0-9_-]+$"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "OAuth2 provider retrieved successfully",
             "content": {
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/Oauth2ProviderResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "OAuth2 provider not found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -76,14 +99,19 @@
         "tags": [
           "OAuth2 Provider"
         ],
+        "summary": "Update OAuth2 provider",
+        "description": "Updates an existing OAuth2 provider's client credentials and endpoints.",
         "operationId": "update",
         "parameters": [
           {
             "name": "name",
             "in": "path",
+            "description": "Name of the OAuth2 provider to update",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "my-agent",
+              "pattern": "^[a-zA-Z0-9_-]+$"
             }
           }
         ],
@@ -98,8 +126,28 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK"
+          "204": {
+            "description": "OAuth2 provider updated successfully"
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "OAuth2 provider not found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -112,20 +160,35 @@
         "tags": [
           "OAuth2 Provider"
         ],
+        "summary": "Delete OAuth2 provider",
+        "description": "Soft deletes an OAuth2 provider.",
         "operationId": "delete",
         "parameters": [
           {
             "name": "name",
             "in": "path",
+            "description": "Name of the OAuth2 provider to delete",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "my-agent",
+              "pattern": "^[a-zA-Z0-9_-]+$"
             }
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "204": {
+            "description": "OAuth2 provider deleted successfully"
+          },
+          "404": {
+            "description": "OAuth2 provider not found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -140,24 +203,39 @@
         "tags": [
           "API Key Provider"
         ],
+        "summary": "Get API key provider",
+        "description": "Retrieves an API key provider by name.",
         "operationId": "getByName_1",
         "parameters": [
           {
             "name": "name",
             "in": "path",
+            "description": "Name of the API key provider to retrieve",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "my-agent",
+              "pattern": "^[a-zA-Z0-9_-]+$"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "API key provider retrieved successfully",
             "content": {
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/ApikeyProviderResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "API key provider not found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -173,14 +251,19 @@
         "tags": [
           "API Key Provider"
         ],
+        "summary": "Update API key provider",
+        "description": "Updates the API key of an existing API key provider.",
         "operationId": "update_1",
         "parameters": [
           {
             "name": "name",
             "in": "path",
+            "description": "Name of the API key provider to update",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "my-agent",
+              "pattern": "^[a-zA-Z0-9_-]+$"
             }
           }
         ],
@@ -195,8 +278,28 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK"
+          "204": {
+            "description": "API key provider updated successfully"
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "API key provider not found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -209,20 +312,35 @@
         "tags": [
           "API Key Provider"
         ],
+        "summary": "Delete API key provider",
+        "description": "Soft deletes an API key provider.",
         "operationId": "delete_1",
         "parameters": [
           {
             "name": "name",
             "in": "path",
+            "description": "Name of the API key provider to delete",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "my-agent",
+              "pattern": "^[a-zA-Z0-9_-]+$"
             }
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "204": {
+            "description": "API key provider deleted successfully"
+          },
+          "404": {
+            "description": "API key provider not found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -247,7 +365,9 @@
             "description": "Name of the agent identity to retrieve",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "my-agent",
+              "pattern": "^[a-zA-Z0-9_-]+$"
             }
           }
         ],
@@ -267,7 +387,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentIdentityResponse"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -293,7 +413,9 @@
             "description": "Name of the agent identity to update",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "my-agent",
+              "pattern": "^[a-zA-Z0-9_-]+$"
             }
           }
         ],
@@ -323,7 +445,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentIdentityResponse"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -333,7 +455,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentIdentityResponse"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -359,7 +481,9 @@
             "description": "Name of the agent identity to delete",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "my-agent",
+              "pattern": "^[a-zA-Z0-9_-]+$"
             }
           }
         ],
@@ -368,7 +492,14 @@
             "description": "Agent identity deleted successfully"
           },
           "404": {
-            "description": "Agent identity not found"
+            "description": "Agent identity not found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -383,54 +514,76 @@
         "tags": [
           "OAuth2 Provider"
         ],
+        "summary": "List OAuth2 providers",
+        "description": "Retrieves a paginated list of OAuth2 providers owned by the authenticated user.",
         "operationId": "list",
         "parameters": [
           {
             "name": "page",
             "in": "query",
+            "description": "Page number (0-based)",
             "required": false,
             "schema": {
               "type": "integer",
-              "format": "int32",
-              "default": 0
+              "example": 0,
+              "minimum": 0
             }
           },
           {
             "name": "size",
             "in": "query",
+            "description": "Page size",
             "required": false,
             "schema": {
               "type": "integer",
-              "format": "int32",
-              "default": 20
+              "example": 20,
+              "maximum": 100,
+              "minimum": 1
             }
           },
           {
             "name": "sortBy",
             "in": "query",
+            "description": "Field to sort by",
             "required": false,
             "schema": {
               "type": "string",
-              "default": "createdAt"
+              "example": "createdAt"
             }
           },
           {
             "name": "sortDirection",
             "in": "query",
+            "description": "Sort direction",
             "required": false,
             "schema": {
               "type": "string",
-              "default": "desc"
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "example": "desc",
+              "pattern": "(?i)^(asc|desc)$"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "OAuth2 providers retrieved successfully",
             "content": {
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/PagedResponseOauth2ProviderResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -446,6 +599,8 @@
         "tags": [
           "OAuth2 Provider"
         ],
+        "summary": "Create OAuth2 provider",
+        "description": "Creates a new OAuth2 provider for M2M and 3-legged OAuth.",
         "operationId": "create",
         "requestBody": {
           "content": {
@@ -458,12 +613,42 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK",
+          "201": {
+            "description": "OAuth2 provider created successfully",
             "content": {
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/Oauth2ProviderResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "OAuth2 provider with this name already exists",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "User quota exceeded",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -481,22 +666,30 @@
         "tags": [
           "OAuth2 Provider"
         ],
+        "summary": "Get M2M OAuth2 token",
+        "description": "Exchanges client credentials for a machine-to-machine OAuth2 access token for the given provider bound to an agent identity.",
         "operationId": "getM2mToken",
         "parameters": [
           {
             "name": "providerName",
             "in": "path",
+            "description": "OAuth2 provider name",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "my-agent",
+              "pattern": "^[a-zA-Z0-9_-]+$"
             }
           },
           {
             "name": "agentIdentityName",
             "in": "path",
+            "description": "Agent identity name",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "my-agent",
+              "pattern": "^[a-zA-Z0-9_-]+$"
             }
           }
         ],
@@ -512,11 +705,41 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "M2M access token returned",
             "content": {
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Provider or agent identity not found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Error calling the upstream OAuth2 provider",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -534,22 +757,30 @@
         "tags": [
           "OAuth2 Provider"
         ],
+        "summary": "Start/get 3-legged OAuth2 token",
+        "description": "Starts or completes a 3-legged OAuth2 flow. Returns an authorization URL + session to start, or an access token when the flow completes.",
         "operationId": "get3loToken",
         "parameters": [
           {
             "name": "providerName",
             "in": "path",
+            "description": "OAuth2 provider name",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "my-agent",
+              "pattern": "^[a-zA-Z0-9_-]+$"
             }
           },
           {
             "name": "agentIdentityName",
             "in": "path",
+            "description": "Agent identity name",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "my-agent",
+              "pattern": "^[a-zA-Z0-9_-]+$"
             }
           }
         ],
@@ -565,11 +796,132 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "3LO token or authorization URL returned",
             "content": {
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/ThreeLoTokenResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Provider or agent identity not found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Error calling the upstream OAuth2 provider",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/outbound-auth/managed-oauth2-providers/{providerName}/agent-identities/{agentIdentityName}/tokens/3lo": {
+      "post": {
+        "tags": [
+          "Managed OAuth2 Provider"
+        ],
+        "summary": "Start/get 3-legged OAuth2 token (managed provider)",
+        "description": "Starts or completes a 3-legged OAuth2 flow against a managed OAuth2 provider. Returns an authorization URL + session to start, or an access token when complete.",
+        "operationId": "get3loToken_1",
+        "parameters": [
+          {
+            "name": "providerName",
+            "in": "path",
+            "description": "Platform-managed OAuth2 provider name",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "my-agent",
+              "pattern": "^[a-zA-Z0-9_-]+$"
+            }
+          },
+          {
+            "name": "agentIdentityName",
+            "in": "path",
+            "description": "Agent identity name",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "my-agent",
+              "pattern": "^[a-zA-Z0-9_-]+$"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ThreeLoTokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "3LO token or authorization URL returned",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ThreeLoTokenResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Provider or agent identity not found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Error calling the upstream OAuth2 provider",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -587,54 +939,76 @@
         "tags": [
           "Delegated API Key Provider"
         ],
+        "summary": "List delegated API key providers",
+        "description": "Retrieves a paginated list of delegated API key providers owned by the authenticated user.",
         "operationId": "list_1",
         "parameters": [
           {
             "name": "page",
             "in": "query",
+            "description": "Page number (0-based)",
             "required": false,
             "schema": {
               "type": "integer",
-              "format": "int32",
-              "default": 0
+              "example": 0,
+              "minimum": 0
             }
           },
           {
             "name": "size",
             "in": "query",
+            "description": "Page size",
             "required": false,
             "schema": {
               "type": "integer",
-              "format": "int32",
-              "default": 20
+              "example": 20,
+              "maximum": 100,
+              "minimum": 1
             }
           },
           {
             "name": "sortBy",
             "in": "query",
+            "description": "Field to sort by",
             "required": false,
             "schema": {
               "type": "string",
-              "default": "createdAt"
+              "example": "createdAt"
             }
           },
           {
             "name": "sortDirection",
             "in": "query",
+            "description": "Sort direction",
             "required": false,
             "schema": {
               "type": "string",
-              "default": "desc"
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "example": "desc",
+              "pattern": "(?i)^(asc|desc)$"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "Paginated list of delegated API key providers",
             "content": {
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/PagedResponseDelegatedApiKeyProviderResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -650,6 +1024,8 @@
         "tags": [
           "Delegated API Key Provider"
         ],
+        "summary": "Create delegated API key provider",
+        "description": "Creates a delegated API key provider. The actual API key is supplied per-user via an authorization flow.",
         "operationId": "create_1",
         "requestBody": {
           "content": {
@@ -662,12 +1038,42 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK",
+          "201": {
+            "description": "Delegated API key provider created",
             "content": {
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/DelegatedApiKeyProviderResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Resource already exists",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "User quota exceeded",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -685,22 +1091,30 @@
         "tags": [
           "Delegated API Key Provider"
         ],
+        "summary": "Get delegated API key for an agent identity",
+        "description": "Starts or resumes retrieval of a delegated API key for a provider bound to an agent identity. Returns either the resolved key or an authorization URL + session.",
         "operationId": "getDelegatedApiKey",
         "parameters": [
           {
             "name": "providerName",
             "in": "path",
+            "description": "Delegated API key provider name",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "my-provider",
+              "pattern": "^[a-zA-Z0-9_-]+$"
             }
           },
           {
             "name": "agentIdentityName",
             "in": "path",
+            "description": "Agent identity name",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "my-agent",
+              "pattern": "^[a-zA-Z0-9_-]+$"
             }
           }
         ],
@@ -716,11 +1130,51 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "Delegated API key or authorization URL + session",
             "content": {
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/GetDelegatedApiKeyResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Resource already exists",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "User quota exceeded",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -738,54 +1192,76 @@
         "tags": [
           "API Key Provider"
         ],
+        "summary": "List API key providers",
+        "description": "Retrieves a paginated list of API key providers owned by the authenticated user.",
         "operationId": "list_2",
         "parameters": [
           {
             "name": "page",
             "in": "query",
+            "description": "Page number (0-based)",
             "required": false,
             "schema": {
               "type": "integer",
-              "format": "int32",
-              "default": 0
+              "example": 0,
+              "minimum": 0
             }
           },
           {
             "name": "size",
             "in": "query",
+            "description": "Page size",
             "required": false,
             "schema": {
               "type": "integer",
-              "format": "int32",
-              "default": 20
+              "example": 20,
+              "maximum": 100,
+              "minimum": 1
             }
           },
           {
             "name": "sortBy",
             "in": "query",
+            "description": "Field to sort by",
             "required": false,
             "schema": {
               "type": "string",
-              "default": "createdAt"
+              "example": "createdAt"
             }
           },
           {
             "name": "sortDirection",
             "in": "query",
+            "description": "Sort direction",
             "required": false,
             "schema": {
               "type": "string",
-              "default": "desc"
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "example": "desc",
+              "pattern": "(?i)^(asc|desc)$"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "API key providers retrieved successfully",
             "content": {
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/PagedResponseApikeyProviderResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -801,6 +1277,8 @@
         "tags": [
           "API Key Provider"
         ],
+        "summary": "Create API key provider",
+        "description": "Creates a new API key provider for the authenticated user.",
         "operationId": "create_2",
         "requestBody": {
           "content": {
@@ -813,12 +1291,42 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK",
+          "201": {
+            "description": "API key provider created successfully",
             "content": {
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/ApikeyProviderResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "API key provider with this name already exists",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "User quota exceeded",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -847,8 +1355,8 @@
             "required": false,
             "schema": {
               "type": "integer",
-              "format": "int32",
-              "default": 0
+              "example": 0,
+              "minimum": 0
             }
           },
           {
@@ -858,8 +1366,9 @@
             "required": false,
             "schema": {
               "type": "integer",
-              "format": "int32",
-              "default": 20
+              "example": 20,
+              "maximum": 100,
+              "minimum": 1
             }
           },
           {
@@ -869,7 +1378,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "default": "createdAt"
+              "example": "createdAt"
             }
           },
           {
@@ -879,7 +1388,12 @@
             "required": false,
             "schema": {
               "type": "string",
-              "default": "desc"
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "example": "desc",
+              "pattern": "(?i)^(asc|desc)$"
             }
           }
         ],
@@ -890,6 +1404,16 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/PagedResponseAgentIdentityResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -934,7 +1458,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentIdentityResponse"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -944,7 +1468,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentIdentityResponse"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -954,7 +1478,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentIdentityResponse"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -968,23 +1492,80 @@
       }
     },
     "/api-key/delegate/{providerId}": {
-      "post": {
+      "get": {
         "tags": [
           "Delegated API Key Provider"
         ],
-        "operationId": "authorizeApiKey",
+        "summary": "Show delegated API key authorization form",
+        "description": "Renders the HTML form where the user submits the API key for the given provider session.",
+        "operationId": "showAuthorizationForm",
         "parameters": [
           {
-            "name": "providerId",
-            "in": "path",
+            "name": "state",
+            "in": "query",
+            "description": "Opaque state token echoed back across the redirect",
             "required": true,
             "schema": {
               "type": "string"
             }
           },
           {
+            "name": "providerId",
+            "in": "path",
+            "description": "Provider identifier",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "01HZX..."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTML authorization form",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "description": "HTML form"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid session or provider",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Delegated API Key Provider"
+        ],
+        "summary": "Submit API key authorization",
+        "description": "Submits the user-provided API key on the delegated authorization form.",
+        "operationId": "authorizeApiKey",
+        "parameters": [
+          {
+            "name": "providerId",
+            "in": "path",
+            "description": "Provider identifier",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "01HZX..."
+            }
+          },
+          {
             "name": "state",
             "in": "query",
+            "description": "Opaque state token echoed back across the redirect",
             "required": true,
             "schema": {
               "type": "string"
@@ -1003,11 +1584,94 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "Authorization result returned",
             "content": {
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/AuthorizeDelegatedApiKeyResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Provider or session not found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/oauth2/callback": {
+      "get": {
+        "tags": [
+          "OAuth2 Provider"
+        ],
+        "summary": "Shared OAuth2 callback",
+        "description": "Shared OAuth2 redirect endpoint consuming code/state/error returned by the external provider.",
+        "operationId": "handleSharedOauth2Callback",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "description": "Authorization code returned by the provider",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "Opaque state token echoed back across the redirect",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "error",
+            "in": "query",
+            "description": "OAuth2 error code when the provider redirect signals an error",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "error_description",
+            "in": "query",
+            "description": "Human-readable description of the provider error",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Redirect to the agent identity's return URL or an error page"
+          },
+          "400": {
+            "description": "Invalid callback parameters",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1020,19 +1684,24 @@
         "tags": [
           "OAuth2 Provider"
         ],
+        "summary": "Provider-specific OAuth2 callback",
+        "description": "Per-provider OAuth2 redirect endpoint consuming code/state/error returned by the external provider.",
         "operationId": "handleOauth2Callback",
         "parameters": [
           {
             "name": "providerId",
             "in": "path",
+            "description": "Provider identifier",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "01HZX..."
             }
           },
           {
             "name": "code",
             "in": "query",
+            "description": "Authorization code returned by the provider",
             "required": false,
             "schema": {
               "type": "string"
@@ -1041,6 +1710,7 @@
           {
             "name": "state",
             "in": "query",
+            "description": "Opaque state token echoed back across the redirect",
             "required": true,
             "schema": {
               "type": "string"
@@ -1049,6 +1719,7 @@
           {
             "name": "error",
             "in": "query",
+            "description": "OAuth2 error code when the provider redirect signals an error",
             "required": false,
             "schema": {
               "type": "string"
@@ -1057,6 +1728,7 @@
           {
             "name": "error_description",
             "in": "query",
+            "description": "Human-readable description of the provider error",
             "required": false,
             "schema": {
               "type": "string"
@@ -1064,12 +1736,15 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK",
+          "302": {
+            "description": "Redirect to the agent identity's return URL or an error page"
+          },
+          "400": {
+            "description": "Invalid callback parameters",
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/RedirectView"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1082,24 +1757,32 @@
         "tags": [
           "OAuth2 Provider"
         ],
+        "summary": "Redirect to provider authorization",
+        "description": "Redirects the user's browser to the external provider authorization URL for a 3-legged session.",
         "operationId": "redirectToProviderAuthorize",
         "parameters": [
           {
             "name": "sessionId",
             "in": "query",
+            "description": "Server-side session id",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "550e8400-e29b-41d4-a716-446655440000",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
             }
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK",
+          "302": {
+            "description": "Redirect to the external provider authorization URL"
+          },
+          "400": {
+            "description": "Invalid session id",
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/RedirectView"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1107,29 +1790,181 @@
         }
       }
     },
-    "/api/v1/outbound-auth/delegated-api-key-providers/{name}": {
+    "/api/v1/outbound-auth/managed-oauth2-providers": {
       "get": {
         "tags": [
-          "Delegated API Key Provider"
+          "Managed OAuth2 Provider"
         ],
-        "operationId": "getByName_2",
+        "summary": "List managed OAuth2 providers",
+        "description": "Retrieves a paginated list of managed OAuth2 providers available to the authenticated user.",
+        "operationId": "list_3",
         "parameters": [
           {
-            "name": "name",
-            "in": "path",
-            "required": true,
+            "name": "page",
+            "in": "query",
+            "description": "Page number (0-based)",
+            "required": false,
             "schema": {
-              "type": "string"
+              "type": "integer",
+              "example": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "Page size",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "example": 20,
+              "maximum": 100,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "Field to sort by",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "createdAt"
+            }
+          },
+          {
+            "name": "sortDirection",
+            "in": "query",
+            "description": "Sort direction",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "example": "desc",
+              "pattern": "(?i)^(asc|desc)$"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "Paginated list of managed OAuth2 provider summaries",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseManagedOauth2ProviderSummaryResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/outbound-auth/managed-oauth2-providers/{name}": {
+      "get": {
+        "tags": [
+          "Managed OAuth2 Provider"
+        ],
+        "summary": "Get managed OAuth2 provider",
+        "description": "Retrieves a managed OAuth2 provider summary by name.",
+        "operationId": "getByName_2",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Managed OAuth2 provider name",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "my-provider",
+              "pattern": "^[a-zA-Z0-9_-]+$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Managed OAuth2 provider summary",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedOauth2ProviderSummaryResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/outbound-auth/delegated-api-key-providers/{name}": {
+      "get": {
+        "tags": [
+          "Delegated API Key Provider"
+        ],
+        "summary": "Get delegated API key provider",
+        "description": "Retrieves a delegated API key provider by name.",
+        "operationId": "getByName_3",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Delegated API key provider name",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "my-provider",
+              "pattern": "^[a-zA-Z0-9_-]+$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Delegated API key provider",
             "content": {
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/DelegatedApiKeyProviderResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1145,20 +1980,35 @@
         "tags": [
           "Delegated API Key Provider"
         ],
+        "summary": "Delete delegated API key provider",
+        "description": "Soft deletes a delegated API key provider.",
         "operationId": "delete_2",
         "parameters": [
           {
             "name": "name",
             "in": "path",
+            "description": "Delegated API key provider name",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "my-provider",
+              "pattern": "^[a-zA-Z0-9_-]+$"
             }
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "204": {
+            "description": "Delegated API key provider deleted"
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1173,32 +2023,50 @@
         "tags": [
           "API Key Provider"
         ],
+        "summary": "Get API key for an agent identity",
+        "description": "Resolves and returns the API key for a provider bound to an agent identity.",
         "operationId": "getApikeyForAgentIdentity",
         "parameters": [
           {
             "name": "providerName",
             "in": "path",
+            "description": "Name of the API key provider",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "my-agent",
+              "pattern": "^[a-zA-Z0-9_-]+$"
             }
           },
           {
             "name": "agentIdentityName",
             "in": "path",
+            "description": "Name of the agent identity",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "my-agent",
+              "pattern": "^[a-zA-Z0-9_-]+$"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "API key retrieved successfully",
             "content": {
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/ApikeyResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Provider or agent identity not found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1210,6 +2078,44 @@
           }
         ]
       }
+    },
+    "/api-key/delegate": {
+      "get": {
+        "tags": [
+          "Delegated API Key Provider"
+        ],
+        "summary": "Redirect to delegated API key page",
+        "description": "Redirects to the delegated API key authorization page for a session.",
+        "operationId": "redirectToDelegatedPage",
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "query",
+            "description": "Server-side session id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "550e8400-e29b-41d4-a716-446655440000",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Redirect to the delegated API key authorization page"
+          },
+          "400": {
+            "description": "Invalid session id",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1219,21 +2125,29 @@
         "properties": {
           "clientId": {
             "type": "string",
+            "description": "OAuth2 client id registered at the external provider",
+            "example": "client-123",
             "maxLength": 100,
             "minLength": 1
           },
           "clientSecret": {
             "type": "string",
+            "description": "OAuth2 client secret. null removes the secret; empty string is invalid; 1-100 chars replaces it.",
+            "example": "secret-xxxx",
             "maxLength": 100,
             "minLength": 1
           },
           "authorizationUrl": {
             "type": "string",
+            "description": "External provider authorization endpoint URL (must be HTTPS)",
+            "example": "https://auth.example.com/oauth2/authorize",
             "maxLength": 1000,
             "minLength": 0
           },
           "tokenUrl": {
             "type": "string",
+            "description": "External provider token endpoint URL (must be HTTPS)",
+            "example": "https://auth.example.com/oauth2/token",
             "maxLength": 1000,
             "minLength": 0
           }
@@ -1241,15 +2155,32 @@
         "required": [
           "authorizationUrl",
           "clientId",
-          "clientSecret",
           "tokenUrl"
         ]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "description": "Standard error response returned for all 4xx/5xx errors",
+        "properties": {
+          "errorCode": {
+            "type": "string",
+            "description": "Internal error code identifying the failure category",
+            "example": "RESOURCE_2002"
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable error detail",
+            "example": "Provider 'my-provider' not found"
+          }
+        }
       },
       "UpdateApikeyProviderRequest": {
         "type": "object",
         "properties": {
           "apikey": {
             "type": "string",
+            "description": "The replacement API key value (treated as a secret)",
+            "example": "sk-xxxxxxxxxxxxxxxx",
             "maxLength": 1000,
             "minLength": 1
           }
@@ -1263,11 +2194,17 @@
         "properties": {
           "description": {
             "type": "string",
+            "description": "Optional description of the agent identity",
+            "example": "Production agent identity",
             "maxLength": 500,
             "minLength": 0
           },
           "allowedReturnUrls": {
             "type": "array",
+            "description": "URLs permitted as return destinations after OAuth2/3-legged flows",
+            "example": [
+              "https://app.example.com/callback"
+            ],
             "items": {
               "type": "string",
               "maxLength": 1000,
@@ -1280,29 +2217,44 @@
       },
       "AgentIdentityResponse": {
         "type": "object",
+        "description": "Agent identity resource representing a digital identity for an agent to access external services",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "description": "Unique identifier (ULID) of the agent identity",
+            "example": "01HZX..."
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Human-readable name of the agent identity",
+            "example": "my-agent"
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "description": "Optional description of the agent identity",
+            "example": "Production agent identity"
           },
           "allowedReturnUrls": {
             "type": "array",
+            "description": "URLs permitted as return destinations after OAuth2/3-legged flows",
+            "example": [
+              "https://app.example.com/callback"
+            ],
             "items": {
               "type": "string"
             }
           },
           "createdAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "Timestamp when the agent identity was created",
+            "example": "2025-01-01T00:00:00Z"
           },
           "updatedAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "Timestamp when the agent identity was last updated",
+            "example": "2025-01-01T00:00:00Z"
           }
         }
       },
@@ -1311,27 +2263,37 @@
         "properties": {
           "name": {
             "type": "string",
+            "description": "Human-readable name of the OAuth2 provider",
+            "example": "my-oauth2-provider",
             "maxLength": 50,
             "minLength": 3,
             "pattern": "^[a-zA-Z0-9_-]+$"
           },
           "clientId": {
             "type": "string",
+            "description": "OAuth2 client id registered at the external provider",
+            "example": "client-123",
             "maxLength": 100,
             "minLength": 1
           },
           "clientSecret": {
             "type": "string",
+            "description": "OAuth2 client secret (treated as a secret)",
+            "example": "secret-xxxx",
             "maxLength": 100,
             "minLength": 1
           },
           "authorizationUrl": {
             "type": "string",
+            "description": "External provider authorization endpoint URL (must be HTTPS)",
+            "example": "https://auth.example.com/oauth2/authorize",
             "maxLength": 1000,
             "minLength": 0
           },
           "tokenUrl": {
             "type": "string",
+            "description": "External provider token endpoint URL (must be HTTPS)",
+            "example": "https://auth.example.com/oauth2/token",
             "maxLength": 1000,
             "minLength": 0
           }
@@ -1339,49 +2301,66 @@
         "required": [
           "authorizationUrl",
           "clientId",
-          "clientSecret",
           "name",
           "tokenUrl"
         ]
       },
       "Oauth2ProviderResponse": {
         "type": "object",
+        "description": "OAuth2 provider resource. The client secret is never included for security.",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "description": "Unique identifier (ULID) of the OAuth2 provider",
+            "example": "01HZX..."
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Human-readable name of the OAuth2 provider",
+            "example": "my-oauth2-provider"
           },
           "clientId": {
-            "type": "string"
+            "type": "string",
+            "description": "OAuth2 client id registered at the external provider",
+            "example": "client-123"
           },
           "authorizationUrl": {
-            "type": "string"
+            "type": "string",
+            "description": "External provider authorization endpoint URL",
+            "example": "https://auth.example.com/oauth2/authorize"
           },
           "tokenUrl": {
-            "type": "string"
+            "type": "string",
+            "description": "External provider token endpoint URL",
+            "example": "https://auth.example.com/oauth2/token"
           },
           "status": {
             "type": "string",
+            "description": "Lifecycle status of the OAuth2 provider. A status enum.",
             "enum": [
               "ACTIVE",
               "UPDATING",
               "REFRESHING_TOKEN",
-              "DELETING",
-              "DELETED"
-            ]
+              "DELETING"
+            ],
+            "example": "ACTIVE"
           },
           "callbackUrl": {
-            "type": "string"
+            "type": "string",
+            "description": "Callback URL this service expects the external provider to redirect to",
+            "example": "https://identity.example.com/oauth2/callback"
           },
           "createdAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "Timestamp when the OAuth2 provider was created",
+            "example": "2025-01-01T00:00:00Z"
           },
           "updatedAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "Timestamp when the OAuth2 provider was last updated",
+            "example": "2025-01-01T00:00:00Z"
           }
         }
       },
@@ -1390,6 +2369,11 @@
         "properties": {
           "scopes": {
             "type": "array",
+            "description": "OAuth2 scopes to request for the machine-to-machine token",
+            "example": [
+              "openid",
+              "email"
+            ],
             "items": {
               "type": "string",
               "maxLength": 1000,
@@ -1405,12 +2389,17 @@
       },
       "TokenResponse": {
         "type": "object",
+        "description": "OAuth2 machine-to-machine (M2M) access token response",
         "properties": {
           "accessToken": {
-            "type": "string"
+            "type": "string",
+            "description": "OAuth2 access token issued by the external provider",
+            "example": "eyJhbGciOi..."
           },
           "tokenType": {
-            "type": "string"
+            "type": "string",
+            "description": "Token type as returned by the provider",
+            "example": "Bearer"
           }
         }
       },
@@ -1419,10 +2408,17 @@
         "properties": {
           "agentUserId": {
             "type": "string",
+            "description": "The agent user id this 3-legged token is for",
+            "example": "user-123",
             "minLength": 1
           },
           "scopes": {
             "type": "array",
+            "description": "OAuth2 scopes to request",
+            "example": [
+              "openid",
+              "email"
+            ],
             "items": {
               "type": "string",
               "maxLength": 1000,
@@ -1433,26 +2429,38 @@
           },
           "returnUrl": {
             "type": "string",
+            "description": "URL the user is redirected to after 3-legged authorization",
+            "example": "https://app.example.com/callback",
             "maxLength": 1000,
             "minLength": 0
           },
           "sessionId": {
             "type": "string",
+            "description": "Server-side session id tracking this 3-legged authorization (optional)",
+            "example": "550e8400-e29b-41d4-a716-446655440000",
             "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
           },
           "customParameters": {
             "type": "object",
             "additionalProperties": {
               "type": "string"
+            },
+            "description": "Extra provider-specific authorization parameters (optional)",
+            "example": {
+              "prompt": "consent"
             }
           },
           "customState": {
             "type": "string",
+            "description": "Opaque state echoed back on completion (optional)",
+            "example": "xyz123",
             "maxLength": 100,
             "minLength": 1
           },
           "forceAuthentication": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether to force re-authentication at the provider (optional)",
+            "example": false
           }
         },
         "required": [
@@ -1463,21 +2471,32 @@
       },
       "ThreeLoTokenResponse": {
         "type": "object",
+        "description": "OAuth2 3-legged token response. Either carries an access token (when 3LO completes) or an authorization URL + session to start the 3-legged flow.",
         "properties": {
           "accessToken": {
-            "type": "string"
+            "type": "string",
+            "description": "OAuth2 access token issued after the 3-legged flow completes",
+            "example": "eyJhbGciOi..."
           },
           "tokenType": {
-            "type": "string"
+            "type": "string",
+            "description": "Token type as returned by the provider",
+            "example": "Bearer"
           },
           "authorizationUrl": {
-            "type": "string"
+            "type": "string",
+            "description": "External provider authorization URL the user must visit to start 3-legged OAuth2",
+            "example": "https://auth.example.com/oauth2/authorize?session=..."
           },
           "sessionId": {
-            "type": "string"
+            "type": "string",
+            "description": "Server-side session id tracking this 3-legged authorization",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
           },
           "status": {
-            "type": "string"
+            "type": "string",
+            "description": "Status of the 3-legged authorization session",
+            "example": "IN_PROGRESS"
           }
         }
       },
@@ -1486,6 +2505,8 @@
         "properties": {
           "name": {
             "type": "string",
+            "description": "Human-readable name of the delegated API key provider",
+            "example": "my-delegated-provider",
             "maxLength": 50,
             "minLength": 3,
             "pattern": "^[a-zA-Z0-9_-]+$"
@@ -1497,28 +2518,38 @@
       },
       "DelegatedApiKeyProviderResponse": {
         "type": "object",
+        "description": "Delegated API key provider resource (the actual key is supplied per-user, not stored here).",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "description": "Unique identifier (ULID) of the delegated API key provider",
+            "example": "01HZX..."
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Human-readable name of the delegated API key provider",
+            "example": "my-delegated-provider"
           },
           "status": {
             "type": "string",
+            "description": "Lifecycle status of the delegated API key provider",
             "enum": [
               "ACTIVE",
-              "UPDATING",
-              "DELETED"
-            ]
+              "UPDATING"
+            ],
+            "example": "ACTIVE"
           },
           "createdAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "Timestamp when the delegated API key provider was created",
+            "example": "2025-01-01T00:00:00Z"
           },
           "updatedAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "Timestamp when the delegated API key provider was last updated",
+            "example": "2025-01-01T00:00:00Z"
           }
         }
       },
@@ -1527,20 +2558,28 @@
         "properties": {
           "agentUserId": {
             "type": "string",
+            "description": "The agent user id this delegated key is retrieved for",
+            "example": "user-123",
             "minLength": 1
           },
           "returnUrl": {
             "type": "string",
+            "description": "URL the user is redirected to after authorization",
+            "example": "https://app.example.com/callback",
             "maxLength": 1000,
             "minLength": 0
           },
           "customState": {
             "type": "string",
+            "description": "Opaque state echoed back on completion (optional)",
+            "example": "xyz123",
             "maxLength": 100,
             "minLength": 1
           },
           "sessionId": {
             "type": "string",
+            "description": "Server-side session id tracking this retrieval (optional)",
+            "example": "550e8400-e29b-41d4-a716-446655440000",
             "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
           },
           "forceDelegation": {
@@ -1554,23 +2593,32 @@
       },
       "GetDelegatedApiKeyResponse": {
         "type": "object",
+        "description": "Delegated API key response. Either carries the resolved API key (COMPLETED) or an authorization URL + session to start key retrieval.",
         "properties": {
           "apikey": {
-            "type": "string"
+            "type": "string",
+            "description": "The resolved API key value (present when status is COMPLETED)",
+            "example": "sk-xxxxxxxxxxxxxxxx"
           },
           "authorizationUrl": {
-            "type": "string"
+            "type": "string",
+            "description": "External authorization URL the user must visit to authorize key retrieval (present when status is IN_PROGRESS)",
+            "example": "https://app.example.com/authorize"
           },
           "sessionId": {
-            "type": "string"
+            "type": "string",
+            "description": "Server-side session id tracking this delegated key retrieval",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
           },
           "status": {
             "type": "string",
+            "description": "Status of the delegated API key session (IN_PROGRESS, COMPLETED, FAILED)",
             "enum": [
               "IN_PROGRESS",
               "COMPLETED",
               "FAILED"
-            ]
+            ],
+            "example": "COMPLETED"
           }
         }
       },
@@ -1579,12 +2627,16 @@
         "properties": {
           "name": {
             "type": "string",
+            "description": "Human-readable name of the API key provider",
+            "example": "my-apikey-provider",
             "maxLength": 50,
             "minLength": 3,
             "pattern": "^[a-zA-Z0-9_-]+$"
           },
           "apikey": {
             "type": "string",
+            "description": "The actual API key value (treated as a secret)",
+            "example": "sk-xxxxxxxxxxxxxxxx",
             "maxLength": 1000,
             "minLength": 1
           }
@@ -1596,29 +2648,39 @@
       },
       "ApikeyProviderResponse": {
         "type": "object",
+        "description": "API key provider resource. The actual API key is never included for security.",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "description": "Unique identifier (ULID) of the API key provider",
+            "example": "01HZX..."
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Human-readable name of the API key provider",
+            "example": "my-apikey-provider"
           },
           "status": {
             "type": "string",
+            "description": "Lifecycle status of the API key provider. A status enum.",
             "enum": [
               "ACTIVE",
               "UPDATING",
-              "DELETING",
-              "DELETED"
-            ]
+              "DELETING"
+            ],
+            "example": "ACTIVE"
           },
           "createdAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "Timestamp when the API key provider was created",
+            "example": "2025-01-01T00:00:00Z"
           },
           "updatedAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "Timestamp when the API key provider was last updated",
+            "example": "2025-01-01T00:00:00Z"
           }
         }
       },
@@ -1627,17 +2689,25 @@
         "properties": {
           "name": {
             "type": "string",
+            "description": "Human-readable name of the agent identity",
+            "example": "my-agent",
             "maxLength": 50,
             "minLength": 3,
             "pattern": "^[a-zA-Z0-9_-]+$"
           },
           "description": {
             "type": "string",
+            "description": "Optional description of the agent identity",
+            "example": "Production agent identity",
             "maxLength": 500,
             "minLength": 0
           },
           "allowedReturnUrls": {
             "type": "array",
+            "description": "URLs permitted as return destinations after OAuth2/3-legged flows",
+            "example": [
+              "https://app.example.com/callback"
+            ],
             "items": {
               "type": "string",
               "maxLength": 1000,
@@ -1656,7 +2726,10 @@
         "properties": {
           "apikey": {
             "type": "string",
-            "minLength": 1
+            "description": "The API key value provided by the user on the authorization form",
+            "example": "sk-xxxxxxxxxxxxxxxx",
+            "maxLength": 1000,
+            "minLength": 0
           }
         },
         "required": [
@@ -1665,911 +2738,22 @@
       },
       "AuthorizeDelegatedApiKeyResponse": {
         "type": "object",
+        "description": "Result of submitting an API key on the delegated authorization form.",
         "properties": {
           "message": {
-            "type": "string"
+            "type": "string",
+            "description": "Human-readable result message",
+            "example": "API key authorized successfully"
           },
           "redirectUrl": {
-            "type": "string"
+            "type": "string",
+            "description": "URL to redirect the user to after authorization",
+            "example": "https://app.example.com/done"
           },
           "success": {
-            "type": "boolean"
-          }
-        }
-      },
-      "ApplicationContext": {
-        "type": "object",
-        "properties": {
-          "parent": {},
-          "id": {
-            "type": "string"
-          },
-          "displayName": {
-            "type": "string"
-          },
-          "autowireCapableBeanFactory": {
-            "$ref": "#/components/schemas/AutowireCapableBeanFactory"
-          },
-          "applicationName": {
-            "type": "string"
-          },
-          "startupDate": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "environment": {
-            "$ref": "#/components/schemas/Environment"
-          },
-          "beanDefinitionCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "beanDefinitionNames": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "parentBeanFactory": {
-            "$ref": "#/components/schemas/BeanFactory"
-          },
-          "classLoader": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string"
-              },
-              "registeredAsParallelCapable": {
-                "type": "boolean"
-              },
-              "parent": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "registeredAsParallelCapable": {
-                    "type": "boolean"
-                  },
-                  "unnamedModule": {
-                    "type": "object",
-                    "properties": {
-                      "name": {
-                        "type": "string"
-                      },
-                      "classLoader": {
-                        "type": "object",
-                        "properties": {
-                          "name": {
-                            "type": "string"
-                          },
-                          "registeredAsParallelCapable": {
-                            "type": "boolean"
-                          },
-                          "definedPackages": {
-                            "type": "array",
-                            "items": {
-                              "type": "object",
-                              "properties": {
-                                "name": {
-                                  "type": "string"
-                                },
-                                "annotations": {
-                                  "type": "array",
-                                  "items": {}
-                                },
-                                "declaredAnnotations": {
-                                  "type": "array",
-                                  "items": {}
-                                },
-                                "sealed": {
-                                  "type": "boolean"
-                                },
-                                "specificationTitle": {
-                                  "type": "string"
-                                },
-                                "specificationVersion": {
-                                  "type": "string"
-                                },
-                                "specificationVendor": {
-                                  "type": "string"
-                                },
-                                "implementationTitle": {
-                                  "type": "string"
-                                },
-                                "implementationVersion": {
-                                  "type": "string"
-                                },
-                                "implementationVendor": {
-                                  "type": "string"
-                                }
-                              }
-                            }
-                          },
-                          "defaultAssertionStatus": {
-                            "type": "boolean",
-                            "writeOnly": true
-                          }
-                        }
-                      },
-                      "descriptor": {
-                        "type": "object",
-                        "properties": {
-                          "open": {
-                            "type": "boolean"
-                          },
-                          "automatic": {
-                            "type": "boolean"
-                          }
-                        }
-                      },
-                      "named": {
-                        "type": "boolean"
-                      },
-                      "annotations": {
-                        "type": "array",
-                        "items": {}
-                      },
-                      "declaredAnnotations": {
-                        "type": "array",
-                        "items": {}
-                      },
-                      "packages": {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        },
-                        "uniqueItems": true
-                      },
-                      "nativeAccessEnabled": {
-                        "type": "boolean"
-                      },
-                      "layer": {}
-                    }
-                  },
-                  "definedPackages": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "name": {
-                          "type": "string"
-                        },
-                        "annotations": {
-                          "type": "array",
-                          "items": {}
-                        },
-                        "declaredAnnotations": {
-                          "type": "array",
-                          "items": {}
-                        },
-                        "sealed": {
-                          "type": "boolean"
-                        },
-                        "specificationTitle": {
-                          "type": "string"
-                        },
-                        "specificationVersion": {
-                          "type": "string"
-                        },
-                        "specificationVendor": {
-                          "type": "string"
-                        },
-                        "implementationTitle": {
-                          "type": "string"
-                        },
-                        "implementationVersion": {
-                          "type": "string"
-                        },
-                        "implementationVendor": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "defaultAssertionStatus": {
-                    "type": "boolean",
-                    "writeOnly": true
-                  }
-                }
-              },
-              "unnamedModule": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "classLoader": {
-                    "type": "object",
-                    "properties": {
-                      "name": {
-                        "type": "string"
-                      },
-                      "registeredAsParallelCapable": {
-                        "type": "boolean"
-                      },
-                      "definedPackages": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "name": {
-                              "type": "string"
-                            },
-                            "annotations": {
-                              "type": "array",
-                              "items": {}
-                            },
-                            "declaredAnnotations": {
-                              "type": "array",
-                              "items": {}
-                            },
-                            "sealed": {
-                              "type": "boolean"
-                            },
-                            "specificationTitle": {
-                              "type": "string"
-                            },
-                            "specificationVersion": {
-                              "type": "string"
-                            },
-                            "specificationVendor": {
-                              "type": "string"
-                            },
-                            "implementationTitle": {
-                              "type": "string"
-                            },
-                            "implementationVersion": {
-                              "type": "string"
-                            },
-                            "implementationVendor": {
-                              "type": "string"
-                            }
-                          }
-                        }
-                      },
-                      "defaultAssertionStatus": {
-                        "type": "boolean",
-                        "writeOnly": true
-                      }
-                    }
-                  },
-                  "descriptor": {
-                    "type": "object",
-                    "properties": {
-                      "open": {
-                        "type": "boolean"
-                      },
-                      "automatic": {
-                        "type": "boolean"
-                      }
-                    }
-                  },
-                  "named": {
-                    "type": "boolean"
-                  },
-                  "annotations": {
-                    "type": "array",
-                    "items": {}
-                  },
-                  "declaredAnnotations": {
-                    "type": "array",
-                    "items": {}
-                  },
-                  "packages": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    },
-                    "uniqueItems": true
-                  },
-                  "nativeAccessEnabled": {
-                    "type": "boolean"
-                  },
-                  "layer": {}
-                }
-              },
-              "definedPackages": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "name": {
-                      "type": "string"
-                    },
-                    "annotations": {
-                      "type": "array",
-                      "items": {}
-                    },
-                    "declaredAnnotations": {
-                      "type": "array",
-                      "items": {}
-                    },
-                    "sealed": {
-                      "type": "boolean"
-                    },
-                    "specificationTitle": {
-                      "type": "string"
-                    },
-                    "specificationVersion": {
-                      "type": "string"
-                    },
-                    "specificationVendor": {
-                      "type": "string"
-                    },
-                    "implementationTitle": {
-                      "type": "string"
-                    },
-                    "implementationVersion": {
-                      "type": "string"
-                    },
-                    "implementationVendor": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "defaultAssertionStatus": {
-                "type": "boolean",
-                "writeOnly": true
-              }
-            }
-          }
-        }
-      },
-      "AutowireCapableBeanFactory": {},
-      "BeanFactory": {},
-      "DefaultHttpStatusCode": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/HttpStatusCode"
-          }
-        ]
-      },
-      "Environment": {
-        "type": "object",
-        "properties": {
-          "activeProfiles": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "defaultProfiles": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "FilterRegistration": {
-        "type": "object",
-        "properties": {
-          "servletNameMappings": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "urlPatternMappings": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "name": {
-            "type": "string"
-          },
-          "className": {
-            "type": "string"
-          },
-          "initParameters": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "HttpStatus": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/HttpStatusCode"
-          }
-        ],
-        "enum": [
-          "100 CONTINUE",
-          "101 SWITCHING_PROTOCOLS",
-          "102 PROCESSING",
-          "103 EARLY_HINTS",
-          "103 CHECKPOINT",
-          "200 OK",
-          "201 CREATED",
-          "202 ACCEPTED",
-          "203 NON_AUTHORITATIVE_INFORMATION",
-          "204 NO_CONTENT",
-          "205 RESET_CONTENT",
-          "206 PARTIAL_CONTENT",
-          "207 MULTI_STATUS",
-          "208 ALREADY_REPORTED",
-          "226 IM_USED",
-          "300 MULTIPLE_CHOICES",
-          "301 MOVED_PERMANENTLY",
-          "302 FOUND",
-          "302 MOVED_TEMPORARILY",
-          "303 SEE_OTHER",
-          "304 NOT_MODIFIED",
-          "305 USE_PROXY",
-          "307 TEMPORARY_REDIRECT",
-          "308 PERMANENT_REDIRECT",
-          "400 BAD_REQUEST",
-          "401 UNAUTHORIZED",
-          "402 PAYMENT_REQUIRED",
-          "403 FORBIDDEN",
-          "404 NOT_FOUND",
-          "405 METHOD_NOT_ALLOWED",
-          "406 NOT_ACCEPTABLE",
-          "407 PROXY_AUTHENTICATION_REQUIRED",
-          "408 REQUEST_TIMEOUT",
-          "409 CONFLICT",
-          "410 GONE",
-          "411 LENGTH_REQUIRED",
-          "412 PRECONDITION_FAILED",
-          "413 PAYLOAD_TOO_LARGE",
-          "413 REQUEST_ENTITY_TOO_LARGE",
-          "414 URI_TOO_LONG",
-          "414 REQUEST_URI_TOO_LONG",
-          "415 UNSUPPORTED_MEDIA_TYPE",
-          "416 REQUESTED_RANGE_NOT_SATISFIABLE",
-          "417 EXPECTATION_FAILED",
-          "418 I_AM_A_TEAPOT",
-          "419 INSUFFICIENT_SPACE_ON_RESOURCE",
-          "420 METHOD_FAILURE",
-          "421 DESTINATION_LOCKED",
-          "422 UNPROCESSABLE_ENTITY",
-          "423 LOCKED",
-          "424 FAILED_DEPENDENCY",
-          "425 TOO_EARLY",
-          "426 UPGRADE_REQUIRED",
-          "428 PRECONDITION_REQUIRED",
-          "429 TOO_MANY_REQUESTS",
-          "431 REQUEST_HEADER_FIELDS_TOO_LARGE",
-          "451 UNAVAILABLE_FOR_LEGAL_REASONS",
-          "500 INTERNAL_SERVER_ERROR",
-          "501 NOT_IMPLEMENTED",
-          "502 BAD_GATEWAY",
-          "503 SERVICE_UNAVAILABLE",
-          "504 GATEWAY_TIMEOUT",
-          "505 HTTP_VERSION_NOT_SUPPORTED",
-          "506 VARIANT_ALSO_NEGOTIATES",
-          "507 INSUFFICIENT_STORAGE",
-          "508 LOOP_DETECTED",
-          "509 BANDWIDTH_LIMIT_EXCEEDED",
-          "510 NOT_EXTENDED",
-          "511 NETWORK_AUTHENTICATION_REQUIRED"
-        ]
-      },
-      "HttpStatusCode": {
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "boolean"
-          },
-          "is4xxClientError": {
-            "type": "boolean"
-          },
-          "is5xxServerError": {
-            "type": "boolean"
-          },
-          "is1xxInformational": {
-            "type": "boolean"
-          },
-          "is2xxSuccessful": {
-            "type": "boolean"
-          },
-          "is3xxRedirection": {
-            "type": "boolean"
-          }
-        }
-      },
-      "JspConfigDescriptor": {
-        "type": "object",
-        "properties": {
-          "taglibs": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TaglibDescriptor"
-            }
-          },
-          "jspPropertyGroups": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/JspPropertyGroupDescriptor"
-            }
-          }
-        }
-      },
-      "JspPropertyGroupDescriptor": {
-        "type": "object",
-        "properties": {
-          "isXml": {
-            "type": "string"
-          },
-          "deferredSyntaxAllowedAsLiteral": {
-            "type": "string"
-          },
-          "elIgnored": {
-            "type": "string"
-          },
-          "errorOnELNotFound": {
-            "type": "string"
-          },
-          "pageEncoding": {
-            "type": "string"
-          },
-          "scriptingInvalid": {
-            "type": "string"
-          },
-          "includePreludes": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "includeCodas": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "trimDirectiveWhitespaces": {
-            "type": "string"
-          },
-          "errorOnUndeclaredNamespace": {
-            "type": "string"
-          },
-          "buffer": {
-            "type": "string"
-          },
-          "urlPatterns": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "defaultContentType": {
-            "type": "string"
-          }
-        }
-      },
-      "RedirectView": {
-        "type": "object",
-        "properties": {
-          "applicationContext": {
-            "$ref": "#/components/schemas/ApplicationContext"
-          },
-          "servletContext": {
-            "$ref": "#/components/schemas/ServletContext",
-            "writeOnly": true
-          },
-          "contentType": {
-            "type": "string"
-          },
-          "requestContextAttribute": {
-            "type": "string"
-          },
-          "staticAttributes": {
-            "type": "object",
-            "additionalProperties": {}
-          },
-          "exposePathVariables": {
-            "type": "boolean"
-          },
-          "exposeContextBeansAsAttributes": {
             "type": "boolean",
-            "writeOnly": true
-          },
-          "exposedContextBeanNames": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "writeOnly": true
-          },
-          "beanName": {
-            "type": "string"
-          },
-          "url": {
-            "type": "string"
-          },
-          "contextRelative": {
-            "type": "boolean",
-            "writeOnly": true
-          },
-          "http10Compatible": {
-            "type": "boolean",
-            "writeOnly": true
-          },
-          "exposeModelAttributes": {
-            "type": "boolean",
-            "writeOnly": true
-          },
-          "encodingScheme": {
-            "type": "string",
-            "writeOnly": true
-          },
-          "statusCode": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/DefaultHttpStatusCode"
-              },
-              {
-                "$ref": "#/components/schemas/HttpStatus"
-              }
-            ],
-            "writeOnly": true
-          },
-          "expandUriTemplateVariables": {
-            "type": "boolean",
-            "writeOnly": true
-          },
-          "propagateQueryParams": {
-            "type": "boolean",
-            "writeOnly": true
-          },
-          "hosts": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "redirectView": {
-            "type": "boolean"
-          },
-          "propagateQueryProperties": {
-            "type": "boolean"
-          },
-          "attributes": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            },
-            "writeOnly": true
-          },
-          "attributesMap": {
-            "type": "object",
-            "additionalProperties": {}
-          },
-          "attributesCSV": {
-            "type": "string",
-            "writeOnly": true
-          }
-        }
-      },
-      "ServletContext": {
-        "type": "object",
-        "properties": {
-          "classLoader": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string"
-              },
-              "registeredAsParallelCapable": {
-                "type": "boolean"
-              },
-              "definedPackages": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "name": {
-                      "type": "string"
-                    },
-                    "annotations": {
-                      "type": "array",
-                      "items": {}
-                    },
-                    "declaredAnnotations": {
-                      "type": "array",
-                      "items": {}
-                    },
-                    "sealed": {
-                      "type": "boolean"
-                    },
-                    "specificationTitle": {
-                      "type": "string"
-                    },
-                    "specificationVersion": {
-                      "type": "string"
-                    },
-                    "specificationVendor": {
-                      "type": "string"
-                    },
-                    "implementationTitle": {
-                      "type": "string"
-                    },
-                    "implementationVersion": {
-                      "type": "string"
-                    },
-                    "implementationVendor": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "defaultAssertionStatus": {
-                "type": "boolean",
-                "writeOnly": true
-              }
-            }
-          },
-          "majorVersion": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "minorVersion": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "attributeNames": {},
-          "contextPath": {
-            "type": "string"
-          },
-          "initParameterNames": {},
-          "sessionTimeout": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "defaultSessionTrackingModes": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "enum": [
-                "COOKIE",
-                "URL",
-                "SSL"
-              ]
-            },
-            "uniqueItems": true
-          },
-          "effectiveMajorVersion": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "effectiveMinorVersion": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "serverInfo": {
-            "type": "string"
-          },
-          "servletContextName": {
-            "type": "string"
-          },
-          "servletRegistrations": {
-            "type": "object",
-            "additionalProperties": {
-              "$ref": "#/components/schemas/ServletRegistration"
-            }
-          },
-          "filterRegistrations": {
-            "type": "object",
-            "additionalProperties": {
-              "$ref": "#/components/schemas/FilterRegistration"
-            }
-          },
-          "sessionCookieConfig": {
-            "$ref": "#/components/schemas/SessionCookieConfig"
-          },
-          "sessionTrackingModes": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "enum": [
-                "COOKIE",
-                "URL",
-                "SSL"
-              ]
-            },
-            "uniqueItems": true,
-            "writeOnly": true
-          },
-          "effectiveSessionTrackingModes": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "enum": [
-                "COOKIE",
-                "URL",
-                "SSL"
-              ]
-            },
-            "uniqueItems": true
-          },
-          "jspConfigDescriptor": {
-            "$ref": "#/components/schemas/JspConfigDescriptor"
-          },
-          "virtualServerName": {
-            "type": "string"
-          },
-          "requestCharacterEncoding": {
-            "type": "string"
-          },
-          "responseCharacterEncoding": {
-            "type": "string"
-          }
-        }
-      },
-      "ServletRegistration": {
-        "type": "object",
-        "properties": {
-          "mappings": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "runAsRole": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "className": {
-            "type": "string"
-          },
-          "initParameters": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "SessionCookieConfig": {
-        "type": "object",
-        "properties": {
-          "domain": {
-            "type": "string"
-          },
-          "path": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "attributes": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            }
-          },
-          "comment": {
-            "type": "string",
-            "deprecated": true
-          },
-          "secure": {
-            "type": "boolean"
-          },
-          "maxAge": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "httpOnly": {
-            "type": "boolean"
-          }
-        }
-      },
-      "TaglibDescriptor": {
-        "type": "object",
-        "properties": {
-          "taglibURI": {
-            "type": "string"
-          },
-          "taglibLocation": {
-            "type": "string"
+            "description": "Whether the authorization succeeded",
+            "example": true
           }
         }
       },
@@ -2580,6 +2764,89 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Oauth2ProviderResponse"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          },
+          "hasNext": {
+            "type": "boolean"
+          },
+          "hasPrevious": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ManagedOauth2ProviderSummaryResponse": {
+        "type": "object",
+        "description": "User-facing read-only summary of a managed OAuth2 provider. Exposes no credentials.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier (ULID) of the managed OAuth2 provider",
+            "example": "01HZX..."
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable name of the managed OAuth2 provider",
+            "example": "managed-google"
+          },
+          "status": {
+            "type": "string",
+            "description": "Lifecycle status of the managed OAuth2 provider",
+            "enum": [
+              "ACTIVE",
+              "UPDATING",
+              "DELETING",
+              "DELETED"
+            ],
+            "example": "ACTIVE"
+          },
+          "callbackUrl": {
+            "type": "string",
+            "description": "Shared callback URL this service expects the external provider to redirect to",
+            "example": "https://identity.example.com/oauth2/callback"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the managed OAuth2 provider was created",
+            "example": "2025-01-01T00:00:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the managed OAuth2 provider was last updated",
+            "example": "2025-01-01T00:00:00Z"
+          }
+        }
+      },
+      "PagedResponseManagedOauth2ProviderSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ManagedOauth2ProviderSummaryResponse"
             }
           },
           "page": {
@@ -2692,9 +2959,12 @@
       },
       "ApikeyResponse": {
         "type": "object",
+        "description": "The actual API key value. Treat as a secret.",
         "properties": {
           "apikey": {
-            "type": "string"
+            "type": "string",
+            "description": "The API key value",
+            "example": "sk-xxxxxxxxxxxxxxxx"
           }
         }
       },

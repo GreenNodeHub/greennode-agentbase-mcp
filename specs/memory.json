@@ -38,21 +38,26 @@
           {
             "name": "page",
             "in": "query",
+            "description": "Page to return. 1-based.",
             "required": false,
             "schema": {
               "type": "integer",
               "format": "int32",
-              "default": 1
+              "default": 1,
+              "minimum": 1
             }
           },
           {
             "name": "size",
             "in": "query",
+            "description": "Number of items per page. Between 1 and 100.",
             "required": false,
             "schema": {
               "type": "integer",
               "format": "int32",
-              "default": 10
+              "default": 10,
+              "maximum": 100,
+              "minimum": 1
             }
           }
         ],
@@ -62,7 +67,37 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ListResponseMemoryEntity"
+                  "$ref": "#/components/schemas/ListResponseMemoryDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request. A path, query or body value failed validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. The access token is missing, malformed or rejected by the gateway.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error. The request could not be completed; retry it, and contact support if it persists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
                 }
               }
             }
@@ -92,7 +127,57 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/MemoryEntity"
+                  "$ref": "#/components/schemas/MemoryDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request. A path, query or body value failed validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. The access token is missing, malformed or rejected by the gateway.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden. The account is not enabled for the memory service, or is not whitelisted for alpha access.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. The account has already reached its maximum number of memories.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error. The request could not be completed; retry it, and contact support if it persists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
                 }
               }
             }
@@ -112,18 +197,28 @@
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the memory store, as returned by `POST /memories`.",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9._-]*$"
+            },
+            "example": "memory-3f6c1b0e-9d2a-4f7e-8c1b-2a5d7e9f0c31"
           },
           {
             "name": "namespace",
             "in": "query",
+            "description": "The namespace the memory records are stored under: the `namespaceTemplate` of a long-term memory strategy with its `{memoryStrategyId}`, `{actorId}` and `{sessionId}` placeholders substituted. A placeholder for which no value was supplied is left in the namespace unresolved, so it has to be passed back verbatim here.",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "maxLength": 2000,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9{}/._:@;=-]*$"
+            },
+            "example": "/strategies/SEMANTIC/actors/alice"
           }
         ],
         "requestBody": {
@@ -149,6 +244,46 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad request. A path, query or body value failed validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. The access token is missing, malformed or rejected by the gateway.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. A resource addressed by the path — the memory, or a nested actor, session, event or long-term memory strategy — does not exist or does not belong to the caller.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error. The request could not be completed; retry it, and contact support if it persists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
           }
         }
       }
@@ -165,18 +300,28 @@
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the memory store, as returned by `POST /memories`.",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9._-]*$"
+            },
+            "example": "memory-3f6c1b0e-9d2a-4f7e-8c1b-2a5d7e9f0c31"
           },
           {
             "name": "namespace",
             "in": "query",
+            "description": "The namespace the memory records are stored under: the `namespaceTemplate` of a long-term memory strategy with its `{memoryStrategyId}`, `{actorId}` and `{sessionId}` placeholders substituted. A placeholder for which no value was supplied is left in the namespace unresolved, so it has to be passed back verbatim here.",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "maxLength": 2000,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9{}/._:@;=-]*$"
+            },
+            "example": "/strategies/SEMANTIC/actors/alice"
           }
         ],
         "requestBody": {
@@ -192,6 +337,46 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "400": {
+            "description": "Bad request. A path, query or body value failed validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. The access token is missing, malformed or rejected by the gateway.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. A resource addressed by the path — the memory, or a nested actor, session, event or long-term memory strategy — does not exist or does not belong to the caller.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error. The request could not be completed; retry it, and contact support if it persists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
           }
         }
       }
@@ -208,39 +393,96 @@
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the memory store, as returned by `POST /memories`.",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9._-]*$"
+            },
+            "example": "memory-3f6c1b0e-9d2a-4f7e-8c1b-2a5d7e9f0c31"
           },
           {
             "name": "actorId",
             "in": "query",
+            "description": "Id of the actor whose session is processed. Also substituted for the `{actorId}` placeholder of the namespace template of the strategy.",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9._:@-]*$"
+            },
+            "example": "alice"
           },
           {
             "name": "sessionId",
             "in": "query",
+            "description": "Id of the session whose events are processed. Also substituted for the `{sessionId}` placeholder of the namespace template of the strategy.",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "maxLength": 256,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9._:@=-]*$"
+            },
+            "example": "session-001"
           },
           {
             "name": "longTermMemoryStrategyId",
             "in": "query",
+            "description": "Id of the long-term memory strategy to run, as returned by `GET /memories/{id}/long-term-memory-strategies`. Its `namespaceTemplate` determines where the extracted records are stored.",
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "ltms-8a1d4c2e-5b3f-4e6a-9c7d-1f2e3a4b5c6d"
           }
         ],
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "400": {
+            "description": "Bad request. A path, query or body value failed validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. The access token is missing, malformed or rejected by the gateway.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. A resource addressed by the path — the memory, or a nested actor, session, event or long-term memory strategy — does not exist or does not belong to the caller.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error. The request could not be completed; retry it, and contact support if it persists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
           }
         }
       }
@@ -257,36 +499,53 @@
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the memory store, as returned by `POST /memories`.",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9._-]*$"
+            },
+            "example": "memory-3f6c1b0e-9d2a-4f7e-8c1b-2a5d7e9f0c31"
           },
           {
             "name": "longTermMemoryStrategyId",
             "in": "query",
+            "description": "Id of the long-term memory strategy to run, as returned by `GET /memories/{id}/long-term-memory-strategies`. Its `namespaceTemplate` determines where the extracted records are stored.",
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "ltms-8a1d4c2e-5b3f-4e6a-9c7d-1f2e3a4b5c6d"
           },
           {
             "name": "actorId",
             "in": "query",
+            "description": "Value to substitute for the `{actorId}` placeholder of the namespace template of the strategy. Optional: the placeholder is left unresolved when it is omitted. No events are read, so this does not select which content is processed.",
             "required": false,
             "schema": {
               "type": "string",
-              "default": ""
-            }
+              "default": "",
+              "maxLength": 100,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9._:@-]*$"
+            },
+            "example": "alice"
           },
           {
             "name": "sessionId",
             "in": "query",
+            "description": "Value to substitute for the `{sessionId}` placeholder of the namespace template of the strategy. Optional: the placeholder is left unresolved when it is omitted. No events are read, so this does not select which content is processed.",
             "required": false,
             "schema": {
               "type": "string",
-              "default": ""
-            }
+              "default": "",
+              "maxLength": 256,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9._:@=-]*$"
+            },
+            "example": "session-001"
           }
         ],
         "requestBody": {
@@ -302,6 +561,46 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "400": {
+            "description": "Bad request. A path, query or body value failed validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. The access token is missing, malformed or rejected by the gateway.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. A resource addressed by the path — the memory, or a nested actor, session, event or long-term memory strategy — does not exist or does not belong to the caller.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error. The request could not be completed; retry it, and contact support if it persists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
           }
         }
       }
@@ -318,69 +617,150 @@
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the memory store, as returned by `POST /memories`.",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9._-]*$"
+            },
+            "example": "memory-3f6c1b0e-9d2a-4f7e-8c1b-2a5d7e9f0c31"
           },
           {
             "name": "actorId",
             "in": "path",
+            "description": "Id of the actor, the participant the events belong to, typically a user id or an agent id. Chosen by the caller.",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9._:@-]*$"
+            },
+            "example": "alice"
           },
           {
             "name": "sessionId",
             "in": "path",
+            "description": "Id of the session, one coherent conversation thread for the actor. Chosen by the caller. A `;` cannot be carried in a path segment, where it starts a matrix parameter, so a session id that contains one, as a Microsoft Teams conversation id does, has to be mapped onto the accepted character set before it is sent. Percent-encoding it as `%3B` does not help.",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "maxLength": 256,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9._:@=-]*$"
+            },
+            "example": "session-001"
           },
           {
             "name": "fromTimestamp",
             "in": "query",
+            "description": "Return only events at or after this instant, as an ISO-8601 instant in UTC. Defaults to the start of the event retention window of the memory, and is clamped to it: events older than `eventExpiryDuration` days are never returned.",
             "required": false,
             "schema": {
               "type": "string",
               "default": ""
-            }
+            },
+            "example": "2026-01-01T00:00:00Z"
           },
           {
             "name": "toTimestamp",
             "in": "query",
+            "description": "Return only events at or before this instant, as an ISO-8601 instant in UTC. Unbounded when omitted.",
             "required": false,
             "schema": {
               "type": "string",
               "default": ""
-            }
+            },
+            "example": "2026-01-01T00:00:00Z"
           },
           {
             "name": "page",
             "in": "query",
+            "description": "Page to return. 1-based.",
             "required": false,
             "schema": {
               "type": "integer",
               "format": "int32",
-              "default": 1
+              "default": 1,
+              "minimum": 1
             }
           },
           {
             "name": "size",
             "in": "query",
+            "description": "Number of items per page. Between 1 and 100.",
             "required": false,
             "schema": {
               "type": "integer",
               "format": "int32",
-              "default": 10
+              "default": 10,
+              "maximum": 100,
+              "minimum": 1
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "The requested page of events, most recent first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponseEventDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request. A path, query or body value failed validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. The access token is missing, malformed or rejected by the gateway.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. A resource addressed by the path — the memory, or a nested actor, session, event or long-term memory strategy — does not exist or does not belong to the caller.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests. The number of concurrent event streams, for this caller or across the service, is at its limit. Retry once an in-flight stream finishes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error. The request could not be completed; retry it, and contact support if it persists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
           }
         }
       },
@@ -395,28 +775,41 @@
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the memory store, as returned by `POST /memories`.",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9._-]*$"
+            },
+            "example": "memory-3f6c1b0e-9d2a-4f7e-8c1b-2a5d7e9f0c31"
           },
           {
             "name": "actorId",
             "in": "path",
+            "description": "Id of the actor, the participant the events belong to, typically a user id or an agent id. Chosen by the caller.",
             "required": true,
             "schema": {
               "type": "string",
-              "minLength": 1
-            }
+              "maxLength": 100,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9._:@-]*$"
+            },
+            "example": "alice"
           },
           {
             "name": "sessionId",
             "in": "path",
+            "description": "Id of the session, one coherent conversation thread for the actor. Chosen by the caller. A `;` cannot be carried in a path segment, where it starts a matrix parameter, so a session id that contains one, as a Microsoft Teams conversation id does, has to be mapped onto the accepted character set before it is sent. Percent-encoding it as `%3B` does not help.",
             "required": true,
             "schema": {
               "type": "string",
-              "minLength": 1
-            }
+              "maxLength": 256,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9._:@=-]*$"
+            },
+            "example": "session-001"
           }
         ],
         "requestBody": {
@@ -432,6 +825,46 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "400": {
+            "description": "Bad request. A path, query or body value failed validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. The access token is missing, malformed or rejected by the gateway.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. A resource addressed by the path — the memory, or a nested actor, session, event or long-term memory strategy — does not exist or does not belong to the caller.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error. The request could not be completed; retry it, and contact support if it persists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
           }
         }
       }
@@ -448,10 +881,15 @@
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the memory store, as returned by `POST /memories`.",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9._-]*$"
+            },
+            "example": "memory-3f6c1b0e-9d2a-4f7e-8c1b-2a5d7e9f0c31"
           }
         ],
         "responses": {
@@ -460,7 +898,47 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/MemoryEntity"
+                  "$ref": "#/components/schemas/MemoryDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request. A path, query or body value failed validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. The access token is missing, malformed or rejected by the gateway.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. A resource addressed by the path — the memory, or a nested actor, session, event or long-term memory strategy — does not exist or does not belong to the caller.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error. The request could not be completed; retry it, and contact support if it persists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
                 }
               }
             }
@@ -478,15 +956,70 @@
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the memory store, as returned by `POST /memories`.",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9._-]*$"
+            },
+            "example": "memory-3f6c1b0e-9d2a-4f7e-8c1b-2a5d7e9f0c31"
           }
         ],
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "400": {
+            "description": "Bad request. A path, query or body value failed validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. The access token is missing, malformed or rejected by the gateway.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden. The account is not enabled for the memory service, or is not whitelisted for alpha access.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. A resource addressed by the path — the memory, or a nested actor, session, event or long-term memory strategy — does not exist or does not belong to the caller.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error. The request could not be completed; retry it, and contact support if it persists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
           }
         }
       }
@@ -503,27 +1036,40 @@
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the memory store, as returned by `POST /memories`.",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9._-]*$"
+            },
+            "example": "memory-3f6c1b0e-9d2a-4f7e-8c1b-2a5d7e9f0c31"
           },
           {
             "name": "namespace",
             "in": "query",
+            "description": "The namespace the memory records are stored under: the `namespaceTemplate` of a long-term memory strategy with its `{memoryStrategyId}`, `{actorId}` and `{sessionId}` placeholders substituted. A placeholder for which no value was supplied is left in the namespace unresolved, so it has to be passed back verbatim here.",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "maxLength": 2000,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9{}/._:@;=-]*$"
+            },
+            "example": "/strategies/SEMANTIC/actors/alice"
           },
           {
             "name": "limit",
             "in": "query",
+            "description": "Maximum number of records to return. Between 1 and 200.",
             "required": false,
             "schema": {
               "type": "integer",
               "format": "int32",
-              "default": 100
+              "default": 100,
+              "maximum": 200,
+              "minimum": 1
             }
           }
         ],
@@ -537,6 +1083,46 @@
                   "items": {
                     "$ref": "#/components/schemas/MemoryRecord"
                   }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request. A path, query or body value failed validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. The access token is missing, malformed or rejected by the gateway.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. A resource addressed by the path — the memory, or a nested actor, session, event or long-term memory strategy — does not exist or does not belong to the caller.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error. The request could not be completed; retry it, and contact support if it persists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
                 }
               }
             }
@@ -556,10 +1142,15 @@
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the memory store, as returned by `POST /memories`.",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9._-]*$"
+            },
+            "example": "memory-3f6c1b0e-9d2a-4f7e-8c1b-2a5d7e9f0c31"
           }
         ],
         "responses": {
@@ -570,8 +1161,48 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/LongTermMemoryStrategyEntity"
+                    "$ref": "#/components/schemas/LongTermMemoryStrategyDto"
                   }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request. A path, query or body value failed validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. The access token is missing, malformed or rejected by the gateway.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. A resource addressed by the path — the memory, or a nested actor, session, event or long-term memory strategy — does not exist or does not belong to the caller.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error. The request could not be completed; retry it, and contact support if it persists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
                 }
               }
             }
@@ -591,29 +1222,39 @@
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the memory store, as returned by `POST /memories`.",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9._-]*$"
+            },
+            "example": "memory-3f6c1b0e-9d2a-4f7e-8c1b-2a5d7e9f0c31"
           },
           {
             "name": "page",
             "in": "query",
+            "description": "Page to return. 1-based.",
             "required": false,
             "schema": {
               "type": "integer",
               "format": "int32",
-              "default": 1
+              "default": 1,
+              "minimum": 1
             }
           },
           {
             "name": "size",
             "in": "query",
+            "description": "Number of items per page. Between 1 and 100.",
             "required": false,
             "schema": {
               "type": "integer",
               "format": "int32",
-              "default": 10
+              "default": 10,
+              "maximum": 100,
+              "minimum": 1
             }
           }
         ],
@@ -624,6 +1265,46 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/ListResponseActorDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request. A path, query or body value failed validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. The access token is missing, malformed or rejected by the gateway.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. A resource addressed by the path — the memory, or a nested actor, session, event or long-term memory strategy — does not exist or does not belong to the caller.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error. The request could not be completed; retry it, and contact support if it persists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
                 }
               }
             }
@@ -643,37 +1324,52 @@
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the memory store, as returned by `POST /memories`.",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9._-]*$"
+            },
+            "example": "memory-3f6c1b0e-9d2a-4f7e-8c1b-2a5d7e9f0c31"
           },
           {
             "name": "actorId",
             "in": "path",
+            "description": "Id of the actor, the participant the events belong to, typically a user id or an agent id. Chosen by the caller.",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9._:@-]*$"
+            },
+            "example": "alice"
           },
           {
             "name": "page",
             "in": "query",
+            "description": "Page to return. 1-based.",
             "required": false,
             "schema": {
               "type": "integer",
               "format": "int32",
-              "default": 1
+              "default": 1,
+              "minimum": 1
             }
           },
           {
             "name": "size",
             "in": "query",
+            "description": "Number of items per page. Between 1 and 100.",
             "required": false,
             "schema": {
               "type": "integer",
               "format": "int32",
-              "default": 10
+              "default": 10,
+              "maximum": 100,
+              "minimum": 1
             }
           }
         ],
@@ -684,6 +1380,46 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/ListResponseSessionDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request. A path, query or body value failed validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. The access token is missing, malformed or rejected by the gateway.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. A resource addressed by the path — the memory, or a nested actor, session, event or long-term memory strategy — does not exist or does not belong to the caller.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error. The request could not be completed; retry it, and contact support if it persists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
                 }
               }
             }
@@ -703,23 +1439,72 @@
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the memory store, as returned by `POST /memories`.",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9._-]*$"
+            },
+            "example": "memory-3f6c1b0e-9d2a-4f7e-8c1b-2a5d7e9f0c31"
           },
           {
             "name": "memoryRecordId",
             "in": "path",
+            "description": "Id of the memory record to delete, as returned when listing or searching memory records.",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9._-]*$"
             }
           }
         ],
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "400": {
+            "description": "Bad request. A path, query or body value failed validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. The access token is missing, malformed or rejected by the gateway.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. A resource addressed by the path — the memory, or a nested actor, session, event or long-term memory strategy — does not exist or does not belong to the caller.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error. The request could not be completed; retry it, and contact support if it persists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
           }
         }
       }
@@ -736,39 +1521,99 @@
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the memory store, as returned by `POST /memories`.",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9._-]*$"
+            },
+            "example": "memory-3f6c1b0e-9d2a-4f7e-8c1b-2a5d7e9f0c31"
           },
           {
             "name": "actorId",
             "in": "path",
+            "description": "Id of the actor, the participant the events belong to, typically a user id or an agent id. Chosen by the caller.",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9._:@-]*$"
+            },
+            "example": "alice"
           },
           {
             "name": "sessionId",
             "in": "path",
+            "description": "Id of the session, one coherent conversation thread for the actor. Chosen by the caller. A `;` cannot be carried in a path segment, where it starts a matrix parameter, so a session id that contains one, as a Microsoft Teams conversation id does, has to be mapped onto the accepted character set before it is sent. Percent-encoding it as `%3B` does not help.",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "maxLength": 256,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9._:@=-]*$"
+            },
+            "example": "session-001"
           },
           {
             "name": "eventId",
             "in": "path",
+            "description": "Id of the event to delete, as returned when listing the events of the session.",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0,
+              "pattern": "^[a-zA-Z0-9._-]*$"
+            },
+            "example": "event-7b2e4a19-3c5d-4f81-9a6b-0d1e2f3a4b5c"
           }
         ],
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "400": {
+            "description": "Bad request. A path, query or body value failed validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. The access token is missing, malformed or rejected by the gateway.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. A resource addressed by the path — the memory, or a nested actor, session, event or long-term memory strategy — does not exist or does not belong to the caller.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error. The request could not be completed; retry it, and contact support if it persists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestErrorResBody"
+                }
+              }
+            }
           }
         }
       }
@@ -781,25 +1626,38 @@
         "properties": {
           "name": {
             "type": "string",
-            "minLength": 1
+            "description": "Name of the strategy, for the caller to recognise it by.",
+            "example": "per-user-facts",
+            "maxLength": 50,
+            "minLength": 5,
+            "pattern": "^[a-zA-Z0-9._-]*$"
           },
           "type": {
             "type": "string",
-            "minLength": 1
+            "description": "Which kind of facts to extract. Has to be one of the built-in strategy types: `USER_PREFERENCES` for the preferences, habits and traits of the user, `SEMANTIC` for general factual statements, or `CUSTOM` to drive extraction with your own `customFactExtractionPrompt` instead.",
+            "example": "SEMANTIC",
+            "maxLength": 50,
+            "minLength": 0
           },
           "customFactExtractionPrompt": {
             "type": "string",
+            "description": "Your own fact extraction instructions, used in place of the built-in prompt. Only meaningful when `type` is `CUSTOM`.",
+            "example": "Extract only facts related to the user's technical stack and project requirements.",
             "maxLength": 10000,
             "minLength": 0
           },
           "namespaceTemplate": {
             "type": "string",
+            "description": "Where the extracted memory records are stored, as a template. The placeholders `{memoryStrategyId}`, `{actorId}` and `{sessionId}` are substituted at extraction time, and the resolved string is the `namespace` to pass when listing or searching records. Choosing which placeholders to include is what scopes the records: `{actorId}` alone makes them shared across all of that actor's sessions, adding `{sessionId}` confines them to one session.",
+            "example": "/strategies/SEMANTIC/actors/{actorId}",
             "maxLength": 50,
             "minLength": 0,
             "pattern": "^[a-zA-Z0-9{}/._-]*$"
           },
           "enableAutomaticMemoryRecordGeneration": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether a background job runs this strategy over new events on its own schedule. When false, records are only extracted when you call one of the `memory-records:generate-from-...` endpoints.",
+            "example": false
           }
         },
         "required": [
@@ -813,24 +1671,35 @@
         "properties": {
           "name": {
             "type": "string",
+            "description": "Name of the memory store, for the caller to recognise it by.",
+            "example": "my-chatbot",
             "maxLength": 50,
             "minLength": 0,
             "pattern": "^[a-zA-Z0-9._-]*$"
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "description": "What this memory store is for. May be empty, but has to be present.",
+            "example": "Memory for my customer support chatbot",
+            "maxLength": 255,
+            "minLength": 0
           },
           "eventExpiryDuration": {
             "type": "integer",
             "format": "int32",
+            "description": "How many days raw events are retained, between 1 and 365. Events older than this are left out of event listings and are deleted by a background job. Memory records extracted from them are not affected.",
+            "example": 30,
             "maximum": 365,
             "minimum": 1
           },
           "longTermMemoryStrategies": {
             "type": "array",
+            "description": "The long-term memory strategies to attach to this memory, at most 10. Each one governs what kind of facts are extracted from the events and which namespace the resulting memory records are stored under. Two strategies of the same `type` cannot be attached to the same memory.",
             "items": {
               "$ref": "#/components/schemas/LongTermMemoryStrategy"
-            }
+            },
+            "maxItems": 10,
+            "minItems": 0
           }
         },
         "required": [
@@ -839,36 +1708,58 @@
           "name"
         ]
       },
-      "MemoryEntity": {
+      "RestErrorResBody": {
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "MemoryDto": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "description": "Id of the memory store, generated by the service. Pass it as the `{id}` path segment of every other endpoint.",
+            "example": "memory-3f6c1b0e-9d2a-4f7e-8c1b-2a5d7e9f0c31"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Name given to the memory store when it was created.",
+            "example": "my-chatbot"
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "description": "Description given to the memory store when it was created. May be empty.",
+            "example": "Memory for my customer support chatbot"
           },
           "eventExpiryDuration": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "description": "How many days raw events are retained. Events older than this are left out of event listings and are deleted by a background job.",
+            "example": 30
           },
           "portalUserId": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "description": "Id of the portal user that owns this memory store, resolved from the credentials of the request."
           },
           "status": {
-            "type": "string"
+            "type": "string",
+            "description": "Lifecycle state of the memory store. Always `ACTIVE`: deleted memories are never returned.",
+            "enum": [
+              "ACTIVE"
+            ]
           },
           "createdAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "When the memory store was created."
           },
           "updatedAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "When the memory store was last modified."
           }
         }
       },
@@ -877,17 +1768,24 @@
         "properties": {
           "query": {
             "type": "string",
-            "minLength": 1
+            "description": "What to search for. Matching is by semantic similarity rather than keyword, so phrase this as the question the agent needs answered.",
+            "example": "What are this user's UI preferences?",
+            "maxLength": 1000,
+            "minLength": 0
           },
           "limit": {
             "type": "integer",
             "format": "int32",
+            "description": "Maximum number of records to return, between 5 and 200.",
+            "example": 10,
             "maximum": 200,
             "minimum": 5
           },
           "scoreThreshold": {
             "type": "number",
             "format": "float",
+            "description": "Minimum similarity score a record has to reach to be returned, between 0 and 1. Defaults to 0, which returns the `limit` closest records however weak the match. Raise it to trade recall for precision.",
+            "example": 0.5,
             "maximum": 1,
             "minimum": 0
           }
@@ -900,22 +1798,29 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "description": "Id of the memory record. Pass it as the `{memoryRecordId}` path segment to delete this record."
           },
           "memory": {
-            "type": "string"
+            "type": "string",
+            "description": "The fact itself, as a self-contained sentence. This is the text to inject into the prompt of your agent.",
+            "example": "User prefers dark mode."
           },
           "score": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "description": "How closely this record matches the search query, between 0 and 1, higher being closer. Only set for search results, since listing records does not rank them.",
+            "example": 0.82
           },
           "created_at": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "When the memory record was extracted."
           },
           "updated_at": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "When the memory record was last revised. The extraction pipeline updates an existing record in place when a later conversation refines the same fact."
           }
         }
       },
@@ -924,11 +1829,18 @@
         "properties": {
           "memoryRecords": {
             "type": "array",
+            "description": "The facts to store, at most 100, each a self-contained sentence as the extraction pipeline would have produced. They are stored verbatim under the given namespace and are searchable straight away.",
+            "example": [
+              "User prefers dark mode.",
+              "User is based in Singapore."
+            ],
             "items": {
               "type": "string",
-              "minLength": 1
+              "maxLength": 10000,
+              "minLength": 0
             },
-            "minItems": 1
+            "maxItems": 100,
+            "minItems": 0
           }
         },
         "required": [
@@ -940,11 +1852,17 @@
         "properties": {
           "role": {
             "type": "string",
-            "minLength": 1
+            "description": "Who produced the message: `user`, `assistant` or `system`.",
+            "example": "user",
+            "maxLength": 50,
+            "minLength": 0
           },
           "content": {
             "type": "string",
-            "minLength": 1
+            "description": "The text of the message.",
+            "example": "I prefer dark mode and short answers.",
+            "maxLength": 100000,
+            "minLength": 0
           }
         },
         "required": [
@@ -957,10 +1875,12 @@
         "properties": {
           "chatMessages": {
             "type": "array",
+            "description": "The conversation to extract facts from, at most 100 messages, in chronological order. These are read for extraction only and are not stored as events, so they will not appear in event listings afterwards.",
             "items": {
               "$ref": "#/components/schemas/ChatMessage"
             },
-            "minItems": 1
+            "maxItems": 100,
+            "minItems": 0
           }
         },
         "required": [
@@ -971,10 +1891,13 @@
         "type": "object",
         "properties": {
           "payload": {
-            "$ref": "#/components/schemas/EventPayload"
+            "$ref": "#/components/schemas/EventPayload",
+            "description": "The content of the event. Which fields apply depends on `payload.type`."
           },
           "eventTimestamp": {
-            "type": "string"
+            "type": "string",
+            "description": "When the interaction happened, as an ISO-8601 instant in UTC. Defaults to the time the request is received. Set it explicitly when replaying or backfilling a conversation, since this is the timestamp events are ordered, filtered and expired by.",
+            "example": "2026-01-01T00:00:00Z"
           }
         },
         "required": [
@@ -986,18 +1909,25 @@
         "properties": {
           "type": {
             "type": "string",
+            "description": "What kind of event this is. `conversational` for a text turn, which requires `role` and `message`, or `binary` for arbitrary content, which requires `binaryData`. Only long-term memory strategies read conversational events, so binary events are stored and returned but never contribute to memory records.",
+            "example": "conversational",
             "minLength": 1
           },
           "role": {
-            "type": "string"
+            "type": "string",
+            "description": "Who produced the message: `user`, `assistant` or `system`. Required when `type` is `conversational`, and ignored otherwise.",
+            "example": "user"
           },
           "message": {
             "type": "string",
+            "description": "The text of the turn. Required when `type` is `conversational`, and ignored otherwise.",
+            "example": "I prefer dark mode and short answers.",
             "maxLength": 100000,
             "minLength": 0
           },
           "binaryData": {
             "type": "string",
+            "description": "Arbitrary content, base64-encoded. Required when `type` is `binary`, and ignored otherwise.",
             "maxLength": 10485760,
             "minLength": 0
           }
@@ -1006,71 +1936,100 @@
           "type"
         ]
       },
-      "ListResponseMemoryEntity": {
+      "ListResponseMemoryDto": {
         "type": "object",
         "properties": {
           "listData": {
             "type": "array",
+            "description": "The items on this page. Empty when the requested page is past the end of the results.",
             "items": {
-              "$ref": "#/components/schemas/MemoryEntity"
+              "$ref": "#/components/schemas/MemoryDto"
             }
           },
           "page": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "description": "The page these items came from, echoing the `page` request parameter. 1-based.",
+            "example": 1
           },
           "pageSize": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "description": "The page size these items were read with, echoing the `size` request parameter.",
+            "example": 10
           },
           "totalPage": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "description": "Total number of pages at this page size.",
+            "example": 3
           },
           "totalItem": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "description": "Total number of items across all pages.",
+            "example": 27
           }
         }
       },
-      "LongTermMemoryStrategyEntity": {
+      "LongTermMemoryStrategyDto": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "description": "Id of the strategy, generated by the service. Pass it as `longTermMemoryStrategyId` when generating memory records.",
+            "example": "ltms-8a1d4c2e-5b3f-4e6a-9c7d-1f2e3a4b5c6d"
           },
           "memoryId": {
-            "type": "string"
+            "type": "string",
+            "description": "Id of the memory store this strategy is attached to.",
+            "example": "memory-3f6c1b0e-9d2a-4f7e-8c1b-2a5d7e9f0c31"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Name given to the strategy when the memory store was created.",
+            "example": "per-user-facts"
           },
           "type": {
-            "type": "string"
+            "type": "string",
+            "description": "Which kind of facts this strategy extracts: `USER_PREFERENCES`, `SEMANTIC`, or `CUSTOM`.",
+            "example": "SEMANTIC"
           },
           "customFactExtractionPrompt": {
-            "type": "string"
+            "type": "string",
+            "description": "The fact extraction instructions supplied for this strategy, used in place of the built-in prompt. Only set when `type` is `CUSTOM`."
           },
           "namespaceTemplate": {
-            "type": "string"
+            "type": "string",
+            "description": "Template for the namespace the extracted records are stored under. Substitute its `{memoryStrategyId}`, `{actorId}` and `{sessionId}` placeholders to get the `namespace` to pass when listing or searching records.",
+            "example": "/strategies/SEMANTIC/actors/{actorId}"
           },
           "enableAutomaticMemoryRecordGeneration": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether a background job runs this strategy over new events on its own schedule.",
+            "example": false
           },
           "portalUserId": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "description": "Id of the portal user that owns this strategy, resolved from the credentials of the request."
           },
           "status": {
-            "type": "string"
+            "type": "string",
+            "description": "Lifecycle state of the strategy. Always `ACTIVE`: deleted strategies are never returned.",
+            "enum": [
+              "ACTIVE"
+            ]
           },
           "createdAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "When the strategy was created."
           },
           "updatedAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "When the strategy was last modified."
           }
         }
       },
@@ -1078,13 +2037,21 @@
         "type": "object",
         "properties": {
           "memoryId": {
-            "type": "string"
+            "type": "string",
+            "description": "Id of the memory store this actor has events in.",
+            "example": "memory-3f6c1b0e-9d2a-4f7e-8c1b-2a5d7e9f0c31"
           },
           "actorId": {
-            "type": "string"
+            "type": "string",
+            "description": "Id of the actor, as supplied by the caller when its first event was created.",
+            "example": "alice"
           },
           "status": {
-            "type": "string"
+            "type": "string",
+            "description": "Lifecycle state of the actor. Always `ACTIVE`: deleted actors are never returned.",
+            "enum": [
+              "ACTIVE"
+            ]
           }
         }
       },
@@ -1093,25 +2060,34 @@
         "properties": {
           "listData": {
             "type": "array",
+            "description": "The items on this page. Empty when the requested page is past the end of the results.",
             "items": {
               "$ref": "#/components/schemas/ActorDto"
             }
           },
           "page": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "description": "The page these items came from, echoing the `page` request parameter. 1-based.",
+            "example": 1
           },
           "pageSize": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "description": "The page size these items were read with, echoing the `size` request parameter.",
+            "example": 10
           },
           "totalPage": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "description": "Total number of pages at this page size.",
+            "example": 3
           },
           "totalItem": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "description": "Total number of items across all pages.",
+            "example": 27
           }
         }
       },
@@ -1120,25 +2096,34 @@
         "properties": {
           "listData": {
             "type": "array",
+            "description": "The items on this page. Empty when the requested page is past the end of the results.",
             "items": {
               "$ref": "#/components/schemas/SessionDto"
             }
           },
           "page": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "description": "The page these items came from, echoing the `page` request parameter. 1-based.",
+            "example": 1
           },
           "pageSize": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "description": "The page size these items were read with, echoing the `size` request parameter.",
+            "example": 10
           },
           "totalPage": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "description": "Total number of pages at this page size.",
+            "example": 3
           },
           "totalItem": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "description": "Total number of items across all pages.",
+            "example": 27
           }
         }
       },
@@ -1146,16 +2131,100 @@
         "type": "object",
         "properties": {
           "memoryId": {
-            "type": "string"
+            "type": "string",
+            "description": "Id of the memory store this session belongs to.",
+            "example": "memory-3f6c1b0e-9d2a-4f7e-8c1b-2a5d7e9f0c31"
           },
           "actorId": {
-            "type": "string"
+            "type": "string",
+            "description": "Id of the actor this session belongs to.",
+            "example": "alice"
           },
           "sessionId": {
-            "type": "string"
+            "type": "string",
+            "description": "Id of the session, as supplied by the caller when its first event was created. Percent-encode it when passing it back as a path segment.",
+            "example": "session-001"
           },
           "status": {
-            "type": "string"
+            "type": "string",
+            "description": "Lifecycle state of the session. Always `ACTIVE`: deleted sessions are never returned.",
+            "enum": [
+              "ACTIVE"
+            ]
+          }
+        }
+      },
+      "EventDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Id of the event, generated by the service. Pass it as the `{eventId}` path segment when deleting the event.",
+            "example": "event-7b2e4a19-3c5d-4f81-9a6b-0d1e2f3a4b5c"
+          },
+          "actorId": {
+            "type": "string",
+            "description": "Id of the actor this event belongs to.",
+            "example": "alice"
+          },
+          "sessionId": {
+            "type": "string",
+            "description": "Id of the session this event belongs to.",
+            "example": "session-001"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/EventPayload",
+            "description": "The content of the event, as supplied when it was created. Which fields are set depends on `payload.type`."
+          },
+          "status": {
+            "type": "string",
+            "description": "Lifecycle state of the event. Always `ACTIVE`: deleted events are never returned.",
+            "enum": [
+              "ACTIVE"
+            ]
+          },
+          "eventTimestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the interaction happened, as supplied when the event was created, or the time the create request was received when it was omitted. Events are ordered, filtered and expired by this timestamp.",
+            "example": "2026-01-01T00:00:00Z"
+          }
+        }
+      },
+      "ListResponseEventDto": {
+        "type": "object",
+        "description": "A page of events, most recent first.",
+        "properties": {
+          "listData": {
+            "type": "array",
+            "description": "The items on this page. Empty when the requested page is past the end of the results.",
+            "items": {
+              "$ref": "#/components/schemas/EventDto"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The page these items came from, echoing the `page` request parameter. 1-based.",
+            "example": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The page size these items were read with, echoing the `size` request parameter.",
+            "example": 10
+          },
+          "totalPage": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Total number of pages at this page size.",
+            "example": 3
+          },
+          "totalItem": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Total number of items across all pages.",
+            "example": 27
           }
         }
       }
